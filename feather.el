@@ -29,6 +29,27 @@
 (defconst feather-version "0.0.1"
   "feather.el version")
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  For legacy Emacs
+;;
+
+(unless (fboundp 'gnutls-available-p)
+  (defun gnutls-available-p () nil))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Customizable variables
+;;
+
+(defcustom leaf-archives `(("gnu" . ,(format "http%s://elpa.gnu.org/packages/"
+                                          (if (gnutls-available-p) "s" ""))))
+  "An alist of archives from which to fetch.
+If there are multiple download destinations, value top of the list is adopted"
+  :type '(alist :key-type (string :tag "Archive name")
+                :value-type (string :tag "URL or directory name"))
+  :group 'feather)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Main function
