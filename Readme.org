@@ -2,9 +2,9 @@
 #+date: <2018-12-14 Fri>
 
 * Feather.el
-[[https://github.com/conao3/leaf.el][https://img.shields.io/github/tag/conao3/leaf.el.svg?style=flat-square]]
-[[https://travis-ci.org/conao3/leaf.el][https://img.shields.io/travis/conao3/leaf.el/master.svg?style=flat-square]]
-[[https://github.com/conao3/leaf.el][https://img.shields.io/github/license/conao3/leaf.el.svg?style=flat-square]]
+[[https://github.com/conao3/feather.el][https://img.shields.io/github/tag/conao3/feather.el.svg?style=flat-square]]
+[[https://travis-ci.org/conao3/feather.el][https://img.shields.io/travis/conao3/feather.el/master.svg?style=flat-square]]
+[[https://github.com/conao3/feather.el][https://img.shields.io/github/license/conao3/feather.el.svg?style=flat-square]]
 
 - [[What is it?]]
 
