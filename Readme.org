@@ -1,0 +1,15 @@
+#+author: conao
+#+date: <2018-12-14 Fri>
+
+* Feather.el
+- What
+
+* What is it?
+~feather.el~ is completely new Emacs package manager
+with parallel processing.
+
+It provides a front end for [[https://github.com/conao3/leaf.el][leaf.el]],
+and you can seamlessly manage Emacs packages.
+
+It works from Emacs 22 and you can eliminate worry of
+reinstallation by getting a strong partner called [[https://github.com/conao3/leaf.el][leaf.el]].
