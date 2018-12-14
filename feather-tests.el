@@ -1,4 +1,4 @@
-;;; feather.el ---                                   -*- lexical-binding: t; -*-
+;;; feather-tests.el ---                             -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2018  Naoya Yamashita
 
@@ -22,21 +22,25 @@
 
 ;;
 
-(defgroup feather nil
-  "Emacs package manager with parallel processing."
-  :group 'lisp)
+;;; Code:
+(require 'feather)
+(require 'cort)
 
-(defconst feather-version "0.0.1"
-  "feather.el version")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  Main function
+;;  test settings
 ;;
 
-(defun feather-install (package)
-  "Install package."
-  )
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  test definition
+;;
 
-(provide 'feather)
-;;; feather.el ends here
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  simple test
+;;
+
+(provide 'feather-tests)
+;;; feather-tests.el ends here
