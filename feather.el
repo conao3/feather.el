@@ -90,6 +90,30 @@ use `feather-user-selected-p'."
   :type '(repeat symbol)
   :group 'feather)
 
+;;
+;; sample packages alist
+;;
+;; '((use-package
+;;     ((:name use-package)
+;;      (:version (20181119 2350))
+;;      (:description "A configuration macro for simplifying your .emacs")
+;;      (:dependencies ((emacs (24 3)) (bind-key (2 4))))
+;;      (:dir "/Users/conao/.emacs.d/local/26.1/elpa/use-package-20181119.2350")
+;;      (:url "https://github.com/jwiegley/use-package")
+;;      (:maintainer ("John Wiegley" . "johnw@newartisans.com"))
+;;      (:authors (("John Wiegley" . "johnw@newartisans.com")))
+;;      (:keywords ("dotemacs" "startup" "speed" "config" "package"))))
+;;   (shackle
+;;    ((:name shackle)
+;;     (:version (20171209 2201))
+;;     (:description "Enforce rules for popups")
+;;     (:dependencies ((cl-lib (0 5))))
+;;     (:dir "/Users/conao/.emacs.d/local/26.1/elpa/shackle-20171209.2201")
+;;     (:url "https://github.com/wasamasa/shackle")
+;;     (:maintainer ("Vasilij Schneidermann" . "v.schneidermann@gmail.com"))
+;;     (:authors (("Vasilij Schneidermann" . "v.schneidermann@gmail.com")))
+;;     (:keywords ("convenience")))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Support functions
