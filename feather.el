@@ -66,7 +66,7 @@ If there are multiple download destinations, value top of the list is adopted"
                 :value-type (string :tag "URL or directory name"))
   :group 'feather)
 
-(defcustom feather-working-dir (locate-user-emacs-file "feather-repo")
+(defcustom feather-work-dir (locate-user-emacs-file "feather-repo")
   "Directory is located download Emacs Lisp packages path."
   :type 'directory
   :group 'feather)
@@ -98,7 +98,7 @@ use `feather-user-selected-p'."
 (defun feather-user-selected-p (pkg)
   "Return non-nil if PKG is a package was installed by the user.
 PKG is a package name. This looks into `package-selected-packages'."
-  (memq pkg feather-selected-packages))
+  (if (memq pkg feather-selected-packages) t nil))
 
 (defun feather-get-installed-packages ()
   "Return list of packages installed. Include dependencies packages."
@@ -114,10 +114,10 @@ PKG is a package name. This looks into `package-selected-packages'."
 ;;
 
 ;;;###autoload
-(defun package-install-selected-packages ()
+(defun feather-install-selected-packages ()
   "Install `feather-selected-packages' listed packages."
   (interactive)
-  )
+  (mapc (lambda (x) (feather-install x)) feather-selected-packages))
 
 ;;;###autoload
 (defun feather-autoremove ()
@@ -125,11 +125,20 @@ PKG is a package name. This looks into `package-selected-packages'."
 Packages that are no more needed by other packages in
 `feather-selected-packages' and their dependencies will be deleted."
   (interactive)
+  (let ((lst (feather-install-selected-packages)))
+    (mapc (lambda (x) (delq x lst) feather-selected-packages))
+    (mapc (lambda (x) (feather-remove x)) lst)))
+
+;;;###autoload
+(defun feather-remove (pkg)
+  "Remove specified package named PKG."
+  (interactive)
   )
 
 ;;;###autoload
 (defun feather-install (pkg)
   "Install specified package named PKG."
+  (interactive)
   )
 
 (provide 'feather)
