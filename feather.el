@@ -76,13 +76,60 @@ If there are multiple download destinations, value top of the list is adopted"
   :type 'directory
   :group 'feather)
 
+(defcustom feather-selected-packages nil
+  "Store here packages installed explicitly by user.
+This variable is fed automatically by feather.el when installing a new package.
+This variable is used by `feather-autoremove' to decide
+which packages are no longer needed.
+
+You can use it to (re)install packages on other machines
+by running `feather-install-selected-packages'.
+
+To check if a package is contained in this list here,
+use `feather-user-selected-p'."
+  :type '(repeat symbol)
+  :group 'feather)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  Main function
+;;  Support functions
 ;;
 
-(defun feather-install (package)
-  "Install package."
+(defun feather-user-selected-p (pkg)
+  "Return non-nil if PKG is a package was installed by the user.
+PKG is a package name. This looks into `package-selected-packages'."
+  (memq pkg feather-selected-packages))
+
+(defun feather-get-installed-packages ()
+  "Return list of packages installed. Include dependencies packages."
+  )
+
+(defun feather-get-installed-packages-non-dependencies ()
+  "Return list of packages installed by user's will."
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Main functions
+;;
+
+;;;###autoload
+(defun package-install-selected-packages ()
+  "Install `feather-selected-packages' listed packages."
+  (interactive)
+  )
+
+;;;###autoload
+(defun feather-autoremove ()
+  "Remove packages that are no more needed.
+Packages that are no more needed by other packages in
+`feather-selected-packages' and their dependencies will be deleted."
+  (interactive)
+  )
+
+;;;###autoload
+(defun feather-install (pkg)
+  "Install specified package named PKG."
   )
 
 (provide 'feather)
