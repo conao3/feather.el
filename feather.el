@@ -66,6 +66,11 @@ see `gnutls-available-p'.)"
 ;;                 :value-type (string :tag "URL or directory name"))
 ;;   :group 'feather)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Directory paths
+;;
+
 (defcustom feather-dir-name "feather/"
   "Directory where feather files is placed."
   :type 'directory
@@ -89,6 +94,11 @@ see `gnutls-available-p'.)"
   :type 'directory
   :group 'feather)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  feather configurations
+;;
+
 (defcustom feather-selected-packages nil
   "Store here packages installed explicitly by user.
 This variable is fed automatically by feather.el when installing a new package.
@@ -102,6 +112,11 @@ To check if a package is contained in this list here,
 use `feather-user-selected-p'."
   :type '(repeat symbol)
   :group 'feather)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Inner variables
+;;
 
 ;;
 ;; sample packages alist
