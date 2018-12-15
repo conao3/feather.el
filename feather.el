@@ -66,12 +66,12 @@ see `gnutls-available-p'.)"
 ;;                 :value-type (string :tag "URL or directory name"))
 ;;   :group 'feather)
 
-(defcustom feather-working-dir (locate-user-emacs-file "feather-repos")
+(defcustom feather-working-dir (locate-user-emacs-file "feather-repos/")
   "Directory is located download Emacs Lisp packages path."
   :type 'directory
   :group 'feather)
 
-(defcustom feather-build-dir (locate-user-emacs-file "feather-build")
+(defcustom feather-build-dir (locate-user-emacs-file "feather-build/")
   "Directory is located byte-compiled Emacs Lisp files path."
   :type 'directory
   :group 'feather)
