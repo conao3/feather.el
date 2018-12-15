@@ -37,7 +37,7 @@
 (unless (fboundp 'gnutls-available-p)
   (defun gnutls-available-p ()
     "Available status for gnutls.
-(It is quite difficult to implement, so always return nil when not defined
+(It is quite difficult to implement, so always return nil when not defined.
 see `gnutls-available-p'.)"
     nil))
 
@@ -66,7 +66,7 @@ If there are multiple download destinations, value top of the list is adopted"
                 :value-type (string :tag "URL or directory name"))
   :group 'feather)
 
-(defcustom feather-work-dir (locate-user-emacs-file "feather-repo")
+(defcustom feather-work-dir (locate-user-emacs-file "feather-repos")
   "Directory is located download Emacs Lisp packages path."
   :type 'directory
   :group 'feather)
@@ -119,10 +119,9 @@ use `feather-user-selected-p'."
 ;;  Support functions
 ;;
 
-(defun feather-user-selected-p (pkg)
-  "Return non-nil if PKG is a package was installed by the user.
-PKG is a package name. This looks into `package-selected-packages'."
-  (if (memq pkg feather-selected-packages) t nil))
+(defvar package-alist nil
+  "Alist of all packages available for activation.
+This variable is set automatically by `package-initialize'.")
 
 (defun feather-get-installed-packages ()
   "Return list of packages installed. Include dependencies packages."
@@ -136,10 +135,6 @@ PKG is a package name. This looks into `package-selected-packages'."
 ;;
 ;;  Package contorollers
 ;;
-
-(defun feather-descrive-package (pkg)
-  "Search PKG from `feather"
-  )
 
 (defun feather-activate (pkg)
   "Activate PKG with dependencies packages."
@@ -190,14 +185,13 @@ boundaries."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  Main functions
+;;  Interactive functions
 ;;
 
-;;;###autoload
-(defun feather-install-selected-packages ()
-  "Install `feather-selected-packages' listed packages."
-  (interactive)
-  (mapc (lambda (x) (feather-install x)) feather-selected-packages))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Remove packages
+;;
 
 ;;;###autoload
 (defun feather-autoremove ()
@@ -211,9 +205,27 @@ Packages that are no more needed by other packages in
 
 ;;;###autoload
 (defun feather-remove (pkg)
-  "Remove specified package named PKG."
+  "Remove specified package named PKG.
+If you want to remove packages no more needed, call `feather-autoremove'."
   (interactive)
   )
+
+;;;###autoload
+(defun feather-clean ()
+  "Clean feather working directory and build directory."
+  (interactive)
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Install packages
+;;
+
+;;;###autoload
+(defun feather-install-selected-packages ()
+  "Install `feather-selected-packages' listed packages."
+  (interactive)
+  (mapc (lambda (x) (feather-install x)) feather-selected-packages))
 
 ;;;###autoload
 (defun feather-install (pkg)
@@ -221,9 +233,37 @@ Packages that are no more needed by other packages in
   (interactive)
   )
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Initialize packages
+;;
+
 ;;;###autoload
 (defun feather-initialize ()
   "Initialize selected packages."
+  (interactive)
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Manage packages
+;;
+
+;;;###autoload
+(defun feather-refresh ()
+  "Fetch package info list from `feather-archive'."
+  (interactive)
+  )
+
+;;;###autoload
+(defun feather-list-packages ()
+  "Show available packages list."
+  (interactive)
+  )
+
+;;;###autoload
+(defun feather-package-info (pkg)
+  "Show package info."
   (interactive)
   )
 
