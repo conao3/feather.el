@@ -132,6 +132,14 @@ PKG is a package name. This looks into `package-selected-packages'."
   "Return list of packages installed by user's will."
   )
 
+(defun feather-activate (pkg)
+  "Activate PKG with dependencies packages."
+  )
+
+(defun feather-generate-autoloads (pkg)
+  "Generate autoloads .el file"
+  )
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Main functions
