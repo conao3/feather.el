@@ -57,14 +57,14 @@ see `gnutls-available-p'.)"
 ;;  Customizable variables
 ;;
 
-(defcustom feather-archives
-  `(("gnu" . ,(format "http%s://elpa.gnu.org/packages/"
-                      (if (gnutls-available-p) "s" ""))))
-  "An alist of archives from which to fetch.
-If there are multiple download destinations, value top of the list is adopted"
-  :type '(alist :key-type (string :tag "Archive name")
-                :value-type (string :tag "URL or directory name"))
-  :group 'feather)
+;; (defcustom feather-archives
+;;   `(("gnu" . ,(format "http%s://elpa.gnu.org/packages/"
+;;                       (if (gnutls-available-p) "s" ""))))
+;;   "An alist of archives from which to fetch.
+;; If there are multiple download destinations, value top of the list is adopted"
+;;   :type '(alist :key-type (string :tag "Archive name")
+;;                 :value-type (string :tag "URL or directory name"))
+;;   :group 'feather)
 
 (defcustom feather-work-dir (locate-user-emacs-file "feather-repos")
   "Directory is located download Emacs Lisp packages path."
