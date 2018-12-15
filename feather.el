@@ -71,6 +71,11 @@ see `gnutls-available-p'.)"
   :type 'directory
   :group 'feather)
 
+(defcustom feather-recipes-dir (locate-user-emacs-file "feather-recipes/")
+  "Directory is located recipes."
+  :type 'directory
+  :group 'feather)
+
 (defcustom feather-build-dir (locate-user-emacs-file "feather-build/")
   "Directory is located byte-compiled Emacs Lisp files path."
   :type 'directory
