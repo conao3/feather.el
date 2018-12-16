@@ -378,7 +378,7 @@ If you want to remove packages no more needed, call `feather-autoremove'."
   (interactive)
   (unless feather--initialized
     ;; create dir
-    (mapc (lambda (x) (make-directory x t)) `(,feather-working-dir
+    (mapc (lambda (x) (make-directory x t)) `(,feather-repos-dir
                                               ,feather-recipes-dir
                                               ,feather-build-dir))
 
