@@ -234,7 +234,7 @@ If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
 ;;  Git controllers
 ;;
 
-(defun feather-git-clone-head (remote-url destdir)
+(defun feather-git-head-clone (remote-url destdir)
   "Clone REMOTE-URL repository HEAD to DESTDIR. (shallow-clone)"
   (let ((destpath (concat destdir (file-name-nondirectory remote-url))))
     (if (file-directory-p destpath)
@@ -244,7 +244,29 @@ If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
          `(("pwd")
            ("git" "clone" "--depth" "1" ,remote-url)))))))
 
-(defun feather-git-pull-head (destpath)
+(defun feather-git-specific-clone (remote-url spec destdir)
+  "Clone REMOTE-URL repository SPEC only to DESTDIR. (shallow-clone)"
+  (let* ((repo-name (file-name-nondirectory remote-url))
+         (destpath  (concat destdir repo-name)))
+    (if (file-directory-p destpath)
+        (let ((default-directory (expand-file-name destpath)))
+        (feather-command-queue
+         `(("pwd")
+           ("echo" "Repostory is already existed.")
+           ("echo")
+           ("echo" "If you want to check out to another commit,")
+           ("echo" "first delete repository by `remove-package'."))))
+      (let ((default-directory (expand-file-name destdir)))
+        (feather-command-queue
+         `(("pwd")
+           ("mkdir" ,repo-name)
+           ("cd" ,repo-name)
+           ("git" "init")
+           ("git" "remote" "add" "origin" ,remote-url)
+           ("git" "fetch" "--depth" "1" "origin" ,spec)
+           ("git" "reset" "--hard" "FETCH_HEAD")))))))
+
+(defun feather-git-head-pull (destpath)
   "Pull repository"
   (let ((default-directory (expand-file-name destpath)))
     (feather-command-queue
@@ -258,7 +280,7 @@ If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
      `(("pwd")
        ("git" "fetch" "--unshallow")
        ("git" "checkout" "master")))))
-
+  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Package contorollers
