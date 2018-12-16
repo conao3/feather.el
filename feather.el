@@ -66,6 +66,19 @@ see `gnutls-available-p'.)"
 ;;                 :value-type (string :tag "URL or directory name"))
 ;;   :group 'feather)
 
+(defcustom feather-fetcher-alist (mapcar
+                                  (if (gnutls-available-p)
+                                      #'identity
+                                    (lambda (x)
+                                      (cons (car x)
+                                            (replace-regexp-in-string
+                                             "^https://" "http://" (cdr x)))))
+                                  '((github . "https://github.com/")
+                                    (gitlab . "https://gitlab.com/")))
+  "Fetcher URL alist"
+  :type 'alist
+  :group 'feather)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Directory paths
@@ -96,7 +109,7 @@ see `gnutls-available-p'.)"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  feather configurations
+;;  Package configuration
 ;;
 
 (defcustom feather-selected-packages nil
@@ -183,6 +196,44 @@ This variable is controlled by `feather-install' and `feather-remove'.")
 ;;
 ;;  Support functions
 ;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Shell controllers
+;;
+
+;; for legacy Emacs.
+(unless (fboundp 'async-shell-command)
+  (defun async-shell-command (command &optional output-buffer error-buffer)
+    "Execute string COMMAND asynchronously in background.
+Like `shell-command', but adds `&' at the end of COMMAND
+to execute it asynchronously."
+    (unless (string-match "&[ \t]*\\'" command)
+      (setq command (concat command " &")))
+    (shell-command command output-buffer error-buffer)))
+
+(defun feather-command-queue (cmdlst)
+  "Execute cmdlst(string-list) queue with `acync-shell-command'.
+
+CMDLST is like ((\"pwd\") (\"echo\" \"$(whoami)\")).
+CMDLST will be escaped (\"pwd\" \"echo \\\\$\\\\(whoami\\\\)\").
+
+The arguments passed in are properly escaped, so address vulnerabilities
+like OS command injection.
+The case, user can't get user-name (just get \\$(shoami)).
+
+If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
+  (let ((safe-cmdlst (mapcar
+                      (lambda (x)
+                        (mapconcat #'shell-quote-argument x " "))
+                      cmdlst)))
+    (acync-shell-command (mapconcat #'identity safe-cmdlst " && "))))
+
+(defun feather-git-clone-head (remote-url destdir)
+  "Clone REMOTE-URL repository HEAD to DESTDIR. (shallow-clone)"
+  (let (destpath (concat destdir (file-name-nondirectory remote-url)))
+    (feather-command-queue
+     '(("git" "clone" "--depth" "1" remote-url concat)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -292,9 +343,24 @@ If you want to remove packages no more needed, call `feather-autoremove'."
 ;;
 
 ;;;###autoload
+(defun feather-melpa-initialize ()
+  (interactive)
+  (message "melpa")
+  )
+
+;;;###autoload
 (defun feather-initialize ()
   "Initialize selected packages."
   (interactive)
+  (unless feather--initialized
+    ;; create dir
+    (mapc (lambda (x) (make-directory x t)) `(,feather-working-dir
+                                              ,feather-recipes-dir
+                                              ,feather-build-dir))
+
+    ;; initialize recipes
+    (mapc (lambda (x) (funcall x)) '(feather-melpa-initialize))
+    )
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
