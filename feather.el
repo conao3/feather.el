@@ -72,8 +72,8 @@ see `gnutls-available-p'.)"
 ;;
 
 (defcustom feather-dir-name "feather/"
-  "Directory where feather files is placed."
-  :type 'directory
+  "Directory where `feather' files is placed. Must be end of '/'."
+  :type 'string
   :group 'feather)
 
 (defcustom feather-working-dir (locate-user-emacs-file
@@ -113,10 +113,47 @@ use `feather-user-selected-p'."
   :type '(repeat symbol)
   :group 'feather)
 
+(defcustom feather-pinned-packages nil
+  "An alist of packages that are pinned to specific archives.
+This can be useful if you have multiple package archives enabled,
+and want to control which archive a given package gets installed from.
+
+Each element of the alist has the form (PACKAGE . ARCHIVE), where:
+ PACKAGE is a symbol representing a package
+ ARCHIVE is a string representing an archive (it should be the car of
+an element in `package-archives', e.g. \"gnu\").
+
+Adding an entry to this variable means that only ARCHIVE will be
+considered as a source for PACKAGE.  If other archives provide PACKAGE,
+they are ignored (for this package).  If ARCHIVE does not contain PACKAGE,
+the package will be unavailable."
+  :type '(alist :key-type (symbol :tag "Package")
+                :value-type (string :tag "Archive name"))
+  :group 'feather)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Inner variables
 ;;
+
+(defvar feather--initialized nil
+  "Manage `feather' initialization state.
+This variable is set automatically by `feather-initialize'.")
+
+;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Manage packages
+
+(defvar feather--packages-plist nil
+  "Alist of all packages `feather' available.
+This variable is set automatically by `feather-initialize'.")
+
+(defvar feather--installed-plist nil
+  "List of all packages user installed.
+This variable is controlled by `feather-install' and `feather-remove'.")
+
+(defvar feather--user-installed-plist nil
+  "List of all packages user specifyed installed (without dependencies).")
 
 ;;
 ;; sample packages alist
@@ -146,18 +183,6 @@ use `feather-user-selected-p'."
 ;;
 ;;  Support functions
 ;;
-
-(defvar package-alist nil
-  "Alist of all packages available for activation.
-This variable is set automatically by `package-initialize'.")
-
-(defun feather-get-installed-packages ()
-  "Return list of packages installed. Include dependencies packages."
-  )
-
-(defun feather-get-installed-packages-non-dependencies ()
-  "Return list of packages installed by user's will."
-  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
