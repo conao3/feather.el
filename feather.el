@@ -66,6 +66,11 @@ see `gnutls-available-p'.)"
 ;;                 :value-type (string :tag "URL or directory name"))
 ;;   :group 'feather)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  URLs
+;;
+
 (defcustom feather-fetcher-alist (mapcar
                                   (if (gnutls-available-p)
                                       #'identity
@@ -77,6 +82,13 @@ see `gnutls-available-p'.)"
                                     (gitlab . "https://gitlab.com/")))
   "Fetcher URL alist"
   :type 'alist
+  :group 'feather)
+
+(defcustom feather-melpa-git-url (if (gnutls-available-p)
+                                     "https://github.com/melpa/melpa"
+                                   "https://github.com/melpa/melpa")
+  "melpa git URL."
+  :type 'string
   :group 'feather)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -391,7 +403,7 @@ If you want to remove packages no more needed, call `feather-autoremove'."
 ;;;###autoload
 (defun feather-melpa-initialize ()
   (interactive)
-  (feather-git-head-clone "https://github.com/melpa/melpa" feather-recipes-dir)
+  (feather-git-head-clone feather-melpa-git-url feather-recipes-dir)
   )
 
 ;;;###autoload
