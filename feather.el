@@ -214,18 +214,8 @@ This variable is controlled by `feather-install' and `feather-remove'.")
 ;;  Shell controllers
 ;;
 
-;; for legacy Emacs.
-(unless (fboundp 'async-shell-command)
-  (defun async-shell-command (command &optional output-buffer error-buffer)
-    "Execute string COMMAND asynchronously in background.
-Like `shell-command', but adds `&' at the end of COMMAND
-to execute it asynchronously."
-    (unless (string-match "&[ \t]*\\'" command)
-      (setq command (concat command " &")))
-    (shell-command command output-buffer error-buffer)))
-
 (defun feather-command-queue (cmdlst)
-  "Execute cmdlst(string-list) queue with `acync-shell-command'.
+  "Execute cmdlst(string-list) queue with `start-process'.
 
 CMDLST is like ((\"pwd\") (\"echo\" \"$(whoami)\")).
 CMDLST will be escaped (\"pwd\" \"echo \\\\$\\\\(whoami\\\\)\").
@@ -235,11 +225,12 @@ like OS command injection.
 The case, user can't get user-name (just get \\$(shoami)).
 
 If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
-  (let ((safe-cmdlst (mapcar
-                      (lambda (x)
-                        (mapconcat #'shell-quote-argument x " "))
-                      cmdlst)))
-    (async-shell-command (mapconcat #'identity safe-cmdlst " && "))))
+  ;; (let ((safe-cmdlst (mapcar
+  ;;                     (lambda (x)
+  ;;                       (mapconcat #'shell-quote-argument x " "))
+  ;;                     cmdlst)))
+  ;; (async-shell-command (mapconcat #'identity safe-cmdlst " && ")))
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
