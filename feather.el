@@ -229,6 +229,11 @@ If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
                       cmdlst)))
     (async-shell-command (mapconcat #'identity safe-cmdlst " && "))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Git controllers
+;;
+
 (defun feather-git-clone-head (remote-url destdir)
   "Clone REMOTE-URL repository HEAD to DESTDIR. (shallow-clone)"
   (let ((destpath (concat destdir (file-name-nondirectory remote-url))))
@@ -245,6 +250,14 @@ If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
     (feather-command-queue
      `(("pwd")
        ("git" "pull" "origin" "master")))))
+
+(defun feather-git-unshalow (destpath)
+  "Pull repository"
+  (let ((default-directory (expand-file-name destpath)))
+    (feather-command-queue
+     `(("pwd")
+       ("git" "fetch" "--unshallow")
+       ("git" "checkout" "master")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
