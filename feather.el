@@ -391,7 +391,7 @@ If you want to remove packages no more needed, call `feather-autoremove'."
 ;;;###autoload
 (defun feather-melpa-initialize ()
   (interactive)
-  (message "melpa")
+  (feather-git-head-clone "https://github.com/melpa/melpa" feather-recipes-dir)
   )
 
 ;;;###autoload
