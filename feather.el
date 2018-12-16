@@ -89,7 +89,7 @@ see `gnutls-available-p'.)"
   :type 'string
   :group 'feather)
 
-(defcustom feather-working-dir (locate-user-emacs-file
+(defcustom feather-repos-dir (locate-user-emacs-file
                                 (concat feather-dir-name "repos/"))
   "Directory where the download Emacs Lisp packages is placed."
   :type 'directory
@@ -227,13 +227,24 @@ If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
                       (lambda (x)
                         (mapconcat #'shell-quote-argument x " "))
                       cmdlst)))
-    (acync-shell-command (mapconcat #'identity safe-cmdlst " && "))))
+    (async-shell-command (mapconcat #'identity safe-cmdlst " && "))))
 
 (defun feather-git-clone-head (remote-url destdir)
   "Clone REMOTE-URL repository HEAD to DESTDIR. (shallow-clone)"
   (let ((destpath (concat destdir (file-name-nondirectory remote-url))))
+    (if (file-directory-p destpath)
+        (feather-git-pull-head destpath)
+      (let ((default-directory (expand-file-name destdir)))
+        (feather-command-queue
+         `(("pwd")
+           ("git" "clone" "--depth" "1" ,remote-url)))))))
+
+(defun feather-git-pull-head (destpath)
+  "Pull repository"
+  (let ((default-directory (expand-file-name destpath)))
     (feather-command-queue
-     `(("git" "clone" "--depth" "1" ,remote-url ,destpath)))))
+     `(("pwd")
+       ("git" "pull" "origin" "master")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
