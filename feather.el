@@ -231,9 +231,9 @@ If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
 
 (defun feather-git-clone-head (remote-url destdir)
   "Clone REMOTE-URL repository HEAD to DESTDIR. (shallow-clone)"
-  (let (destpath (concat destdir (file-name-nondirectory remote-url)))
+  (let ((destpath (concat destdir (file-name-nondirectory remote-url))))
     (feather-command-queue
-     '(("git" "clone" "--depth" "1" remote-url concat)))))
+     `(("git" "clone" "--depth" "1" ,remote-url ,destpath)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
