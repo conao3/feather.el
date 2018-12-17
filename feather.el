@@ -222,7 +222,7 @@ This variable is controlled by `feather-install' and `feather-remove'.")
 ;;  Shell controllers
 ;;
 
-(defun feather-command-queue (cmdlst)
+(defun feather-command-queue (pkg cmdlst)
   "Execute cmdlst(string-list) queue with `start-process'.
 
 CMDLST is like ((\"pwd\") (\"echo\" \"$(whoami)\")).
@@ -233,42 +233,70 @@ like OS command injection.
 The case, user can't get user-name (just get \\$(shoami)).
 
 If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
-  ;; (let ((safe-cmdlst (mapcar
-  ;;                     (lambda (x)
-  ;;                       (mapconcat #'shell-quote-argument x " "))
-  ;;                     cmdlst)))
-  ;; (async-shell-command (mapconcat #'identity safe-cmdlst " && ")))
-  )
+  (let* ((safe-cmdlst (mapcar
+                       (lambda (x)
+                         (mapconcat #'shell-quote-argument x " "))
+                       cmdlst))
+         (command     (mapconcat #'identity safe-cmdlst " && "))
+         (buffer-name (format "*feather-async-%s-%s*" pkg (gensym)))
+         (buffer      (get-buffer-create buffer-name))
+         (directory   default-directory)
+         (proc        (get-buffer-process buffer)))
+
+    (when (get-buffer-process buffer)
+      (setq buffer (generate-new-buffer buffer-name)))
+    
+    (with-current-buffer buffer
+      (shell-command--save-pos-or-erase)
+      (setq default-directory directory)
+      (setq proc (start-process buffer-name
+                                buffer
+                                shell-file-name      ; /bin/bash (default)
+				shell-command-switch ; -c (default)
+                                command))
+      (setq mode-line-process '(":%s"))
+      (require 'shell) (shell-mode)
+      (set-process-sentinel proc 'shell-command-sentinel)
+      ;; Use the comint filter for proper handling of
+      ;; carriage motion (see comint-inhibit-carriage-motion).
+      (set-process-filter proc 'comint-output-filter)
+      (display-buffer buffer '(nil (allow-no-window . t))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Git controllers
 ;;
 
-(defun feather-git-head-clone (remote-url destdir)
+;; (feather-git-clone-head "melpa" "https://github.com/melpa/melpa" feather-recipes-dir)
+(defun feather-git-clone-head (pkg remote-url destdir)
   "Clone REMOTE-URL repository HEAD to DESTDIR. (shallow-clone)"
   (let ((destpath (concat destdir (file-name-nondirectory remote-url))))
     (if (file-directory-p destpath)
-        (feather-git-pull-head destpath)
+        (feather-git-pull-head pkg destpath)
       (let ((default-directory (expand-file-name destdir)))
         (feather-command-queue
+         pkg
          `(("pwd")
            ("git" "clone" "--depth" "1" ,remote-url)))))))
 
-(defun feather-git-specific-clone (remote-url spec destdir)
+;; (feather-git-clone-specific "https://github.com/conao3/cort.el"
+;;                             "v0.1" feather-repos-dir)
+(defun feather-git-clone-specific (pkg remote-url spec destdir)
   "Clone REMOTE-URL repository SPEC only to DESTDIR. (shallow-clone)"
   (let* ((repo-name (file-name-nondirectory remote-url))
          (destpath  (concat destdir repo-name)))
     (if (file-directory-p destpath)
         (let ((default-directory (expand-file-name destpath)))
-        (feather-command-queue
-         `(("pwd")
-           ("echo" "Repostory is already existed.")
-           ("echo")
-           ("echo" "If you want to check out to another commit,")
-           ("echo" "first delete repository by `remove-package'."))))
+          (feather-command-queue
+           pkg
+           `(("pwd")
+             ("echo" "Repostory is already existed.")
+             ("echo")
+             ("echo" "If you want to check out to another commit,")
+             ("echo" "first delete repository by `remove-package'."))))
       (let ((default-directory (expand-file-name destdir)))
         (feather-command-queue
+         pkg
          `(("pwd")
            ("mkdir" ,repo-name)
            ("cd" ,repo-name)
@@ -277,17 +305,20 @@ If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
            ("git" "fetch" "--depth" "1" "origin" ,spec)
            ("git" "reset" "--hard" "FETCH_HEAD")))))))
 
-(defun feather-git-head-pull (destpath)
+;; (feather-git-pull-head (concat feather-recipes-dir "melpa"))
+(defun feather-git-pull-head (pkg destpath)
   "Pull repository"
   (let ((default-directory (expand-file-name destpath)))
     (feather-command-queue
+     pkg
      `(("pwd")
        ("git" "pull" "origin" "master")))))
 
-(defun feather-git-unshalow (destpath)
+(defun feather-git-unshalow (pkg destpath)
   "Unshallow repository to fetch whole repository."
   (let ((default-directory (expand-file-name destpath)))
     (feather-command-queue
+     pkg
      `(("pwd")
        ("git" "fetch" "--unshallow")
        ("git" "checkout" "master")))))
