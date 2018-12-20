@@ -118,23 +118,23 @@ use `feather-user-selected-p'."
   :type '(repeat symbol)
   :group 'feather)
 
-(defcustom feather-pinned-packages nil
-  "An alist of packages that are pinned to specific archives.
-This can be useful if you have multiple package archives enabled,
-and want to control which archive a given package gets installed from.
-
-Each element of the alist has the form (PACKAGE . ARCHIVE), where:
- PACKAGE is a symbol representing a package
- ARCHIVE is a string representing an archive (it should be the car of
-an element in `package-archives', e.g. \"gnu\").
-
-Adding an entry to this variable means that only ARCHIVE will be
-considered as a source for PACKAGE.  If other archives provide PACKAGE,
-they are ignored (for this package).  If ARCHIVE does not contain PACKAGE,
-the package will be unavailable."
-  :type '(alist :key-type (symbol :tag "Package")
-                :value-type (string :tag "Archive name"))
-  :group 'feather)
+;; (defcustom feather-pinned-packages nil
+;;   "An alist of packages that are pinned to specific archives.
+;; This can be useful if you have multiple package archives enabled,
+;; and want to control which archive a given package gets installed from.
+;; 
+;; Each element of the alist has the form (PACKAGE . ARCHIVE), where:
+;;  PACKAGE is a symbol representing a package
+;;  ARCHIVE is a string representing an archive (it should be the car of
+;; an element in `package-archives', e.g. \"gnu\").
+;; 
+;; Adding an entry to this variable means that only ARCHIVE will be
+;; considered as a source for PACKAGE.  If other archives provide PACKAGE,
+;; they are ignored (for this package).  If ARCHIVE does not contain PACKAGE,
+;; the package will be unavailable."
+;;   :type '(alist :key-type (symbol :tag "Package")
+;;                 :value-type (string :tag "Archive name"))
+;;   :group 'feather)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
