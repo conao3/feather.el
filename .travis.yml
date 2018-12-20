@@ -12,7 +12,7 @@ env:
     - EMACS_VERSION=master
 
 git:
-  - depth: 1
+  depth: 1
 
 install:
   - $CURL -O https://github.com/npostavs/emacs-travis/releases/download/bins/emacs-bin-${EMACS_VERSION}.tar.gz
