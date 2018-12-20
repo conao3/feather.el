@@ -141,7 +141,7 @@ use `feather-user-selected-p'."
 ;;  Inner variables
 ;;
 
-(defvar feather--initialized nil
+(defvar feather-initialized nil
   "Manage `feather' initialization state.
 This variable is set automatically by `feather-initialize'.")
 
@@ -149,7 +149,7 @@ This variable is set automatically by `feather-initialize'.")
 ;;
 ;;  Manage Process
 
-(defvar feather--process-state-alist nil
+(defvar feather-process-state-alist nil
   "Manage `feather' process state.
 When change process state changed, pushed new state.")
 
@@ -160,7 +160,7 @@ When change process state changed, pushed new state.")
 
 (defcustom feather-user-recipes nil
  "User defined package recipes. Overrides recipes.
-Recipe need `:url', [`:commit'], `:deps', `:ver'. see `feather--recipes'.
+Recipe need `:url', [`:commit'], `:deps', `:ver'. see `feather-recipes'.
 If you omit `:commit', install HEAD.
 
 Sample:
@@ -189,7 +189,7 @@ Sample:
   :type 'sexp
   :group 'feather)
 
-(defvar feather--recipes nil
+(defvar feather-recipes nil
   "Package recipes.
 Stored ordered by `feather-fetcher-list'.
 This variable is set automatically by `feather-initialize'.")
@@ -198,11 +198,11 @@ This variable is set automatically by `feather-initialize'.")
 ;;
 ;;  Manage packages
 
-(defvar feather--installed-plist nil
+(defvar feather-installed-plist nil
   "List of all packages user installed.
 This variable is controlled by `feather-install' and `feather-remove'.")
 
-(defvar feather--user-installed-plist nil
+(defvar feather-user-installed-plist nil
   "List of all packages user specifyed installed (without dependencies).")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -240,7 +240,7 @@ If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
       (setq buffer (generate-new-buffer buffer-name)))
     
     (with-current-buffer buffer
-      (shell-command--save-pos-or-erase)
+      (shell-command-save-pos-or-erase)
       (setq default-directory directory)
       (setq proc (start-process buffer-name
                                 buffer
@@ -270,7 +270,7 @@ If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
         (feather-command-queue
          pkg
          `(("pwd")
-           ("git" "clone" "--depth" "1" ,remote-url)))))))
+           ("git" "clone" "-depth" "1" ,remote-url)))))))
 
 ;; (feather-git-clone-specific "https://github.com/conao3/cort.el"
 ;;                             "v0.1" feather-repos-dir)
@@ -295,8 +295,8 @@ If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
            ("cd" ,repo-name)
            ("git" "init")
            ("git" "remote" "add" "origin" ,remote-url)
-           ("git" "fetch" "--depth" "1" "origin" ,spec)
-           ("git" "reset" "--hard" "FETCH_HEAD")))))))
+           ("git" "fetch" "-depth" "1" "origin" ,spec)
+           ("git" "reset" "-hard" "FETCH_HEAD")))))))
 
 ;; (feather-git-pull-head (concat feather-recipes-dir "melpa"))
 (defun feather-git-pull-head (pkg destpath)
@@ -313,7 +313,7 @@ If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
     (feather-command-queue
      pkg
      `(("pwd")
-       ("git" "fetch" "--unshallow")
+       ("git" "fetch" "-unshallow")
        ("git" "checkout" "master")))))
   
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -336,7 +336,7 @@ If the buffer does not contain a conforming package, signal an
 error.  If there is a package, narrow the buffer to the file's
 boundaries."
   (goto-char (point-min))
-  (unless (re-search-forward "^;;; \\([^ ]*\\)\\.el ---[ \t]*\\(.*?\\)[ \t]*\\(-\\*-.*-\\*-[ \t]*\\)?$" nil t)
+  (unless (re-search-forward "^;;; \\([^ ]*\\)\\.el --[ \t]*\\(.*?\\)[ \t]*\\(-\\*-.*-\\*-[ \t]*\\)?$" nil t)
     (error "Package lacks a file header"))
   (let ((file-name (match-string-no-properties 1))
         (desc      (match-string-no-properties 2))
@@ -361,7 +361,7 @@ boundaries."
       (package-desc-from-define
        file-name pkg-version desc
        (if requires-str
-           (package--prepare-dependencies
+           (package-prepare-dependencies
             (package-read-from-string requires-str)))
        :kind 'single
        :url homepage
@@ -433,7 +433,7 @@ If you want to remove packages no more needed, call `feather-autoremove'."
 (defun feather-initialize ()
   "Initialize selected packages."
   (interactive)
-  (unless feather--initialized
+  (unless feather-initialized
     ;; create dir
     (mapc (lambda (x) (make-directory x t)) `(,feather-repos-dir
                                               ,feather-recipes-dir
