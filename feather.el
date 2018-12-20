@@ -158,10 +158,36 @@ When change process state changed, pushed new state.")
 ;;  Manage recipes
 ;;
 
-;; (defcustom feather-user-recipes nil
-;;   "User defined package recipes. Overrides recipes."
-;;   :type 'sexp
-;;   :group 'feather)
+(defcustom feather-user-recipes nil
+ "User defined package recipes. Overrides recipes.
+Recipe need `:url', [`:commit'], `:deps', `:ver'. see `feather--recipes'.
+If you omit `:commit', install HEAD.
+
+Sample:
+(:0blayout
+   (:props
+    (:url \"https://github.com/etu/0blayout\"
+     :maintainer \"Elis \"etu\" Axelsson\"
+     :authors (\"Elis \"etu\" Axelsson\")
+     :keywords (\"convenience\" \"window-management\")
+     :commit \"873732ddb99a3ec18845a37467ee06bce4e61d87\")
+    :type \"single\"
+    :desc \"Layout grouping with ease\"
+    :deps nil
+    :ver (20161008 607))
+ :0xc
+  (:props
+   (:url \"http://github.com/AdamNiederer/0xc\"
+    :commit \"12c2c6118c062a49594965c69e6a17bb46339eb2\")
+   :deps (:s (1 11 0)
+          :emacs (24 4))
+   :ver (20170126 353))
+ :2048-game
+  (:props
+   (:url \"https://bitbucket.org/zck/2048.el\")
+   :ver (20151026 1933)))"
+  :type 'sexp
+  :group 'feather)
 
 (defvar feather--recipes nil
   "Package recipes.
@@ -178,30 +204,6 @@ This variable is controlled by `feather-install' and `feather-remove'.")
 
 (defvar feather--user-installed-plist nil
   "List of all packages user specifyed installed (without dependencies).")
-
-;;
-;; sample packages alist
-;;
-;; '((use-package
-;;     ((:name use-package)
-;;      (:version (20181119 2350))
-;;      (:description "A configuration macro for simplifying your .emacs")
-;;      (:dependencies ((emacs (24 3)) (bind-key (2 4))))
-;;      (:dir "/Users/conao/.emacs.d/local/26.1/elpa/use-package-20181119.2350")
-;;      (:url "https://github.com/jwiegley/use-package")
-;;      (:maintainer ("John Wiegley" . "johnw@newartisans.com"))
-;;      (:authors (("John Wiegley" . "johnw@newartisans.com")))
-;;      (:keywords ("dotemacs" "startup" "speed" "config" "package"))))
-;;   (shackle
-;;    ((:name shackle)
-;;     (:version (20171209 2201))
-;;     (:description "Enforce rules for popups")
-;;     (:dependencies ((cl-lib (0 5))))
-;;     (:dir "/Users/conao/.emacs.d/local/26.1/elpa/shackle-20171209.2201")
-;;     (:url "https://github.com/wasamasa/shackle")
-;;     (:maintainer ("Vasilij Schneidermann" . "v.schneidermann@gmail.com"))
-;;     (:authors (("Vasilij Schneidermann" . "v.schneidermann@gmail.com")))
-;;     (:keywords ("convenience")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
