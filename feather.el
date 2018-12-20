@@ -84,25 +84,17 @@ priority is given to the site located at the head of the list
 ;;  Directory paths
 ;;
 
-(defcustom feather-dir-name "feather/"
-  "Directory where `feather' files is placed. Must be end of '/'."
-  :type 'string
-  :group 'feather)
-
-(defcustom feather-repos-dir (locate-user-emacs-file
-                                (concat feather-dir-name "repos/"))
+(defcustom feather-repos-dir (locate-user-emacs-file "feather/repos/")
   "Directory where the download Emacs Lisp packages is placed."
   :type 'directory
   :group 'feather)
 
-(defcustom feather-recipes-dir (locate-user-emacs-file
-                                (concat feather-dir-name "recipes/"))
+(defcustom feather-recipes-dir (locate-user-emacs-file "feather/recipes/")
   "Directory where the recipes is placed."
   :type 'directory
   :group 'feather)
 
-(defcustom feather-build-dir (locate-user-emacs-file
-                              (concat feather-dir-name "build/"))
+(defcustom feather-build-dir (locate-user-emacs-file "feather/build/")
   "Directory where byte-compiled Emacs Lisp files is placed"
   :type 'directory
   :group 'feather)
