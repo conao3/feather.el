@@ -151,7 +151,7 @@ This variable is set automatically by `feather-initialize'.")
 
 (defvar feather--process-state-alist nil
   "Manage `feather' process state.
-When change process state changed, push new state.")
+When change process state changed, pushed new state.")
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ;;
