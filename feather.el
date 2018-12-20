@@ -138,7 +138,7 @@ use `feather-user-selected-p'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  Inner variables
+;;  Inner variables - DONT change
 ;;
 
 (defvar feather-initialized nil
