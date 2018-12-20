@@ -158,6 +158,11 @@ When change process state changed, push new state.")
 ;;  Manage recipes
 ;;
 
+;; (defcustom feather-user-recipes nil
+;;   "User defined package recipes. Overrides recipes."
+;;   :type 'sexp
+;;   :group 'feather)
+
 (defvar feather--recipes nil
   "Package recipes.
 Stored ordered by `feather-fetcher-list'.
