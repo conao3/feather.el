@@ -31,7 +31,7 @@
   "Simplify elisp test framework."
   :group 'lisp)
 
-(defconst cort-version "3.0.5"
+(defconst cort-version "3.0.8"
   "cort.el version")
 
 (defconst cort-env-symbols '(:cort-emacs<

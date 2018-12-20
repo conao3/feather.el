@@ -87,6 +87,9 @@ test: $(ALL_EMACS:%=.make-test-%)
 ##############################
 #  other jobs
 
+update-cort:
+	cp -f ../cort.el/cort.el ./
+
 clean:
 	-find . -name "*.elc" | xargs rm -rf
 	-rm -rf .make-*
