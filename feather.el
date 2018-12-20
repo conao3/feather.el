@@ -29,7 +29,7 @@
 (defconst feather-version "0.0.1"
   "feather.el version")
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  For legacy Emacs
 ;;
@@ -52,7 +52,7 @@ see `gnutls-available-p'.)"
     "Simple implementation of `locate-user-emacs-file'."
     (format "%s%s" user-emacs-directory name)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Customizable variables
 ;;
@@ -167,9 +167,9 @@ use `feather-user-selected-p'."
 ;;                 :value-type (string :tag "Archive name"))
 ;;   :group 'feather)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  Inner variables - DONT change
+;;  Inner variables - DON'T change!
 ;;
 
 (defvar feather-initialized nil
