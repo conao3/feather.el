@@ -57,38 +57,26 @@ see `gnutls-available-p'.)"
 ;;  Customizable variables
 ;;
 
-;; (defcustom feather-archives
-;;   `(("gnu" . ,(format "http%s://elpa.gnu.org/packages/"
-;;                       (if (gnutls-available-p) "s" ""))))
-;;   "An alist of archives from which to fetch.
-;; If there are multiple download destinations, value top of the list is adopted"
-;;   :type '(alist :key-type (string :tag "Archive name")
-;;                 :value-type (string :tag "URL or directory name"))
-;;   :group 'feather)
+(defcustom feather-fetcher-list '(melpa)
+  "A list of sites to fetch.
+If there are multiple download destinations,
+priority is given to the site located at the head of the list
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  URLs
-;;
-
-(defcustom feather-fetcher-alist (mapcar
-                                  (if (gnutls-available-p)
-                                      #'identity
-                                    (lambda (x)
-                                      (cons (car x)
-                                            (replace-regexp-in-string
-                                             "^https://" "http://" (cdr x)))))
-                                  '((github . "https://github.com/")
-                                    (gitlab . "https://gitlab.com/")))
-  "Fetcher URL alist"
-  :type 'alist
+[TODO]: Now, support melpa only."
+  ;; :type '(sexp
+  ;;         (symbol
+  ;;          ;; (const :tag "Elpa"         'elpa)
+  ;;          (const :tag "Melpa"        'melpa)))
+  ;;          ;; (const :tag "Melpa-stable" 'melpa-stable)
+  ;;          ;; (const :tag "el-get"       'el-get)
+  ;;          ;; (const :tag "cask"         'cask)))
+  :type 'sexp
   :group 'feather)
 
-(defcustom feather-melpa-git-url (if (gnutls-available-p)
-                                     "https://github.com/melpa/melpa"
-                                   "https://github.com/melpa/melpa")
-  "melpa git URL."
-  :type 'string
+(defcustom feather-fetcher-url-alist
+  '((melpa . "https://raw.githubusercontent.com/conao3/feather-recipes/master/recipe-melpa.el"))
+  "Fetcher URL alist. see `feather-fetcher-list'."
+  :type 'alist
   :group 'feather)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
