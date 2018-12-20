@@ -381,14 +381,27 @@ If you want to remove packages no more needed, call `feather-autoremove'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  Manage packages
+;;  Manage recipes
 ;;
 
 ;;;###autoload
 (defun feather-refresh ()
-  "Fetch package info list from `feather-archive'."
+  "Reflesh package recipes specified `feather-fetcher-list'.
+The URL corresponding to the symbol is managed with `feather-fetcher-url-alist'."
   (interactive)
-  )
+
+  ;; clear all recipes.
+  (setq feather-recipes nil)
+  (mapc (lambda (x)
+          (setq feather-recipes
+                (append (read (with-current-buffer
+                                  (url-retrieve-synchronously
+                                   (cdr (assoc x feather-fetcher-url-alist)))
+                                (goto-char (point-max))
+                                (backward-list)
+                                (buffer-substring (point) (point-max))))
+                        feather-recipes)))
+        feather-fetcher-list))
 
 ;;;###autoload
 (defun feather-list-packages ()
@@ -418,7 +431,7 @@ If you want to remove packages no more needed, call `feather-autoremove'."
                                               ,feather-build-dir))
 
     ;; initialize recipes
-    (mapc (lambda (x) (funcall x)) '(feather-melpa-initialize))
+    (feather-refresh)
     )
   )
 
