@@ -212,6 +212,18 @@ This variable is controlled by `feather-install' and `feather-remove'.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+;;  Anaphoric macros
+;;
+
+(defmacro feather-asetq (sym* &optional body)
+  "Anaphoric setq macro.
+\(fn (ASYM SYM) &optional BODY)"
+  (declare (indent 1))
+  `(let ((,(car sym*) ,(cadr sym*)))
+     (setq ,(cadr sym*) ,body)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;;  Shell controllers
 ;;
 
@@ -392,15 +404,19 @@ The URL corresponding to the symbol is managed with `feather-fetcher-url-alist'.
 
   ;; clear all recipes.
   (setq feather-recipes nil)
+
+  ;; download recipe files, read, append, save it.
   (mapc (lambda (x)
-          (setq feather-recipes
-                (append (read (with-current-buffer
-                                  (url-retrieve-synchronously
-                                   (cdr (assoc x feather-fetcher-url-alist)))
-                                (goto-char (point-max))
-                                (backward-list)
-                                (buffer-substring (point) (point-max))))
-                        feather-recipes)))
+          (with-current-buffer
+              (url-retrieve-synchronously (cdr (assoc x feather-fetcher-url-alist)))
+            (delete-region (point-min)
+                           (1+ (marker-position url-http-end-of-headers)))
+
+            (feather-asetq (it feather-recipes)
+              (append it (read (buffer-string))))
+
+            (write-file (format "%srecipe-%s.el" feather-recipes-dir x))
+            (kill-buffer)))
         feather-fetcher-list))
 
 ;;;###autoload
