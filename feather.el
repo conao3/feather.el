@@ -381,7 +381,30 @@ If you want to remove packages no more needed, call `feather-autoremove'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  Initialize packages
+;;  Manage packages
+;;
+
+;;;###autoload
+(defun feather-refresh ()
+  "Fetch package info list from `feather-archive'."
+  (interactive)
+  )
+
+;;;###autoload
+(defun feather-list-packages ()
+  "Show available packages list."
+  (interactive)
+  )
+
+;;;###autoload
+(defun feather-package-info (pkg)
+  "Show package info."
+  (interactive)
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Initialize feather
 ;;
 
 ;;;###autoload
@@ -403,29 +426,6 @@ If you want to remove packages no more needed, call `feather-autoremove'."
     ;; initialize recipes
     (mapc (lambda (x) (funcall x)) '(feather-melpa-initialize))
     )
-  )
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  Manage packages
-;;
-
-;;;###autoload
-(defun feather-refresh ()
-  "Fetch package info list from `feather-archive'."
-  (interactive)
-  )
-
-;;;###autoload
-(defun feather-list-packages ()
-  "Show available packages list."
-  (interactive)
-  )
-
-;;;###autoload
-(defun feather-package-info (pkg)
-  "Show package info."
-  (interactive)
   )
 
 (provide 'feather)
