@@ -329,45 +329,6 @@ If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
   "Generate autoloads .el file"
   )
 
-(defun feather-buffer-info ()
-  "Return a `package-desc' describing the package in the current buffer.
-
-If the buffer does not contain a conforming package, signal an
-error.  If there is a package, narrow the buffer to the file's
-boundaries."
-  (goto-char (point-min))
-  (unless (re-search-forward "^;;; \\([^ ]*\\)\\.el --[ \t]*\\(.*?\\)[ \t]*\\(-\\*-.*-\\*-[ \t]*\\)?$" nil t)
-    (error "Package lacks a file header"))
-  (let ((file-name (match-string-no-properties 1))
-        (desc      (match-string-no-properties 2))
-        (start     (line-beginning-position)))
-    (unless (search-forward (concat ";;; " file-name ".el ends here"))
-      (error "Package lacks a terminating comment"))
-    ;; Try to include a trailing newline.
-    (forward-line)
-    (narrow-to-region start (point))
-    (require 'lisp-mnt)
-    ;; Use some headers we've invented to drive the process.
-    (let* ((requires-str (lm-header "package-requires"))
-           ;; Prefer Package-Version; if defined, the package author
-           ;; probably wants us to use it.  Otherwise try Version.
-           (pkg-version
-            (or (package-strip-rcs-id (lm-header "package-version"))
-                (package-strip-rcs-id (lm-header "version"))))
-           (homepage (lm-homepage)))
-      (unless pkg-version
-        (error
-            "Package lacks a \"Version\" or \"Package-Version\" header"))
-      (package-desc-from-define
-       file-name pkg-version desc
-       (if requires-str
-           (package-prepare-dependencies
-            (package-read-from-string requires-str)))
-       :kind 'single
-       :url homepage
-       :maintainer (lm-maintainer)
-       :authors (lm-authors)))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Interactive functions
