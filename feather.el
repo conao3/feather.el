@@ -104,6 +104,37 @@ priority is given to the site located at the head of the list
 ;;  Package configuration
 ;;
 
+(defcustom feather-user-recipes nil
+ "User defined package recipes. Overrides recipes.
+Recipe need `:url', [`:commit'], `:deps', `:ver'. see `feather-recipes'.
+If you omit `:commit', install HEAD.
+
+Sample:
+(:0blayout
+   (:props
+    (:url \"https://github.com/etu/0blayout\"
+     :maintainer \"Elis \"etu\" Axelsson\"
+     :authors (\"Elis \"etu\" Axelsson\")
+     :keywords (\"convenience\" \"window-management\")
+     :commit \"873732ddb99a3ec18845a37467ee06bce4e61d87\")
+    :type \"single\"
+    :desc \"Layout grouping with ease\"
+    :deps nil
+    :ver (20161008 607))
+ :0xc
+  (:props
+   (:url \"http://github.com/AdamNiederer/0xc\"
+    :commit \"12c2c6118c062a49594965c69e6a17bb46339eb2\")
+   :deps (:s (1 11 0)
+          :emacs (24 4))
+   :ver (20170126 353))
+ :2048-game
+  (:props
+   (:url \"https://bitbucket.org/zck/2048.el\")
+   :ver (20151026 1933)))"
+  :type 'sexp
+  :group 'feather)
+
 (defcustom feather-selected-packages nil
   "Store here packages installed explicitly by user.
 This variable is fed automatically by feather.el when installing a new package.
@@ -157,37 +188,6 @@ When change process state changed, pushed new state.")
 ;;
 ;;  Manage recipes
 ;;
-
-(defcustom feather-user-recipes nil
- "User defined package recipes. Overrides recipes.
-Recipe need `:url', [`:commit'], `:deps', `:ver'. see `feather-recipes'.
-If you omit `:commit', install HEAD.
-
-Sample:
-(:0blayout
-   (:props
-    (:url \"https://github.com/etu/0blayout\"
-     :maintainer \"Elis \"etu\" Axelsson\"
-     :authors (\"Elis \"etu\" Axelsson\")
-     :keywords (\"convenience\" \"window-management\")
-     :commit \"873732ddb99a3ec18845a37467ee06bce4e61d87\")
-    :type \"single\"
-    :desc \"Layout grouping with ease\"
-    :deps nil
-    :ver (20161008 607))
- :0xc
-  (:props
-   (:url \"http://github.com/AdamNiederer/0xc\"
-    :commit \"12c2c6118c062a49594965c69e6a17bb46339eb2\")
-   :deps (:s (1 11 0)
-          :emacs (24 4))
-   :ver (20170126 353))
- :2048-game
-  (:props
-   (:url \"https://bitbucket.org/zck/2048.el\")
-   :ver (20151026 1933)))"
-  :type 'sexp
-  :group 'feather)
 
 (defvar feather-recipes nil
   "Package recipes.
