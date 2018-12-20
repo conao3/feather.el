@@ -155,11 +155,17 @@ When change process state changed, push new state.")
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  Manage packages
+;;  Manage recipes
+;;
 
-(defvar feather--packages-plist nil
-  "Alist of all packages `feather' available.
+(defvar feather--recipes nil
+  "Package recipes.
+Stored ordered by `feather-fetcher-list'.
 This variable is set automatically by `feather-initialize'.")
+
+;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Manage packages
 
 (defvar feather--installed-plist nil
   "List of all packages user installed.
