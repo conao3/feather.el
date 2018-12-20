@@ -147,7 +147,7 @@ This variable is set automatically by `feather-initialize'.")
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; Manage Process
+;;  Manage Process
 
 (defvar feather--process-state-alist nil
   "Manage `feather' process state.
