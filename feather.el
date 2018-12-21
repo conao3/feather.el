@@ -73,8 +73,23 @@ priority is given to the site located at the head of the list
   :type 'sexp
   :group 'feather)
 
+(defcustom feather-fetcher-detail-list '(melpa-detail)
+  "A list of sites to fetch detail recipe file.
+
+[TODO]: Now, support melpa only."
+  ;; :type '(sexp
+  ;;         (symbol
+  ;;          ;; (const :tag "Elpa"         'elpa)
+  ;;          (const :tag "Melpa"        'melpa)))
+  ;;          ;; (const :tag "Melpa-stable" 'melpa-stable)
+  ;;          ;; (const :tag "el-get"       'el-get)
+  ;;          ;; (const :tag "cask"         'cask)))
+  :type 'sexp
+  :group 'feather)
+
 (defcustom feather-fetcher-url-alist
-  '((melpa . "https://raw.githubusercontent.com/conao3/feather-recipes/master/recipe-melpa.el"))
+  '((melpa . "https://raw.githubusercontent.com/conao3/feather-recipes/master/feather-recipes-melpa.el")
+    (melpa-detail . "https://raw.githubusercontent.com/conao3/feather-recipes/master/feather-detail-melpa.el"))
   "Fetcher URL alist. see `feather-fetcher-list'."
   :type 'alist
   :group 'feather)
