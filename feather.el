@@ -119,38 +119,30 @@ priority is given to the site located at the head of the list
 ;;  Package configuration
 ;;
 
-(defcustom feather-user-recipes nil
- "User defined package recipes. Overrides recipes.
-Recipe need `:url', [`:commit'], `:deps', `:ver'. see `feather-recipes'.
+(defcustom feather-user-recipes-hash-table nil
+ "User defined package recipes hash table. Overrides any recipes.
+Recipe need `:ver', `:deps', `:url', [`:commit']. see `feather-recipes'.
 If you omit `:commit', install HEAD.
 
 Sample:
-(:0blayout
-   (:props
-    (:url \"https://github.com/etu/0blayout\"
-     :maintainer \"Elis \"etu\" Axelsson\"
-     :authors (\"Elis \"etu\" Axelsson\")
-     :keywords (\"convenience\" \"window-management\")
-     :commit \"873732ddb99a3ec18845a37467ee06bce4e61d87\")
-    :type \"single\"
-    :desc \"Layout grouping with ease\"
-    :deps nil
-    :ver (20161008 607))
- :0xc
-  (:props
-   (:url \"http://github.com/AdamNiederer/0xc\"
-    :commit \"12c2c6118c062a49594965c69e6a17bb46339eb2\")
-   :deps (:s (1 11 0)
-          :emacs (24 4))
-   :ver (20170126 353))
- :2048-game
-  (:props
-   (:url \"https://bitbucket.org/zck/2048.el\")
-   :ver (20151026 1933)))"
+#s(hash-table size 65 test eq rehash-size 1.5 rehash-threshold 0.8 data
+   (:zprint-mode (
+      :ver (20181111 1945)
+      :deps (:emacs (24 3))
+      :url \"https://github.com/pesterhazy/zprint-mode.el\"
+      :description nil
+      :keywords (\"tools\")
+      :authors (\"Paulus Esterhazy <pesterhazy@gmail.com>\")
+      :maintainer \"Paulus Esterhazy <pesterhazy@gmail.com>\")
+    :ztree (
+      :ver (20180512 1850)
+      :deps nil
+      :url \"https://github.com/fourier/ztree\"
+      :commit \"a788db1d0faec7365cb743f62d015ce6c561b028\")))"
   :type 'sexp
   :group 'feather)
 
-(defcustom feather-selected-packages nil
+(defcustom feather-selected-packages-list nil
   "Store here packages installed explicitly by user.
 This variable is fed automatically by feather.el when installing a new package.
 This variable is used by `feather-autoremove' to decide
