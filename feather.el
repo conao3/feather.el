@@ -301,6 +301,29 @@ If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+;;  advice
+;;
+
+(defun feather-show-download-progress (_fmt _perc &rest _args)
+  "show download progress.
+`:before' advice for `url-display-percentage'"
+  (setq-local url-show-status t))
+
+(defun feather-advice-add (&rest args)
+  "advice-add after check `advice-add' defined.
+
+\(fn SYMBOL WHERE FUNCTION &optional PROPS)"
+  (when (fboundp 'advice-add)
+    (apply #'advice-add args)))
+
+(defun feather-advice-remove (&rest args)
+  "advice-remove after check `advice-remove' defined.
+
+\(fn SYMBOL FUNCTION)"
+  (when (fboundp 'advice-remove)
+    (apply #'advice-remove args)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;;  Git controllers
 ;;
 
@@ -461,6 +484,7 @@ The URL corresponding to the symbol is managed with `feather-fetcher-url-alist'.
   (setq feather-recipes nil)
 
   ;; download recipe files, read, append, save it.
+  (feather-advice-add 'url-display-percentage :before #'feather-show-download-progress)
   (mapc (lambda (x)
           (with-current-buffer
               (url-retrieve-synchronously (cdr (assoc x feather-fetcher-url-alist)))
@@ -472,7 +496,8 @@ The URL corresponding to the symbol is managed with `feather-fetcher-url-alist'.
 
             (write-file (format "%srecipe-%s.el" feather-recipes-dir x))
             (kill-buffer)))
-        feather-fetcher-list))
+        feather-fetcher-list)
+  (feather-advice-remove 'url-display-percentage #'feather-show-download-progress))
 
 ;;;###autoload
 (defun feather-list-packages ()
