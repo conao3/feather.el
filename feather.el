@@ -100,16 +100,6 @@ priority is given to the site located at the head of the list
   :type 'alist
   :group 'feather)
 
-(defcustom feather-selected-packages nil
-  "Store here packages installed explicitly by user.
-This variable is fed automatically by Emacs when installing a new package.
-This variable is used by `feather-autoremove' to decide
-which packages are no longer needed.
-You can use it to (re)install packages on other machines
-by running `feather-install-selected-packages'."
-  :type 'sexp
-  :group 'feather)
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Directory paths
@@ -378,10 +368,10 @@ If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
 (defun feather-autoremove ()
   "Remove packages that are no more needed.
 Packages that are no more needed by other packages in
-`feather-selected-packages' and their dependencies will be deleted."
+`feather-selected-packages-list' and their dependencies will be deleted."
   (interactive)
   (let ((lst (feather-install-selected-packages)))
-    (mapc (lambda (x) (delq x lst) feather-selected-packages))
+    (mapc (lambda (x) (delq x lst) feather-selected-packages-list))
     (mapc (lambda (x) (feather-remove x)) lst)))
 
 ;;;###autoload
@@ -404,9 +394,9 @@ If you want to remove packages no more needed, call `feather-autoremove'."
 
 ;;;###autoload
 (defun feather-install-selected-packages ()
-  "Install `feather-selected-packages' listed packages."
+  "Install `feather-selected-packages-list' listed packages."
   (interactive)
-  (mapc (lambda (x) (feather-install x)) feather-selected-packages))
+  (mapc (lambda (x) (feather-install x)) feather-selected-packages-list))
 
 ;;;###autoload
 (defun feather-install (pkg)
