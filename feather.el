@@ -463,18 +463,18 @@ The URL corresponding to the symbol is managed with `feather-fetcher-url-alist'.
 
 ;;;###autoload
 (defun feather-initialize ()
-  "Initialize selected packages."
+  "Initialize `feather'"
   (interactive)
   (unless feather-initialized
     ;; create dir
     (mapc (lambda (x) (make-directory x t)) `(,feather-repos-dir
                                               ,feather-recipes-dir
                                               ,feather-build-dir))
+    ;; add load-path
+    (add-to-list 'load-path feather-build-dir)
 
-    ;; initialize recipes
-    (feather-refresh)
-    )
-  )
+    ;; initialized frg
+    (setq feather-initialized t)))
 
 (provide 'feather)
 ;;; feather.el ends here
