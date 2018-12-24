@@ -94,6 +94,16 @@ priority is given to the site located at the head of the list
   :type 'alist
   :group 'feather)
 
+(defcustom feather-selected-packages nil
+  "Store here packages installed explicitly by user.
+This variable is fed automatically by Emacs when installing a new package.
+This variable is used by `feather-autoremove' to decide
+which packages are no longer needed.
+You can use it to (re)install packages on other machines
+by running `feather-install-selected-packages'."
+  :type 'sexp
+  :group 'feather)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Directory paths
