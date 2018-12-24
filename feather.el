@@ -333,7 +333,9 @@ If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
        ("git" "pull" "origin" "master")))))
 
 (defun feather-git-unshalow (pkg destpath)
-  "Unshallow repository to fetch whole repository."
+  "Unshallow repository to fetch whole repository.
+
+see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-is-shallow"
   (let ((default-directory (expand-file-name destpath)))
     (feather-command-queue
      pkg
