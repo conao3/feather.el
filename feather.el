@@ -221,11 +221,11 @@ This variable is set automatically by `feather-initialize'.")
 ;;
 ;;  Manage packages
 
-(defvar feather-installed-plist nil
+(defvar feather-installed-alist nil
   "List of all packages user installed.
 This variable is controlled by `feather-install' and `feather-remove'.")
 
-(defvar feather-user-installed-plist nil
+(defvar feather-user-installed-alist nil
   "List of all packages user specifyed installed (without dependencies).")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -244,6 +244,15 @@ This variable is controlled by `feather-install' and `feather-remove'.")
   (declare (indent 1))
   `(let ((,(car sym*) ,(cadr sym*)))
      (setq ,(cadr sym*) ,body)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  General functions
+;;
+
+(defsubst feather-truep (var)
+  "Return t if var is non-nil."
+  (not (not var)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -373,6 +382,16 @@ see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-i
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+;;  General manage packages
+;;
+
+;;;###autoload
+(defun feather-package-installed-p (pkg)
+  (feather-truep
+   (assoc (intern pkg) feather-installed-alist)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;;  Remove packages
 ;;
 
@@ -421,7 +440,10 @@ If you want to remove packages no more needed, call `feather-autoremove'."
   "Install specified package named PKG."
   (interactive)
   (feather-initialize)
-  )
+
+  ;; remove old package if installed.
+  (when feather-package-installed-p pkg
+        (feather-remove pkg)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
