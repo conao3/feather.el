@@ -382,6 +382,8 @@ see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-i
 Packages that are no more needed by other packages in
 `feather-selected-packages-list' and their dependencies will be deleted."
   (interactive)
+  (feather-initialize)
+  
   (let ((lst (feather-install-selected-packages)))
     (mapc (lambda (x) (delq x lst) feather-selected-packages-list))
     (mapc (lambda (x) (feather-remove x)) lst)))
@@ -391,12 +393,14 @@ Packages that are no more needed by other packages in
   "Remove specified package named PKG.
 If you want to remove packages no more needed, call `feather-autoremove'."
   (interactive)
+  (feather-initialize)
   )
 
 ;;;###autoload
 (defun feather-clean ()
   "Clean feather working directory and build directory."
   (interactive)
+  (feather-initialize)
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -408,12 +412,15 @@ If you want to remove packages no more needed, call `feather-autoremove'."
 (defun feather-install-selected-packages ()
   "Install `feather-selected-packages-list' listed packages."
   (interactive)
+  (feather-initialize)
+  
   (mapc (lambda (x) (feather-install x)) feather-selected-packages-list))
 
 ;;;###autoload
 (defun feather-install (pkg)
   "Install specified package named PKG."
   (interactive)
+  (feather-initialize)
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -426,7 +433,8 @@ If you want to remove packages no more needed, call `feather-autoremove'."
   "Reflesh package recipes specified `feather-fetcher-list'.
 The URL corresponding to the symbol is managed with `feather-fetcher-url-alist'."
   (interactive)
-
+  (feather-initialize)
+  
   ;; clear all recipes.
   (setq feather-recipes nil)
 
@@ -448,12 +456,14 @@ The URL corresponding to the symbol is managed with `feather-fetcher-url-alist'.
 (defun feather-list-packages ()
   "Show available packages list."
   (interactive)
+  (feather-initialize)
   )
 
 ;;;###autoload
 (defun feather-package-info (pkg)
   "Show package info."
   (interactive)
+  (feather-initialize)
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
