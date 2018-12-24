@@ -87,9 +87,15 @@ priority is given to the site located at the head of the list
   :type 'sexp
   :group 'feather)
 
+(defun feather-default-recipe-url (dest)
+  "return default recipe url"
+  (format "https://raw.githubusercontent.com/conao3/feather-recipes/master/%s.el" dest))
+
 (defcustom feather-fetcher-url-alist
-  '((melpa . "https://raw.githubusercontent.com/conao3/feather-recipes/master/feather-recipes-melpa.el")
-    (melpa-detail . "https://raw.githubusercontent.com/conao3/feather-recipes/master/feather-detail-melpa.el"))
+  `((melpa        . ,(feather-default-recipe-url "melpa"))
+    (melpa-detail . ,(feather-default-recipe-url "melpa-deteil"))
+    (melpa-stable . ,(feather-default-recipe-url "melpa_stable"))
+    (melpa-stable-detail . ,(feather-default-recipe-url "melpa_stable-detail")))
   "Fetcher URL alist. see `feather-fetcher-list'."
   :type 'alist
   :group 'feather)
