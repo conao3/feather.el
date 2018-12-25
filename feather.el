@@ -254,6 +254,33 @@ This variable is controlled by `feather-install' and `feather-remove'.")
   "Return t if var is non-nil."
   (not (not var)))
 
+(defsubst feather-message (from-fn msg &optional level)
+  "Show message.
+LEVEL is one of :emargency, :error, :warning, :debug."
+  (if level
+      (display-warning 'feather (format "%s: %s" from-fn msg) level)
+    (message (format "[feather] %s: %s" from-fn msg))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Hash table util
+;;
+
+(defun feather-ht-update! (table from-table)
+  "Update TABLE according to every key-value pair in FROM-TABLE."
+  (maphash
+   (lambda (key value) (puthash key value table))
+   from-table)
+  nil)
+
+(defun feather-ht-merge (&rest tables)
+  "Crete a new tables that includes all the key-value pairs from TABLES.
+If multiple have tables have the same key, the value in the last
+table is used."
+  (let ((merged (make-hash-table :test 'eq)))
+    (mapc (lambda (table) (feather-ht-update! merged table)) tables)
+    merged))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Shell controllers
@@ -474,30 +501,54 @@ If you want to remove packages no more needed, call `feather-autoremove'."
 ;;
 
 ;;;###autoload
-(defun feather-refresh ()
+(defun feather-refresh (&optional cache-p)
   "Reflesh package recipes specified `feather-fetcher-list'.
 The URL corresponding to the symbol is managed with `feather-fetcher-url-alist'."
   (interactive)
   (feather-initialize)
   
   ;; clear all recipes.
-  (setq feather-recipes nil)
+  (setq feather-recipes (make-hash-table :test 'eq))
+
+  ;; add advice to show progress
+  (feather-advice-add 'url-display-percentage :before #'feather-show-download-progress)
 
   ;; download recipe files, read, append, save it.
-  (feather-advice-add 'url-display-percentage :before #'feather-show-download-progress)
   (mapc (lambda (x)
-          (with-current-buffer
-              (url-retrieve-synchronously (cdr (assoc x feather-fetcher-url-alist)))
-            (delete-region (point-min)
-                           (1+ (marker-position url-http-end-of-headers)))
+          (let* ((var-sym (intern (format "feather-recipes--%s" x)))
+                 (filepath (format "%s%s.el" feather-recipes-dir var-sym)))
 
-            (feather-asetq (it feather-recipes)
-              (append it (read (buffer-string))))
+            ;; define recipe var
+            (eval `(defvar ,var-sym))
 
-            (write-file (format "%srecipe-%s.el" feather-recipes-dir x))
-            (kill-buffer)))
-        feather-fetcher-list)
-  (feather-advice-remove 'url-display-percentage #'feather-show-download-progress))
+            ;; load, or donload recipe if not recipe exist or chache-p is nil
+            (condition-case err
+                (progn
+                  (with-temp-file filepath
+                    (if (or (not cache-p) (not (file-exists-p filepath)))
+                        (url-insert-file-contents
+                         (cdr (assoc x feather-fetcher-url-alist)))
+                      (insert-file-contents filepath))
+
+                    ;; read file contents as sexp
+                    ;; TODO: read from list support for Emacs-22
+                    (eval `(setq ,var-sym (read (buffer-string)))))
+
+                  ;; merge to main recipes var
+                  (feather-asetq (it feather-recipes)
+                    (feather-ht-merge it (eval var-sym))))
+              (error
+               (feather-message 'feather-refresh err :error)))))
+        ;; updated after elements. first value will adoped.
+        (reverse feather-fetcher-list))
+
+  ;; remove advice
+  (feather-advice-remove 'url-display-percentage #'feather-show-download-progress)
+
+  ;; show status
+  (feather-message 'feather-refresh
+                   (format "Completed! %s recipes available."
+                           (hash-table-count feather-recipes))))
 
 ;;;###autoload
 (defun feather-list-packages ()
@@ -524,9 +575,10 @@ The URL corresponding to the symbol is managed with `feather-fetcher-url-alist'.
   (interactive)
   (unless feather-initialized
     ;; create dir
-    (mapc (lambda (x) (make-directory x t)) `(,feather-repos-dir
-                                              ,feather-recipes-dir
-                                              ,feather-build-dir))
+    (mapc (lambda (x) (unless (file-directory-p x)
+                        (make-directory x t)))
+          `(,feather-repos-dir ,feather-recipes-dir ,feather-build-dir))
+
     ;; add load-path
     (add-to-list 'load-path feather-build-dir)
 
