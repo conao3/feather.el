@@ -555,14 +555,16 @@ The URL corresponding to the symbol is managed with `feather-fetcher-url-alist'.
   "Show available packages list."
   (interactive)
   (feather-initialize)
-  )
+  feather-recipes)
 
 ;;;###autoload
 (defun feather-package-info (pkg)
-  "Show package info."
+  "Show package info.
+
+such as (feather-package-info :zzz-to-char)"
   (interactive)
   (feather-initialize)
-  )
+  (gethash pkg feather-recipes))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
