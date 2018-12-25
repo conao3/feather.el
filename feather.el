@@ -136,7 +136,7 @@ priority is given to the site located at the head of the list
 ;;
 
 (defcustom feather-user-recipes-hash-table nil
- "User defined package recipes hash table. Overrides any recipes.
+  "User defined package recipes hash table. Overrides any recipes.
 Recipe need `:ver', `:deps', `:url', [`:commit']. see `feather-recipes'.
 If you omit `:commit', install HEAD.
 
@@ -221,11 +221,11 @@ This variable is set automatically by `feather-initialize'.")
 ;;
 ;;  Manage packages
 
-(defvar feather-installed-alist nil
+(defvar feather-installed-plist nil
   "List of all packages user installed.
 This variable is controlled by `feather-install' and `feather-remove'.")
 
-(defvar feather-user-installed-alist nil
+(defvar feather-user-installed-plist nil
   "List of all packages user specifyed installed (without dependencies).")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -411,7 +411,7 @@ see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-i
      `(("pwd")
        ("git" "fetch" "-unshallow")
        ("git" "checkout" "master")))))
-  
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Package contorollers
@@ -436,9 +436,20 @@ see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-i
 ;;
 
 ;;;###autoload
+(defun feather-installed-package-info (pkg)
+  "Return installed package info.
+If package haven't installed yet, return nil.
+If package have removed, return (:state :removed)"
+  (let ((pkg* (intern (format ":%s" pkg))))
+    (plist-member feather-installed-plist pkg*)))
+
+;;;###autoload
 (defun feather-package-installed-p (pkg)
-  (feather-truep
-   (assoc (intern pkg) feather-installed-alist)))
+  (let ((pkg* (intern (format ":%s" pkg))))
+    (let ((info (feather-installed-package-info pkg)))
+      (feather-truep
+       (and info
+            (not (eq (plist-get info :state) :removed)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -458,12 +469,28 @@ Packages that are no more needed by other packages in
     (mapc (lambda (x) (feather-remove x)) lst)))
 
 ;;;###autoload
-(defun feather-remove (pkg)
+(defun feather-remove (pkg &optional force-p)
   "Remove specified package named PKG.
 If you want to remove packages no more needed, call `feather-autoremove'."
-  (interactive)
+  (interactive "nRemove package: ")
   (feather-initialize)
-  )
+
+  (let* ((pkg* (intern (format ":%s" pkg))))
+    (when (and (feather-package-installed-p pkg)
+               (or force-p
+                   (y-or-n-p (format "Really remove %s?" pkg))))
+      (condition-case err
+          (let ((info (feather-installed-package-info pkg)))
+            ;; delete package build-files
+            (mapc #'delete-file (plist-get info :build-files))
+            
+            ;; delete package source dir
+            (delete-directory (concat feather-repos-dir pkg))
+
+            ;; show info
+            (feather-message 'feather-remove
+                             "Complete remove. Refresh Emacs."))
+        (error (feather-message 'feather-remove err :warning))))))
 
 ;;;###autoload
 (defun feather-clean ()
@@ -493,8 +520,8 @@ If you want to remove packages no more needed, call `feather-autoremove'."
 
   ;; remove old package if installed.
   (when (feather-package-installed-p pkg)
-        (when (y-or-n-p (format "%s is already installed. Reinstall?" pkg))
-          (feather-remove pkg))))
+    (when (y-or-n-p (format "%s is already installed. Reinstall?" pkg))
+      (feather-remove pkg))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
