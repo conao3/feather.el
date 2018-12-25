@@ -492,8 +492,9 @@ If you want to remove packages no more needed, call `feather-autoremove'."
   (feather-initialize)
 
   ;; remove old package if installed.
-  (when feather-package-installed-p pkg
-        (feather-remove pkg)))
+  (when (feather-package-installed-p pkg)
+        (when (y-or-n-p (format "%s is already installed. Reinstall?" pkg))
+          (feather-remove pkg))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
