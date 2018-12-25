@@ -357,6 +357,32 @@ such as (feather-package-info :zzz-to-char)"
 ;;
 
 ;;;###autoload
+(defun feather-save-data ()
+  "Save `feather-installed-plist' (inner variable),
+        `feather-selected-packages-list' (custom variable),
+        `feather-pinned-packages-alist'  (custom variable)
+TODO: list support for Emacs-22."
+  (let ((filepath (concat feather-recipes-dir "feather-data.el")))
+    (when (file-writable-p filepath)
+          (with-temp-file filepath
+            (mapc (lambda (x)
+                    (insert (format "(defvar %s)\n(setq %s %s)\n\n"
+                                    x x (eval x))))
+                  '(feather-installed-plist
+                    feather-selected-packages-list
+                    feather-pinned-packages-alist))))))
+
+;;;###autoload
+(defun feather-load-data ()
+  "Load `feather-installed-plist' (inner variable),
+        `feather-selected-packages-list' (custom variable),
+        `feather-pinned-packages-alist'  (custom variable)
+TODO: list support for Emacs-22"
+  (let ((filepath (concat feather-recipes-dir "feather-data.el")))
+    (when (file-readable-p filepath)
+      (load-file filepath))))
+
+;;;###autoload
 (defun feather-initialize ()
   "Initialize `feather'"
   (interactive)
@@ -368,6 +394,9 @@ such as (feather-package-info :zzz-to-char)"
 
     ;; add load-path
     (add-to-list 'load-path feather-build-dir)
+
+    ;; load feather database
+    (feather-load-data)
 
     ;; initialized frg
     (setq feather-initialized t)))
