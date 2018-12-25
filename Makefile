@@ -28,7 +28,6 @@ git-hook:
 
 include Makefile-check.mk
 
-
 ##############################
 #  test on all Emacs
 
@@ -40,9 +39,10 @@ allcheck: $(ALL_EMACS:%=.make-check-%)
 .make-check-%:
 	mkdir -p .make-$*
 	cp -f $(ELS) $(CORTELS) .make-$*/
-	$(call EXPORT,ELS CORT_ARGS,Makefile-check.mk,.make-$*)
-	EMACS=$* $(MAKE) -C .make-$* clean
-	EMACS=$* $(MAKE) -C .make-$* check 2>&1 | tee -a $(LOGFILE)
+	cp -f Makefile-check.mk .make-$*/Makefile
+	$(MAKE) -C .make-$* clean
+	$(call EXPORT,ELS CORT_ARGS) \
+	  EMACS=$* $(MAKE) -C .make-$* check 2>&1 | tee -a $(LOGFILE)
 	rm -rf .make-$*
 
 ##############################
@@ -56,7 +56,8 @@ test: $(ALL_EMACS:%=.make-test-%)
 .make-test-%:
 	mkdir -p .make-$*
 	cp -f $(ELS) $(CORTELS) .make-$*/
-	$(call EXPORT,ELS CORT_ARGS,Makefile-check.mk,.make-$*)
-	EMACS=$* $(MAKE) -C .make-$* clean
-	EMACS=$* $(MAKE) -C .make-$* check 2>&1 >> $(LOGFILE)
+	cp -f Makefile-check.mk .make-$*/Makefile
+	$(MAKE) -C .make-$* clean
+	$(call EXPORT,ELS CORT_ARGS) \
+	  EMACS=$* $(MAKE) -C .make-$* check 2>&1 >> $(LOGFILE)
 	rm -rf .make-$*
