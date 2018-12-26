@@ -59,6 +59,26 @@ see `gnutls-available-p'.)"
   `(let ((,(car sym*) ,(cadr sym*)))
      (setq ,(cadr sym*) ,body)))
 
+(defmacro feather-alet (varlist* &rest body)
+  "Anaphoric let macro. Return first arg value.
+CAUTION:
+`it' has first var value, it is NOT updated if var value changed.
+
+(macroexpand
+ '(leaf-alet (it ((result t)))
+  (princ it)))
+=> (let* ((result t)
+          (it result))
+     (progn (princ it))
+     result)
+
+\(fn (ASYM (VARLIST...)) &rest BODY)"
+  (declare (debug t) (indent 1))
+  `(let* (,@(cadr varlist*)
+          (,(car varlist*) ,(caar (cadr varlist*))))
+     (progn ,@body)
+     ,(caar (cadr varlist*))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  General functions
