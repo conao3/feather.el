@@ -259,7 +259,11 @@ If you want to remove packages no more needed, call `feather-autoremove'."
   "Clean feather working directory and build directory."
   (interactive)
   (feather-initialize)
-  )
+  (when (y-or-n-p "Really clean feather directory? All packages will delete.")
+    (mapc (lambda (x) (delete-directory (eval x) t)) feather-dirs)
+    
+    ;; create raw directory
+    (feather-initialize t)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -388,14 +392,16 @@ TODO: list support for Emacs-22"
       (load-file filepath))))
 
 ;;;###autoload
-(defun feather-initialize ()
+(defun feather-initialize (&optional force-p)
   "Initialize `feather'"
   (interactive)
-  (unless feather-initialized
+  (when (or force-p (not feather-initialized))
     ;; create dir
-    (mapc (lambda (x) (unless (file-directory-p x)
-                        (make-directory x t)))
-          `(,feather-repos-dir ,feather-recipes-dir ,feather-build-dir))
+    (mapc (lambda (x)
+            (let ((dirpath (eval x)))
+              (unless (file-directory-p dirpath)
+                (make-directory dirpath t))))
+          feather-dirs)
 
     ;; add load-path
     (add-to-list 'load-path feather-build-dir)
