@@ -182,6 +182,11 @@ see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-i
   "Generate autoloads .el file"
   )
 
+(defun feather-packages-list ()
+  "Return available package name list"
+  (feather-alet (it ((lst)))
+    (maphash (lambda (x) (push it x)) feather-recipes)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Interactive functions

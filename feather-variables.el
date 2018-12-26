@@ -144,7 +144,7 @@ use `feather-user-selected-p'."
   :type '(repeat symbol)
   :group 'feather)
 
-(defcustom feather-pinned-packages nil
+(defcustom feather-pinned-packages-alist nil
   "An alist of packages that are pinned to specific archives.
 This can be useful if you have multiple package archives enabled,
 and want to control which archive a given package gets installed from.
@@ -196,9 +196,6 @@ This variable is set automatically by `feather-initialize'.")
 (defvar feather-installed-plist nil
   "List of all packages user installed.
 This variable is controlled by `feather-install' and `feather-remove'.")
-
-(defvar feather-user-installed-plist nil
-  "List of all packages user specifyed installed (without dependencies).")
 
 (provide 'feather-variables)
 ;;; feather-variables.el ends here
