@@ -185,7 +185,7 @@ see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-i
 (defun feather-packages-list ()
   "Return available package name list"
   (feather-alet (it ((lst)))
-    (maphash (lambda (x) (push it x)) feather-recipes)))
+    (maphash (lambda (key val) (push key lst)) feather-recipes)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -345,7 +345,7 @@ The URL corresponding to the symbol is managed with `feather-fetcher-url-alist'.
   "Show available packages list."
   (interactive)
   (feather-initialize)
-  feather-recipes)
+  (feather-packages-list))
 
 ;;;###autoload
 (defun feather-package-info (pkg)
