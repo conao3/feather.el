@@ -47,6 +47,21 @@ see `gnutls-available-p'.)"
     "Simple implementation of `locate-user-emacs-file'."
     (format "%s%s" user-emacs-directory name)))
 
+(defmacro leaf-case (fn var &rest conds)
+  "Switch case macro with FN.
+Emacs-22 doesn't support `pcase'."
+  (declare (indent 2))
+  (let ((lcond var))
+    `(cond
+      ,@(mapcar (lambda (x)
+                  (let ((rcond (car x))
+                        (form (cadr x)))
+                    (if (eq rcond '_)
+                        `(t ,form)
+                      `((funcall ,fn ,lcond ,rcond) ,form))))
+                conds)
+      (t nil))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Anaphoric macros

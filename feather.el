@@ -112,7 +112,7 @@ If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
 ;;
 
 ;; (feather-git-clone-head "melpa" "https://github.com/melpa/melpa" feather-recipes-dir)
-(defun feather-git-clone-head (pkg remote-url destdir)
+(defun feather-git-shallow-clone (pkg)
   "Clone REMOTE-URL repository HEAD to DESTDIR. (shallow-clone)"
   (let ((destpath (concat destdir (file-name-nondirectory remote-url))))
     (if (file-directory-p destpath)
@@ -121,23 +121,7 @@ If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
         (feather-command-queue
          pkg
          `(("pwd")
-           ("git" "clone" "-depth" "1" ,remote-url)))))))
-
-;; (feather-git-clone-specific "https://github.com/conao3/cort.el"
-;;                             "v0.1" feather-repos-dir)
-(defun feather-git-clone-specific (pkg remote-url spec destdir)
-  "Clone REMOTE-URL repository SPEC only to DESTDIR. (shallow-clone)"
-  (let* ((repo-name (file-name-nondirectory remote-url))
-         (destpath  (concat destdir repo-name)))
-    (if (file-directory-p destpath)
-        (let ((default-directory (expand-file-name destpath)))
-          (feather-command-queue
-           pkg
-           `(("pwd")
-             ("echo" "Repostory is already existed.")
-             ("echo")
-             ("echo" "If you want to check out to another commit,")
-             ("echo" "first delete repository by `remove-package'."))))
+           ("git" "clone" "-depth" "1" ,remote-url))))
       (let ((default-directory (expand-file-name destdir)))
         (feather-command-queue
          pkg
@@ -182,6 +166,10 @@ see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-i
   "Generate autoloads .el file"
   )
 
+(defun feather-ensure-package (pkg)
+  "ensure PKG."
+  )
+
 (defun feather-packages-list ()
   "Return available package name list"
   (feather-alet (it ((lst)))
@@ -202,12 +190,12 @@ see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-i
   "Return installed package info.
 If package haven't installed yet, return nil.
 If package have removed, return (:state :removed)"
-  (let ((pkg* (intern (format ":%s" pkg))))
+  (let ((pkg* (intern pkg)))
     (plist-member feather-installed-plist pkg*)))
 
 ;;;###autoload
 (defun feather-package-installed-p (pkg)
-  (let ((pkg* (intern (format ":%s" pkg))))
+  (let ((pkg* (intern pkg)))
     (let ((info (feather-installed-package-info pkg)))
       (feather-truep
        (and info
@@ -237,7 +225,7 @@ If you want to remove packages no more needed, call `feather-autoremove'."
   (interactive "nRemove package: ")
   (feather-initialize)
 
-  (let* ((pkg* (intern (format ":%s" pkg))))
+  (let ((pkg* (intern pkg)))
     (when (and (feather-package-installed-p pkg)
                (or force-p
                    (y-or-n-p (format "Really remove %s?" pkg))))
@@ -275,19 +263,33 @@ If you want to remove packages no more needed, call `feather-autoremove'."
   "Install `feather-selected-packages-list' listed packages."
   (interactive)
   (feather-initialize)
-  
-  (mapc (lambda (x) (feather-install x)) feather-selected-packages-list))
+
+  (when feather-selected-packages-list
+    (mapc (lambda (x) (feather-install (symbol-name x))
+            feather-selected-packages-list))))
 
 ;;;###autoload
 (defun feather-install (pkg)
   "Install specified package named PKG."
-  (interactive)
+  (interactive "nInstall package: ")
   (feather-initialize)
 
-  ;; remove old package if installed.
-  (when (feather-package-installed-p pkg)
-    (when (y-or-n-p (format "%s is already installed. Reinstall?" pkg))
-      (feather-remove pkg))))
+  (let* ((pkg* (intern pkg))
+         (info (gethash pkg* feather-recipes))
+    ;; remove old package if installed.
+    (if (feather-package-installed-p pkg)
+      (when (y-or-n-p (format "%s is already installed. Reinstall?" pkg))
+        (feather-remove pkg)
+        (feather-install pkg))
+
+      ;; download source
+      (feather-ensure-package pkg)
+
+      ;; generate autoloads
+      (feather-generate-autoloads pkg)
+
+      ;; acrivate package
+      (feather-activate pkg)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
