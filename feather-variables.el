@@ -112,24 +112,18 @@ priority is given to the site located at the head of the list
 
 (defcustom feather-user-recipes-hash-table nil
   "User defined package recipes hash table. Overrides any recipes.
-Recipe need `:ver', `:deps', `:url', [`:commit']. see `feather-recipes'.
+Recipe need `:repo', [`:fetcher'], [`:commit'], [`:files']. see `feather-recipes'.
+
+If you omit `:fetcher', install from GitHub.
 If you omit `:commit', install HEAD.
+If you omit `:files', install `:defaults' file see `feather-package-defaults-files'
 
 Sample:
 #s(hash-table size 65 test eq rehash-size 1.5 rehash-threshold 0.8 data
-   (:zprint-mode (
-      :ver (20181111 1945)
-      :deps (:emacs (24 3))
-      :url \"https://github.com/pesterhazy/zprint-mode.el\"
-      :description nil
-      :keywords (\"tools\")
-      :authors (\"Paulus Esterhazy <pesterhazy@gmail.com>\")
-      :maintainer \"Paulus Esterhazy <pesterhazy@gmail.com>\")
-    :ztree (
-      :ver (20180512 1850)
-      :deps nil
-      :url \"https://github.com/fourier/ztree\"
-      :commit \"a788db1d0faec7365cb743f62d015ce6c561b028\")))"
+   (zzz-to-char     (:fetcher \"github\" :repo \"mrkkrp/zzz-to-char\" :files nil)
+    zygospore       (:repo \"LouisKottmann/zygospore.el\" :commit \"0.0.3\")
+    ztree           (:repo \"fourier/ztree\" :commit \"c54425a094353ec40a\")
+    zweilight-theme (:repo \"philiparvidsson/Zweilight-Theme-for-Emacs\")))"
   :type 'sexp
   :group 'feather)
 
@@ -174,6 +168,16 @@ the package will be unavailable."
 (defvar feather-initialized nil
   "Manage `feather' initialization state.
 This variable is set automatically by `feather-initialize'.")
+
+(defconst feather-package-defaults-files
+  '("*.el" "*.el.in" "dir"
+    "*.info" "*.texi" "*.texinfo"
+    "doc/dir" "doc/*.info" "doc/*.texi" "doc/*.texinfo"
+    (:exclude ".dir-locals.el" "test.el" "tests.el" "*-test.el" "*-tests.el"))
+  "Default value for :files attribute in recipes.
+
+see `package-build-default-files-spec' from
+https://github.com/melpa/melpa/blob/master/package-build/package-build.el")
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ;;
