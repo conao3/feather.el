@@ -32,30 +32,16 @@
 (defcustom feather-fetcher-list '(melpa)
   "A list of sites to fetch.
 If there are multiple download destinations,
-priority is given to the site located at the head of the list
+priority is given to the site located at the head of the list.
 
-[TODO]: Now, support melpa only."
-  ;; :type '(sexp
-  ;;         (symbol
-  ;;          ;; (const :tag "Elpa"         'elpa)
-  ;;          (const :tag "Melpa"        'melpa)))
-  ;;          ;; (const :tag "Melpa-stable" 'melpa-stable)
-  ;;          ;; (const :tag "el-get"       'el-get)
-  ;;          ;; (const :tag "cask"         'cask)))
+see `feather-fetcher-url-alist' available fetcher symbol"
   :type 'sexp
   :group 'feather)
 
 (defcustom feather-fetcher-detail-list '(melpa-detail)
-  "A list of sites to fetch detail recipe file.
+  "A list of sites to fetch detail recipe file. Use at `feather-list-packages'.
 
-[TODO]: Now, support melpa only."
-  ;; :type '(sexp
-  ;;         (symbol
-  ;;          ;; (const :tag "Elpa"         'elpa)
-  ;;          (const :tag "Melpa"        'melpa)))
-  ;;          ;; (const :tag "Melpa-stable" 'melpa-stable)
-  ;;          ;; (const :tag "el-get"       'el-get)
-  ;;          ;; (const :tag "cask"         'cask)))
+see `feather-fetcher-url-alist' available fetcher symbol"
   :type 'sexp
   :group 'feather)
 
