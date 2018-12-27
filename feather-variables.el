@@ -60,24 +60,24 @@ priority is given to the site located at the head of the list
   :group 'feather)
 
 (defcustom feather-fetcher-url-alist
-  (let ((fn (lambda (x) (format "https://raw.githubusercontent.com/conao3/feather-recipes/master/feather-%s.el" x))))
-    `((melpa                    . ,(funcall fn "recipes-melpa"))
-      (melpa-stable             . ,(funcall fn "recipes-melpa_stable"))
+  (let ((fn (lambda (x) (format "https://raw.githubusercontent.com/conao3/feather-recipes/master/%s.el" x))))
+    `((melpa                    . ,(funcall fn "recipes/melpa"))
+      (melpa-stable             . ,(funcall fn "recipes/melpa_stable"))
 
-      (melpa-detail             . ,(funcall fn "detail-melpa"))
-      (melpa-stable-detail      . ,(funcall fn "detail-melpa_stable"))
+      (melpa-detail             . ,(funcall fn "detail/melpa"))
+      (melpa-stable-detail      . ,(funcall fn "detail/melpa_stable"))
 
 
-      (melpa-list               . ,(funcall fn "recipes-melpa-list"))
-      (melpa-stable-list        . ,(funcall fn "recipes-melpa_stable-list"))
+      (melpa-list               . ,(funcall fn "recipes/melpa-list"))
+      (melpa-stable-list        . ,(funcall fn "recipes/melpa_stable-list"))
 
-      (melpa-detail-list        . ,(funcall fn "detail-melpa-list"))
-      (melpa-stable-detail-list . ,(funcall fn "detail-melpa_stable-list"))
+      (melpa-detail-list        . ,(funcall fn "detail/melpa-list"))
+      (melpa-stable-detail-list . ,(funcall fn "detail/melpa_stable-list"))
 
-      (lite                     . ,(funcall fn "recipes-lite"))
-      (lite-detail              . ,(funcall fn "detail-lite"))
-      (lite-list                . ,(funcall fn "recipes-lite-list"))
-      (lite-detail-list         . ,(funcall fn "detail-lite-list"))))
+      (lite                     . ,(funcall fn "recipes/lite"))
+      (lite-detail              . ,(funcall fn "detail/lite"))
+      (lite-list                . ,(funcall fn "recipes/lite-list"))
+      (lite-detail-list         . ,(funcall fn "detail/lite-list"))))
   "Fetcher URL alist. see `feather-fetcher-list'."
   :type 'alist
   :group 'feather)
