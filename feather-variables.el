@@ -102,6 +102,9 @@ priority is given to the site located at the head of the list
   :type 'directory
   :group 'feather)
 
+(defvar feather-dirs '(feather-repos-dir feather-recipes-dir feather-build-dir)
+  "All directorys feather managed")
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Package configuration
@@ -132,6 +135,7 @@ Sample:
 
 (defcustom feather-selected-packages-list nil
   "Store here packages installed explicitly by user.
+This variable is must be list by quoted symbol.
 This variable is fed automatically by feather.el when installing a new package.
 This variable is used by `feather-autoremove' to decide
 which packages are no longer needed.
