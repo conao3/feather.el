@@ -278,15 +278,20 @@ If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
 ;;
 
 ;; (feather-git-clone-head "melpa" "https://github.com/melpa/melpa" feather-recipes-dir)
-;; (feather-git-shallow-clone "feather.el" "https://github.com/conao3/feather.el.git" feather-recipes-dir)
-(defun feather-git-shallow-clone (pkg url dir)
-  "Clone PKG repository from URL on DIR. (shallow-clone)"
+;; (feather-git-clone "feather.el" "https://github.com/conao3/feather.el.git" feather-recipes-dir)
+(defun feather-git-clone (pkg url dir &optional shallow-p)
+  "Clone PKG repository from URL on DIR."
   (unless (file-directory-p (expand-file-name pkg dir))
     (feather-command-queue
      `(("cd" ,dir)
        ("pwd")
        ("echo" "[Cloning]" ,name "...")
-       ("git" "clone" "-depth" "1" ,url)))))
+       ("git" "clone" ,url ,@(when shallow-p '("--depth" "1")))))))
+
+(defun feather-git-shallow-clone (pkg url dir)
+  "Clone PKG repository from URL on DIR. (shallow-clone)"
+  (feather-git-clone pkg url dir t))
+
       ;; (feather-command-queue
       ;;    nil ;; pkg
       ;;    `(("pwd")
