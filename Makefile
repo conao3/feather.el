@@ -12,7 +12,7 @@ BATCH       := $(EMACS) -Q --batch -L $(TOP)
 
 TESTFILE    := feather-tests.el
 ELS         := feather.el
-ELS           += feather-polyfill.el feather-variables.el
+ELS           += feather-polyfill.el
 
 CORTELS     := $(TESTFILE) cort-test.el
 CORT_ARGS   := -l $(TESTFILE) -f cort-run-tests

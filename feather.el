@@ -23,7 +23,6 @@
 ;;
 
 (require 'feather-polyfill)
-(require 'feather-variables)
 
 (defgroup feather nil
   "Emacs package manager with parallel processing."
@@ -31,6 +30,173 @@
 
 (defconst feather-version "0.0.1"
   "feather.el version")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Customizable variables
+;;
+
+(defcustom feather-fetcher-list '(melpa)
+  "A list of sites to fetch.
+If there are multiple download destinations,
+priority is given to the site located at the head of the list.
+
+see `feather-fetcher-url-alist' available fetcher symbol"
+  :type 'sexp
+  :group 'feather)
+
+(defcustom feather-fetcher-detail-list '(melpa-detail)
+  "A list of sites to fetch detail recipe file. Use at `feather-list-packages'.
+
+see `feather-fetcher-url-alist' available fetcher symbol"
+  :type 'sexp
+  :group 'feather)
+
+(defcustom feather-fetcher-url-alist
+  (let ((fn (lambda (x) (format "https://raw.githubusercontent.com/conao3/feather-recipes/master/%s.el" x))))
+    `((melpa                    . ,(funcall fn "recipes/melpa"))
+      (melpa-stable             . ,(funcall fn "recipes/melpa_stable"))
+
+      (melpa-detail             . ,(funcall fn "detail/melpa"))
+      (melpa-stable-detail      . ,(funcall fn "detail/melpa_stable"))
+
+
+      (melpa-list               . ,(funcall fn "recipes/melpa-list"))
+      (melpa-stable-list        . ,(funcall fn "recipes/melpa_stable-list"))
+
+      (melpa-detail-list        . ,(funcall fn "detail/melpa-list"))
+      (melpa-stable-detail-list . ,(funcall fn "detail/melpa_stable-list"))
+
+      (lite                     . ,(funcall fn "recipes/lite"))
+      (lite-detail              . ,(funcall fn "detail/lite"))
+      (lite-list                . ,(funcall fn "recipes/lite-list"))
+      (lite-detail-list         . ,(funcall fn "detail/lite-list"))))
+  "Fetcher URL alist. see `feather-fetcher-list'."
+  :type 'alist
+  :group 'feather)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Directory paths
+;;
+
+(defcustom feather-repos-dir (locate-user-emacs-file "feather/repos/")
+  "Directory where the download Emacs Lisp packages is placed."
+  :type 'directory
+  :group 'feather)
+
+(defcustom feather-recipes-dir (locate-user-emacs-file "feather/recipes/")
+  "Directory where the recipes is placed."
+  :type 'directory
+  :group 'feather)
+
+(defcustom feather-build-dir (locate-user-emacs-file "feather/build/")
+  "Directory where byte-compiled Emacs Lisp files is placed"
+  :type 'directory
+  :group 'feather)
+
+(defvar feather-dirs '(feather-repos-dir feather-recipes-dir feather-build-dir)
+  "All directorys feather managed")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Package configuration
+;;
+
+(defcustom feather-user-recipes-hash-table nil
+  "User defined package recipes hash table. Overrides any recipes.
+Recipe need `:repo', [`:fetcher'], [`:commit'], [`:files']. see `feather-recipes'.
+
+If you omit `:fetcher', install from GitHub.
+If you omit `:commit', install HEAD.
+If you omit `:files', install `:defaults' file see `feather-package-defaults-files'
+
+Sample:
+#s(hash-table size 65 test eq rehash-size 1.5 rehash-threshold 0.8 data
+   (zzz-to-char     (:fetcher \"github\" :repo \"mrkkrp/zzz-to-char\" :files nil)
+    zygospore       (:repo \"LouisKottmann/zygospore.el\" :commit \"0.0.3\")
+    ztree           (:repo \"fourier/ztree\" :commit \"c54425a094353ec40a\")
+    zweilight-theme (:repo \"philiparvidsson/Zweilight-Theme-for-Emacs\")))"
+  :type 'sexp
+  :group 'feather)
+
+(defcustom feather-selected-packages-list nil
+  "Store here packages installed explicitly by user.
+This variable is must be list by quoted symbol.
+This variable is fed automatically by feather.el when installing a new package.
+This variable is used by `feather-autoremove' to decide
+which packages are no longer needed.
+
+You can use it to (re)install packages on other machines
+by running `feather-install-selected-packages'.
+
+To check if a package is contained in this list here,
+use `feather-user-selected-p'."
+  :type '(repeat symbol)
+  :group 'feather)
+
+(defcustom feather-pinned-packages-alist nil
+  "An alist of packages that are pinned to specific archives.
+This can be useful if you have multiple package archives enabled,
+and want to control which archive a given package gets installed from.
+
+Each element of the alist has the form (PACKAGE . ARCHIVE), where:
+ PACKAGE is a symbol representing a package
+ ARCHIVE is a string representing an archive (it should be element in
+`feather-fetcher-list', e.g. 'melpa-stable).
+
+Adding an entry to this variable means that only ARCHIVE will be
+considered as a source for PACKAGE.  If other archives provide PACKAGE,
+they are ignored (for this package).  If ARCHIVE does not contain PACKAGE,
+the package will be unavailable."
+  :type '(alist :key-type (symbol :tag "Package")
+                :value-type (symbol :tag "Archive"))
+  :group 'feather)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Inner variables - DON'T change!
+;;
+
+(defvar feather-initialized nil
+  "Manage `feather' initialization state.
+This variable is set automatically by `feather-initialize'.")
+
+(defconst feather-package-defaults-files
+  '("*.el" "*.el.in" "dir"
+    "*.info" "*.texi" "*.texinfo"
+    "doc/dir" "doc/*.info" "doc/*.texi" "doc/*.texinfo"
+    (:exclude ".dir-locals.el" "test.el" "tests.el" "*-test.el" "*-tests.el"))
+  "Default value for :files attribute in recipes.
+
+see `package-build-default-files-spec' from
+https://github.com/melpa/melpa/blob/master/package-build/package-build.el")
+
+;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Manage Process
+
+(defvar feather-process-state-alist nil
+  "Manage `feather' process state.
+When change process state changed, pushed new state.")
+
+;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Manage recipes
+;;
+
+(defvar feather-recipes nil
+  "Package recipes.
+Stored ordered by `feather-fetcher-list'.
+This variable is set automatically by `feather-initialize'.")
+
+;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Manage packages
+
+(defvar feather-installed-plist nil
+  "List of all packages user installed.
+This variable is controlled by `feather-install' and `feather-remove'.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
