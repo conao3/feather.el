@@ -24,7 +24,7 @@
 
 ;;; Code:
 (require 'feather)
-(require 'cort)
+(require 'cort-test)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
