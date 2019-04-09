@@ -288,6 +288,15 @@ If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
        ("echo" "[Cloning]" ,name "...")
        ("git" "clone" ,url ,@(when shallow-p '("--depth" "1")))))))
 
+(defun feather-git-full-clone (pkg url dir)
+  "Clone PKG repository from URL on DIR. (full-clone)"
+  (unless (file-directory-p (expand-file-name pkg dir))
+    (feather-command-queue
+     `(("cd" ,dir)
+       ("pwd")
+       ("echo" "[Cloning]" ,name "...")
+       ("git" "clone" ,url)))))
+
 (defun feather-git-shallow-clone (pkg url dir)
   "Clone PKG repository from URL on DIR. (shallow-clone)"
   (feather-git-clone pkg url dir t))
