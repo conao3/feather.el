@@ -308,13 +308,13 @@ See https://yo.eki.do/notes/git-only-single-commit ."
        ("git" "reset" "--hard" "FETCH_HEAD")))))
 
 ;; (feather-git-pull-head (concat feather-recipes-dir "melpa"))
-(defun feather-git-pull-head (pkg destpath)
-  "Pull repository"
-  (let ((default-directory (expand-file-name destpath)))
-    (feather-command-queue
-     pkg
-     `(("pwd")
-       ("git" "pull" "origin" "master")))))
+;; (defun feather-git-pull-head (pkg destpath)
+;;   "Pull repository"
+;;   (let ((default-directory (expand-file-name destpath)))
+;;     (feather-command-queue
+;;      pkg
+;;      `(("pwd")
+;;        ("git" "pull" "origin" "master")))))
 
 (defun feather-git-unshalow (pkg destpath)
   "Unshallow repository to fetch whole repository.
