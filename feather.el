@@ -208,35 +208,30 @@ This variable is controlled by `feather-install' and `feather-remove'.")
 ;;  Shell controllers
 ;;
 
-(defun feather-command-queue (pkg cmdlst)
+(defun feather-command-queue (buffer-name cmdlst)
   "Execute cmdlst(string-list) queue with `start-process'.
+
+Command output is appear in generated buffer named BUFFER-NAME.
 
 CMDLST is like ((\"pwd\") (\"echo\" \"$(whoami)\")).
 CMDLST will be escaped (\"pwd\" \"echo \\\\$\\\\(whoami\\\\)\").
 
 The arguments passed in are properly escaped, so address vulnerabilities
 like OS command injection.
-The case, user can't get user-name (just get \\$(shoami)).
+The case, user can't get user-name (just get \\$(whoami)).
 
-If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
+If CMDLST is (A B C), if A fails, B and subsequent commands will not execute.
+
+This function inspired by `shell-command'"
   (let* ((safe-cmdlst (mapcar
                        (lambda (x)
                          (mapconcat #'shell-quote-argument x " "))
                        cmdlst))
          (command     (mapconcat #'identity safe-cmdlst " && "))
-         (buffer-name (format "*feather-async-%s-%s*" pkg (gensym)))
-         (buffer      (get-buffer-create buffer-name))
-         (directory   default-directory)
-         (proc        (get-buffer-process buffer)))
-
-    (when (get-buffer-process buffer)
-      (setq buffer (generate-new-buffer buffer-name)))
-    
-    (with-current-buffer buffer
-      (shell-command-save-pos-or-erase)
-      (setq default-directory directory)
-      (setq proc (start-process buffer-name
-                                buffer
+         (proc))
+    (with-current-buffer (generate-new-buffer buffer-name)
+      (setq proc (start-process (buffer-name)
+                                (current-buffer)
                                 shell-file-name      ; /bin/bash (default)
 				shell-command-switch ; -c (default)
                                 command))
@@ -246,7 +241,7 @@ If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
       ;; Use the comint filter for proper handling of
       ;; carriage motion (see comint-inhibit-carriage-motion).
       (set-process-filter proc 'comint-output-filter)
-      (display-buffer buffer '(nil (allow-no-window . t))))))
+      (display-buffer (current-buffer) '(nil (allow-no-window . t))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -283,6 +278,7 @@ If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
   "Clone PKG repository from URL on DIR. (full-clone)"
   (unless (file-directory-p (expand-file-name pkg dir))
     (feather-command-queue
+     (format "*feather-async-%s-%s*" pkg (gensym))
      `(("cd" ,dir)
        ("pwd")
        ("echo" "[Cloning]" ,name "...")
@@ -297,6 +293,7 @@ ID requires an id that can specify the repository tree such as
 See https://yo.eki.do/notes/git-only-single-commit ."
   (unless (filie-directory-p (expand-file-name pkg dif))
     (feather-command-queue
+     (format "*feather-async-%s-%s*" pkg (gensym))
      `(("cd" ,dir)
        ("pwd")
        ("echo" "[Clonging]" ,name "...")
@@ -323,6 +320,7 @@ see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-i
   (when (and (file-directory-p (expand-file-name pkg dir))
              (file-exists-p (expand-file-name (concat pkg "/.git/shallow") dir)))
     (feather-command-queue
+     (format "*feather-async-%s-%s*" pkg (gensym))
      `(("cd" ,dir)
        ("pwd")
        ("git" "fetch" "--unshallow")))))
