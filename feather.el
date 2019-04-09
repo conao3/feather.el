@@ -290,6 +290,10 @@ If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
 
 (defun feather-git-shallow-clone (pkg url id dir)
   "Clone PKG repository from URL on DIR. (shallow-clone)
+
+ID requires an id that can specify the repository tree such as
+\"master\" (branch-name), \"v1.2\" (tag-name), \"fc697e2a9...e86\" (SHA-1)
+
 See https://yo.eki.do/notes/git-only-single-commit ."
   (unless (filie-directory-p (expand-file-name pkg dif))
     (feather-command-queue
