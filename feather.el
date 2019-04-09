@@ -316,16 +316,16 @@ See https://yo.eki.do/notes/git-only-single-commit ."
 ;;      `(("pwd")
 ;;        ("git" "pull" "origin" "master")))))
 
-(defun feather-git-unshalow (pkg destpath)
+(defun feather-git-unshalow (pkg dir)
   "Unshallow repository to fetch whole repository.
 
 see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-is-shallow"
-  (let ((default-directory (expand-file-name destpath)))
+  (when (and (file-directory-p (expand-file-name pkg dir))
+             (file-exists-p (expand-file-name (concat pkg "/.git/shallow") dir)))
     (feather-command-queue
-     pkg
-     `(("pwd")
-       ("git" "fetch" "-unshallow")
-       ("git" "checkout" "master")))))
+     `(("cd" ,dir)
+       ("pwd")
+       ("git" "fetch" "--unshallow")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
