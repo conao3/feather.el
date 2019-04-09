@@ -278,25 +278,24 @@ If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
 ;;
 
 ;; (feather-git-clone-head "melpa" "https://github.com/melpa/melpa" feather-recipes-dir)
-(defun feather-git-shallow-clone (package-name package-url)
-  "Clone REMOTE-URL repository HEAD. (shallow-clone)"
-  (let ((destpath (expand-file-name package-name feather-repos-dir)))
-    (if (file-directory-p destpath)
-        (feather-git-pull-head package-name destpath)
-      (let ((default-directory feather-repos-dir))
-        (feather-command-queue
-         nil ;; pkg
-         `(("pwd")
-           ("git" "clone" "-depth" "1" ,package-url)))
-        (feather-command-queue
-         nil ;; pkg
-         `(("pwd")
-           ("mkdir" ,package-name)
-           ("cd" ,package-name)
-           ("git" "init")
-           ("git" "remote" "add" "origin" ,package-url)
-           ("git" "fetch" "-depth" "1" "origin" "master")
-           ("git" "reset" "-hard" "origin/master")))))))
+;; (feather-git-shallow-clone "feather.el" "https://github.com/conao3/feather.el.git" feather-recipes-dir)
+(defun feather-git-shallow-clone (pkg url dir)
+  "Clone PKG repository from URL on DIR. (shallow-clone)"
+  (unless (file-directory-p (expand-file-name pkg dir))
+    (feather-command-queue
+     `(("cd" ,dir)
+       ("pwd")
+       ("echo" "[Cloning]" ,name "...")
+       ("git" "clone" "-depth" "1" ,url)))))
+      ;; (feather-command-queue
+      ;;    nil ;; pkg
+      ;;    `(("pwd")
+      ;;      ("mkdir" ,package-name)
+      ;;      ("cd" ,package-name)
+      ;;      ("git" "init")
+      ;;      ("git" "remote" "add" "origin" ,package-url)
+      ;;      ("git" "fetch" "-depth" "1" "origin" "master")
+      ;;      ("git" "reset" "-hard" "origin/master")))))))
 
 ;; (feather-git-pull-head (concat feather-recipes-dir "melpa"))
 (defun feather-git-pull-head (pkg destpath)

@@ -130,5 +130,14 @@ table is used."
     (mapc (lambda (table) (feather-ht-update! merged table)) tables)
     merged))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  General path functions
+;;
+
+(defun feather-path-parent (path)
+  "Return parent path of PATH"
+  (file-name-directory (directory-file-name path)))
+
 (provide 'feather-polyfill)
 ;;; feather-polyfill.el ends here
