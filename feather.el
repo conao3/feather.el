@@ -208,7 +208,7 @@ This variable is controlled by `feather-install' and `feather-remove'.")
 ;;  Shell controllers
 ;;
 
-(defun feather-command-queue (buffer-name cmdlst)
+(defun feather-async-command-queue (buffer-name cmdlst)
   "Execute cmdlst(string-list) queue with `start-process'.
 
 Command output is appear in generated buffer named BUFFER-NAME.
@@ -277,7 +277,7 @@ This function inspired by `shell-command'"
 (defun feather-git-full-clone (pkg url dir)
   "Clone PKG repository from URL on DIR. (full-clone)"
   (unless (file-directory-p (expand-file-name pkg dir))
-    (feather-command-queue
+    (feather-async-command-queue
      (format "*feather-async-%s-%s*" pkg (gensym))
      `(("cd" ,dir)
        ("pwd")
@@ -292,7 +292,7 @@ ID requires an id that can specify the repository tree such as
 
 See https://yo.eki.do/notes/git-only-single-commit ."
   (unless (filie-directory-p (expand-file-name pkg dif))
-    (feather-command-queue
+    (feather-async-command-queue
      (format "*feather-async-%s-%s*" pkg (gensym))
      `(("cd" ,dir)
        ("pwd")
@@ -308,7 +308,7 @@ See https://yo.eki.do/notes/git-only-single-commit ."
 ;; (defun feather-git-pull-head (pkg destpath)
 ;;   "Pull repository"
 ;;   (let ((default-directory (expand-file-name destpath)))
-;;     (feather-command-queue
+;;     (feather-async-command-queue
 ;;      pkg
 ;;      `(("pwd")
 ;;        ("git" "pull" "origin" "master")))))
@@ -319,7 +319,7 @@ See https://yo.eki.do/notes/git-only-single-commit ."
 see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-is-shallow"
   (when (and (file-directory-p (expand-file-name pkg dir))
              (file-exists-p (expand-file-name (concat pkg "/.git/shallow") dir)))
-    (feather-command-queue
+    (feather-async-command-queue
      (format "*feather-async-%s-%s*" pkg (gensym))
      `(("cd" ,dir)
        ("pwd")
