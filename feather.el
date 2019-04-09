@@ -297,19 +297,20 @@ If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
        ("echo" "[Cloning]" ,name "...")
        ("git" "clone" ,url)))))
 
-(defun feather-git-shallow-clone (pkg url dir)
-  "Clone PKG repository from URL on DIR. (shallow-clone)"
-  (feather-git-clone pkg url dir t))
-
-      ;; (feather-command-queue
-      ;;    nil ;; pkg
-      ;;    `(("pwd")
-      ;;      ("mkdir" ,package-name)
-      ;;      ("cd" ,package-name)
-      ;;      ("git" "init")
-      ;;      ("git" "remote" "add" "origin" ,package-url)
-      ;;      ("git" "fetch" "-depth" "1" "origin" "master")
-      ;;      ("git" "reset" "-hard" "origin/master")))))))
+(defun feather-git-shallow-clone (pkg url id dir)
+  "Clone PKG repository from URL on DIR. (shallow-clone)
+See https://yo.eki.do/notes/git-only-single-commit ."
+  (unless (filie-directory-p (expand-file-name pkg dif))
+    (feather-command-queue
+     `(("cd" ,dir)
+       ("pwd")
+       ("echo" "[Clonging]" ,name "...")
+       ("mkdir" pkg)
+       ("cd" pkg)
+       ("git" "init")
+       ("git" "remote" "add" "origin" ,url)
+       ("git" "fetch" "--depth" "1" ,id)
+       ("git" "reset" "--hard" "FETCH_HEAD")))))
 
 ;; (feather-git-pull-head (concat feather-recipes-dir "melpa"))
 (defun feather-git-pull-head (pkg destpath)
