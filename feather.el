@@ -278,26 +278,25 @@ If CMDLST is (A B C), if A fails, B and subsequent commands will not execute."
 ;;
 
 ;; (feather-git-clone-head "melpa" "https://github.com/melpa/melpa" feather-recipes-dir)
-(defun feather-git-shallow-clone (pkg)
-  "Clone REMOTE-URL repository HEAD to DESTDIR. (shallow-clone)"
-  (let ((destpath (concat destdir (file-name-nondirectory remote-url))))
+(defun feather-git-shallow-clone (package-name package-url)
+  "Clone REMOTE-URL repository HEAD. (shallow-clone)"
+  (let ((destpath (expand-file-name package-name feather-repos-dir)))
     (if (file-directory-p destpath)
-        (feather-git-pull-head pkg destpath)
-      (let ((default-directory (expand-file-name destdir)))
+        (feather-git-pull-head package-name destpath)
+      (let ((default-directory feather-repos-dir))
         (feather-command-queue
-         pkg
+         nil ;; pkg
          `(("pwd")
-           ("git" "clone" "-depth" "1" ,remote-url))))
-      (let ((default-directory (expand-file-name destdir)))
+           ("git" "clone" "-depth" "1" ,package-url)))
         (feather-command-queue
-         pkg
+         nil ;; pkg
          `(("pwd")
-           ("mkdir" ,repo-name)
-           ("cd" ,repo-name)
+           ("mkdir" ,package-name)
+           ("cd" ,package-name)
            ("git" "init")
-           ("git" "remote" "add" "origin" ,remote-url)
-           ("git" "fetch" "-depth" "1" "origin" ,spec)
-           ("git" "reset" "-hard" "FETCH_HEAD")))))))
+           ("git" "remote" "add" "origin" ,package-url)
+           ("git" "fetch" "-depth" "1" "origin" "master")
+           ("git" "reset" "-hard" "origin/master")))))))
 
 ;; (feather-git-pull-head (concat feather-recipes-dir "melpa"))
 (defun feather-git-pull-head (pkg destpath)
