@@ -435,7 +435,7 @@ If CACHE-P is non-nil, use downloaded recipes without any fetching."
 such as (feather-package-info :zzz-to-char)"
   (interactive)
   (feather-initialize)
-  (gethash pkg feather-recipes))
+  (gethash (intern-soft pkg) feather-recipes))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
