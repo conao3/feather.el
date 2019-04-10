@@ -107,7 +107,7 @@
                   (feather-selected-packages-list ',feather-selected-packages-list)
                   (feather-pinned-packages-alist  ',feather-pinned-packages-alist)))))))
 
-(cort-deftest feaher:fetch-recipe
+(cort-deftest feaher:fetch-and-load-recipe
   `((:string= "#s(hash-table size 65 test eq rehash-size 1.5 rehash-threshold 0.8125 data 
    (zzz-to-char (:fetcher \"github\" :repo \"mrkkrp/zzz-to-char\" :files nil)
     zygospore (:fetcher \"github\" :repo \"LouisKottmann/zygospore.el\" :files nil)
@@ -116,9 +116,23 @@
     zprint-mode (:fetcher \"github\" :repo \"pesterhazy/zprint-mode.el\" :files nil)
    ))
 "
-              (feather-fetch-recipe
-               "lite"
-               "https://raw.githubusercontent.com/conao3/feather-recipes/master/recipes/melpa-detail.el"))))
+              (with-temp-buffer
+                (insert-file-contents
+                 (feather-fetch-recipe
+                  "lite"
+                  "https://raw.githubusercontent.com/conao3/feather-recipes.el/master/recipes/lite.el"))
+                (buffer-substring-no-properties (point-min) (point-max))))
+    (:feahter-ht-equal? #s(hash-table size 65 test eq rehash-size 1.5 rehash-threshold 0.8125 data
+                                      (zzz-to-char (:fetcher "github" :repo "mrkkrp/zzz-to-char" :files nil)
+                                                   zygospore (:fetcher "github" :repo "LouisKottmann/zygospore.el" :files nil)
+                                                   zweilight-theme (:fetcher "github" :repo "philiparvidsson/Zweilight-Theme-for-Emacs" :files nil)
+                                                   ztree (:fetcher "github" :repo "fourier/ztree" :files nil)
+                                                   zprint-mode (:fetcher "github" :repo "pesterhazy/zprint-mode.el" :files nil)))
+                        (progn
+                          (feather-fetch-recipe
+                           "lite"
+                           "https://raw.githubusercontent.com/conao3/feather-recipes.el/master/recipes/lite.el")
+                          (feather-load-recipe "lite")))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
