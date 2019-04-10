@@ -23,6 +23,13 @@
 ;;
 
 ;;; Code:
+
+(setq user-emacs-directory
+      (expand-file-name
+       (format "feather-%s"
+               (substring (shell-command-to-string "uuidgen") 0 -1))
+       "/tmp"))
+
 (require 'feather)
 (require 'cort-test)
 
