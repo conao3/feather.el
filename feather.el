@@ -185,7 +185,7 @@ This variable is set automatically by `feather-initialize'.")
 ;;
 ;;  Manage packages
 
-(defvar feather-installed-plist nil
+(defvar feather-installed-list nil
   "List of all packages user installed.
 This variable is controlled by `feather-install' and `feather-remove'.")
 

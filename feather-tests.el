@@ -81,7 +81,7 @@
 (setq feather-selected-packages-list (zzz-to-char))
 (setq feather-pinned-packages-alist ((zzz-to-char . melpa)))
 "
-             (let ((feather-installed-plist        '(zzz-to-char))
+             (let ((feather-installed-list         '(zzz-to-char))
                    (feather-selected-packages-list '(zzz-to-char))
                    (feather-pinned-packages-alist  '((zzz-to-char . melpa))))
                (with-temp-buffer
