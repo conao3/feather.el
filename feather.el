@@ -22,6 +22,8 @@
 
 ;;
 
+;;; Code:
+
 (require 'feather-polyfill)
 
 (defgroup feather nil
@@ -29,7 +31,7 @@
   :group 'lisp)
 
 (defconst feather-version "0.0.1"
-  "feather.el version")
+  "Version of feather.el.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -46,9 +48,9 @@ see `feather-fetcher-url-alist' available fetcher symbol"
   :group 'feather)
 
 (defcustom feather-fetcher-detail-list '(melpa-detail)
-  "A list of sites to fetch detail recipe file. Use at `feather-list-packages'.
+  "A list of sites to fetch detail recipe file.
 
-see `feather-fetcher-url-alist' available fetcher symbol"
+See `feather-fetcher-url-alist' available fetcher symbol."
   :type 'sexp
   :group 'feather)
 
@@ -62,7 +64,7 @@ see `feather-fetcher-url-alist' available fetcher symbol"
 
       (lite                     . ,(funcall fn "recipes/lite"))
       (lite-detail              . ,(funcall fn "detail/lite"))))
-  "Fetcher URL alist. see `feather-fetcher-list'."
+  "Fetcher URL alist."
   :type 'alist
   :group 'feather)
 
@@ -82,12 +84,12 @@ see `feather-fetcher-url-alist' available fetcher symbol"
   :group 'feather)
 
 (defcustom feather-build-dir (locate-user-emacs-file "feather/build/")
-  "Directory where byte-compiled Emacs Lisp files is placed"
+  "Directory where byte-compiled Emacs Lisp files is placed."
   :type 'directory
   :group 'feather)
 
 (defvar feather-dirs '(feather-repos-dir feather-recipes-dir feather-build-dir)
-  "All directories feather managed")
+  "All directories feather managed.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -95,12 +97,13 @@ see `feather-fetcher-url-alist' available fetcher symbol"
 ;;
 
 (defcustom feather-user-recipes-hash-table nil
-  "User defined package recipes hash table. Overrides any recipes.
-Recipe need `:repo', [`:fetcher'], [`:commit'], [`:files']. see `feather-recipes'.
+  "User defined package recipes hash table.  Overrides any recipes.
+Recipe need `:repo', [`:fetcher'], [`:commit'], [`:files'].
+See `feather-recipes'.
 
 If you omit `:fetcher', install from GitHub.
 If you omit `:commit', install HEAD.
-If you omit `:files', install `:defaults' file see `feather-package-defaults-files'
+If you omit `:files', install `:defaults' see `feather-package-defaults-files'.
 
 Sample:
 #s(hash-table size 65 test eq rehash-size 1.5 rehash-threshold 0.8 data
@@ -241,19 +244,19 @@ This function inspired by `shell-command'"
 ;;
 
 (defun feather-show-download-progress (_fmt _perc &rest _args)
-  "show download progress.
-`:before' advice for `url-display-percentage'"
+  "Show download progress.
+`:before' advice for `url-display-percentage'".
   (setq-local url-show-status t))
 
-(defun feather-advice-add (&rest args)
-  "advice-add after check `advice-add' defined.
+(defun feather-advice-add (&rest _args)
+  "Execute `advice-add' after check whether defined it.
 
 \(fn SYMBOL WHERE FUNCTION &optional PROPS)"
   (when (fboundp 'advice-add)
     (apply #'advice-add args)))
 
-(defun feather-advice-remove (&rest args)
-  "advice-remove after check `advice-remove' defined.
+(defun feather-advice-remove (&rest _args)
+  "Execute `advice-remove' after check whether defined it.
 
 \(fn SYMBOL FUNCTION)"
   (when (fboundp 'advice-remove)
@@ -267,7 +270,7 @@ This function inspired by `shell-command'"
 ;; (feather-git-clone-head "melpa" "https://github.com/melpa/melpa" feather-recipes-dir)
 ;; (feather-git-clone "feather.el" "https://github.com/conao3/feather.el.git" feather-recipes-dir)
 (defun feather-git-full-clone (pkg url dir)
-  "Clone PKG repository from URL on DIR. (full-clone)"
+  "Full clone PKG repository from URL on DIR."
   (let ((repodir (expand-file-name "" dir)))
     (unless (file-directory-p (expand-file-name pkg dir))
       (feather-async-command-queue (format "*feather-async-%s-%s*" pkg (gensym))
@@ -279,7 +282,7 @@ This function inspired by `shell-command'"
           ("echo" ,(format "[Clone] '%s' done" pkg)))))))
 
 (defun feather-git-shallow-clone (pkg url id dir)
-  "Clone PKG repository from URL on DIR. (shallow-clone)
+  "Shallow clone PKG repository from URL on DIR.
 
 ID requires an id that can specify the repository tree such as
 \"master\" (branch-name), \"v1.2\" (tag-name), \"fc697e2a9...e86\" (SHA-1)
@@ -310,7 +313,7 @@ See https://yo.eki.do/notes/git-only-single-commit ."
 ;;        ("git" "pull" "origin" "master")))))
 
 (defun feather-git-unshalow (pkg dir)
-  "Unshallow repository to fetch whole repository.
+  "Unshallow PKG repository on DIR to fetch whole repository history.
 
 see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-is-shallow"
   (let ((repodir (expand-file-name "" dir)))
@@ -334,17 +337,12 @@ see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-i
   )
 
 (defun feather-generate-autoloads (pkg)
-  "Generate autoloads .el file"
-  )
-
-(defun feather-ensure-package (pkg)
-  "ensure PKG."
+  "Generate autoloads .el file for PKG."
   )
 
 (defun feather-packages-list ()
-  "Return available package name list"
-  (feather-alet (it ((lst)))
-    (maphash (lambda (key val) (push key lst)) feather-recipes)))
+  "Return available package name list."
+  (feather-ht-keys feather-recipes))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -357,7 +355,7 @@ see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-i
 ;;
 
 (defun feather-fetch-recipe (name url)
-  "Fetch recipe named NAME.el from url and save file in `feather-recipes-dir'.
+  "Fetch recipe named NAME.el from URL and save file in `feather-recipes-dir'.
 
 EXAMPLE:
   (feather-fetch-recipe
@@ -378,7 +376,7 @@ EXAMPLE:
 
 EXAMPLE:
   (feather-load-recipe \"lite\")
-  ;; => *hash-table* "
+  ;; => *hash-table*"
   (let ((path (expand-file-name (format "%s.el" name) feather-repos-dir)))
     (if (file-readable-p path)
         (with-temp-buffer
@@ -432,7 +430,7 @@ If CACHE-P is non-nil, use downloaded recipes without any fetching."
 
 ;;;###autoload
 (defun feather-package-info (pkg)
-  "Show package info.
+  "Show package named as PKG info.
 
 such as (feather-package-info :zzz-to-char)"
   (interactive)
@@ -464,7 +462,7 @@ such as (feather-package-info :zzz-to-char)"
          (info (gethash pkg* feather-recipes))
     ;; remove old package if installed.
     (if (feather-package-installed-p pkg)
-      (when (y-or-n-p (format "%s is already installed. Reinstall?" pkg))
+      (when (y-or-n-p (format "%s is already installed.  Reinstall it? " pkg))
         (feather-remove pkg)
         (feather-install pkg))
 
@@ -496,7 +494,9 @@ Packages that are no more needed by other packages in
 
 ;;;###autoload
 (defun feather-remove (pkg &optional force-p)
-  "Remove specified package named PKG.
+  "Remove package named PKG when not dependent on any packages.
+
+When FORCE-P is non-nil, remove without considering dependencies.
 If you want to remove packages no more needed, call `feather-autoremove'."
   (interactive "sRemove package: ")
   (feather-initialize)
@@ -504,7 +504,7 @@ If you want to remove packages no more needed, call `feather-autoremove'."
   (let ((pkg* (intern pkg)))
     (when (and (feather-package-installed-p pkg)
                (or force-p
-                   (y-or-n-p (format "Really remove %s?" pkg))))
+                   (y-or-n-p (format "Really remove %s? " pkg))))
       (condition-case err
           (let ((info (feather-installed-package-info pkg)))
             ;; delete package build-files
@@ -526,7 +526,7 @@ If you want to remove packages no more needed, call `feather-autoremove'."
   ;; there is no need to create a file to be deleted
   ;; (feather-initialize)
 
-  (when (y-or-n-p "Really clean feather directory? All packages and downloaded recipes will remove.")
+  (when (y-or-n-p "All packages and downloaded recipes will remove.  Really clean feather directory? ")
     (mapc (lambda (x)
             (ignore-errors
               (delete-directory (eval x) t)))
@@ -541,9 +541,11 @@ If you want to remove packages no more needed, call `feather-autoremove'."
 ;;
 
 (defun feather-save-data ()
-  "Save `feather-installed-list' (inner variable),
-        `feather-selected-packages-list' (custom variable),
-        `feather-pinned-packages-alist'  (custom variable)"
+  "Save feather data.
+
+`feather-installed-list' (inner variable),
+`feather-selected-packages-list' (custom variable),
+`feather-pinned-packages-alist'  (custom variable)"
   (interactive)
 
   (let ((path (expand-file-name "feather-data.el" feather-recipes-dir)))
@@ -561,9 +563,11 @@ If you want to remove packages no more needed, call `feather-autoremove'."
       (error (format "Can not write file at %s" path)))))
 
 (defun feather-load-data ()
-  "Load `feather-installed-list' (inner variable),
-        `feather-selected-packages-list' (custom variable),
-        `feather-pinned-packages-alist'  (custom variable)"
+  "Load feather data.
+
+`feather-installed-list' (inner variable),
+`feather-selected-packages-list' (custom variable),
+`feather-pinned-packages-alist'  (custom variable)"
   (let ((path (expand-file-name "feather-data.el" feather-recipes-dir)))
     (if (file-readable-p path)
         (load-file path)
@@ -571,7 +575,9 @@ If you want to remove packages no more needed, call `feather-autoremove'."
 
 ;;;###autoload
 (defun feather-initialize (&optional force-p)
-  "Initialize `feather'"
+  "Initialize packages if it has not been initialized.
+
+When FORCE-P is non-nil, initialize without considering initialize history."
   (interactive)
   (when (or force-p (not feather-initialized))
     ;; create dirs
