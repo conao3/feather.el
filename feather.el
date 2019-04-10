@@ -543,15 +543,19 @@ If you want to remove packages no more needed, call `feather-autoremove'."
   "Save `feather-installed-plist' (inner variable),
         `feather-selected-packages-list' (custom variable),
         `feather-pinned-packages-alist'  (custom variable)"
-  (let ((filepath (concat feather-recipes-dir "feather-data.el")))
-    (when (file-writable-p filepath)
+  (let ((filepath (expand-file-name "feather-data.el" feather-recipes-dir)))
+    (if (file-writable-p filepath)
+        (progn
           (with-temp-file filepath
             (mapc (lambda (x)
-                    (insert (format "(defvar %s)\n(setq %s %s)\n\n"
-                                    x x (eval x))))
+                    (insert (prin1-to-string
+                             `(setq ,(symbol-name x) ,(eval x))))
+                    (insert "\n"))
                   '(feather-installed-plist
                     feather-selected-packages-list
-                    feather-pinned-packages-alist))))))
+                    feather-pinned-packages-alist)))
+          filepath)
+      (error (format "Can not write file at %s" filepath)))))
 
 ;;;###autoload
 (defun feather-load-data ()
@@ -568,7 +572,7 @@ If you want to remove packages no more needed, call `feather-autoremove'."
   (interactive)
   (when (or force-p (not feather-initialized))
     ;; create dirs
-    (mapc (lambda (x) (make-directory x t)) feather-dirs)
+    (mapc (lambda (x) (make-directory (eval x) t)) feather-dirs)
 
     ;; add load-path
     (add-to-list 'load-path feather-build-dir)

@@ -76,6 +76,18 @@
                 (with-current-buffer buf
                   (buffer-substring-no-properties (point-min) (point-max)))))))
 
+(cort-deftest feather:save-variables
+  `(:string= "(setq \"feather-installed-plist\" nil)
+(setq \"feather-selected-packages-list\" nil)
+(setq \"feather-pinned-packages-alist\" nil)
+"
+             (let ((feather-installed-plist nil)
+                   (feather-selected-packages-list nil)
+                   (feather-pinned-packages-alist nil))
+               (with-temp-buffer
+                 (insert-file-contents (feather-save-data))
+                 (buffer-substring-no-properties (point-min) (point-max))))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  simple test
