@@ -35,7 +35,7 @@
   "Simplify elisp test framework."
   :group 'lisp)
 
-(defconst cort-version "5.0.2"
+(defconst cort-version "5.0.3"
   "cort.el version")
 
 (defconst cort-env-symbols '(:cort-emacs<
@@ -413,7 +413,7 @@ Example:
   "Define a test case with the NAME.
 TESTLST is list of forms as below.
 
-basic: (:COMPFUN GIVEN EXPECT)
+basic: (:COMPFUN EXPECT GIVEN)
 error: (:cort-error EXPECTED-ERROR-TYPE FORM)"
   (declare (indent 1))
 
@@ -434,21 +434,21 @@ error: (:cort-error EXPECTED-ERROR-TYPE FORM)"
                                       t)))
                      (_
                       (let ((method (funcall fn (nth 0 test)))
-                            (given  (funcall fn (nth 1 test)))
-                            (expect (funcall fn (nth 2 test))))
+                            (expect (funcall fn (nth 1 test)))
+                            (given  (funcall fn (nth 2 test))))
                         (if t ;; (fboundp (cort-get-funcsym (car method)))
                             `(add-to-list 'cort-test-cases
                                           '(,name (:cort-testcase
                                                    :method ,method
-                                                   :given  ,given
-                                                   :expect ,expect))
+                                                   :expect ,expect
+                                                   :given  ,given))
                                           t)
                           `(progn
                              (cort-testfail ',name (cdr
                                                     '(:cort-testcase
                                                       :method ,method
-                                                      :given  ,given
-                                                      :expect ,expect)))
+                                                      :expect ,expect
+                                                      :given  ,given)))
                              (error "invalid test case")))))))
                  testlst*))))
 
