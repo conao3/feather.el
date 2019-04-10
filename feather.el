@@ -60,17 +60,8 @@ see `feather-fetcher-url-alist' available fetcher symbol"
       (melpa-detail             . ,(funcall fn "detail/melpa"))
       (melpa-stable-detail      . ,(funcall fn "detail/melpa_stable"))
 
-
-      (melpa-list               . ,(funcall fn "recipes/melpa-list"))
-      (melpa-stable-list        . ,(funcall fn "recipes/melpa_stable-list"))
-
-      (melpa-detail-list        . ,(funcall fn "detail/melpa-list"))
-      (melpa-stable-detail-list . ,(funcall fn "detail/melpa_stable-list"))
-
       (lite                     . ,(funcall fn "recipes/lite"))
-      (lite-detail              . ,(funcall fn "detail/lite"))
-      (lite-list                . ,(funcall fn "recipes/lite-list"))
-      (lite-detail-list         . ,(funcall fn "detail/lite-list"))))
+      (lite-detail              . ,(funcall fn "detail/lite"))))
   "Fetcher URL alist. see `feather-fetcher-list'."
   :type 'alist
   :group 'feather)
@@ -551,8 +542,7 @@ If you want to remove packages no more needed, call `feather-autoremove'."
 (defun feather-save-data ()
   "Save `feather-installed-plist' (inner variable),
         `feather-selected-packages-list' (custom variable),
-        `feather-pinned-packages-alist'  (custom variable)
-TODO: list support for Emacs-22."
+        `feather-pinned-packages-alist'  (custom variable)"
   (let ((filepath (concat feather-recipes-dir "feather-data.el")))
     (when (file-writable-p filepath)
           (with-temp-file filepath
@@ -567,8 +557,7 @@ TODO: list support for Emacs-22."
 (defun feather-load-data ()
   "Load `feather-installed-plist' (inner variable),
         `feather-selected-packages-list' (custom variable),
-        `feather-pinned-packages-alist'  (custom variable)
-TODO: list support for Emacs-22"
+        `feather-pinned-packages-alist'  (custom variable)"
   (let ((filepath (concat feather-recipes-dir "feather-data.el")))
     (when (file-readable-p filepath)
       (load-file filepath))))
