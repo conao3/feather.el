@@ -357,6 +357,16 @@ see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-i
 ;;
 
 ;;;###autoload
+(defun feather-fetch-recipe (name url)
+  "Fetch recipe named NAME from url and save in `feather-recipes-dir'"
+  (let ((path (expand-file-name (format "%s.el" name) feather-repos-dir)))
+    (if (file-writable-p path)
+        (with-temp-file path
+          (url-insert-file-contents url)
+          path)
+      (error (format "Cannot write file at %s" file)))))
+
+;;;###autoload
 (defun feather-refresh (&optional cache-p)
   "Reflesh package recipes specified `feather-fetcher-list'.
 The URL corresponding to the symbol is managed with `feather-fetcher-url-alist'."
