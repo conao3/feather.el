@@ -550,6 +550,7 @@ If you want to remove packages no more needed, call `feather-autoremove'."
   (interactive)
 
   (let ((path (expand-file-name "feather-data.el" feather-recipes-dir)))
+    (mkdir (file-name-directory path) t)
     (if (file-writable-p path)
         (with-temp-file path
           (mapc (lambda (x)
