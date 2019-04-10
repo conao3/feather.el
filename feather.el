@@ -579,7 +579,7 @@ If you want to remove packages no more needed, call `feather-autoremove'."
     (add-to-list 'load-path feather-build-dir)
 
     ;; load feather database
-    (feather-load-data)
+    (ignore-errors (feather-load-data))
 
     ;; initialized frg
     (setq feather-initialized t)))
