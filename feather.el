@@ -419,6 +419,8 @@ If CACHE-P is non-nil, use downloaded recipes without any fetching."
 ;;;###autoload
 (defun feather-load ()
   "Load recipes without any fetching."
+  (interactive)
+  (feather-initialize)
   (feather-refresh 'cache))
 
 ;;;###autoload
