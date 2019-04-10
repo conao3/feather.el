@@ -388,9 +388,11 @@ EXAMPLE:
       (error (format "Cannot read file at %s" file)))))
 
 ;;;###autoload
-(defun feather-refresh ()
+(defun feather-refresh (&optional cache-p)
   "Reflesh package recipes specified `feather-fetcher-list'.
-The URL corresponding to the symbol is managed with `feather-fetcher-url-alist'."
+The URL corresponding to the symbol is managed with `feather-fetcher-url-alist'.
+
+If CACHE-P is non-nil, use downloaded recipes without any fetching."
   (interactive)
   (feather-initialize)
   
@@ -403,7 +405,8 @@ The URL corresponding to the symbol is managed with `feather-fetcher-url-alist'.
                      (symbol-name x) (cdr (assq x feather-fetcher-url-alist)))))
         (load-fn  (lambda (x)
                     (feather-load-recipe (symbol-name x)))))
-    (mapc fetch-fn feather-fetcher-list)
+    (unless cache-p
+      (mapc fetch-fn feather-fetcher-list))
     (setq feather-recipes
           (apply 'feather-ht-merge
                  (mapcar load-fn (reverse feather-fetcher-list)))))
@@ -412,6 +415,11 @@ The URL corresponding to the symbol is managed with `feather-fetcher-url-alist'.
   (feather-message 'feather-refresh
                    (format "Completed! %s recipes available."
                            (hash-table-count feather-recipes))))
+
+;;;###autoload
+(defun feather-load ()
+  "Load recipes without any fetching."
+  (feather-refresh 'cache))
 
 ;;;###autoload
 (defun feather-list-packages ()
