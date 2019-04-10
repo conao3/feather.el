@@ -562,9 +562,10 @@ If you want to remove packages no more needed, call `feather-autoremove'."
   "Load `feather-installed-list' (inner variable),
         `feather-selected-packages-list' (custom variable),
         `feather-pinned-packages-alist'  (custom variable)"
-  (let ((filepath (concat feather-recipes-dir "feather-data.el")))
-    (when (file-readable-p filepath)
-      (load-file filepath))))
+  (let ((path (expand-file-name "feather-data.el" feather-recipes-dir)))
+    (if (file-readable-p filepath)
+        (load-file path)
+      (error (format "Can not read file at %s")))))
 
 ;;;###autoload
 (defun feather-initialize (&optional force-p)
