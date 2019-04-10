@@ -76,7 +76,7 @@
                 (with-current-buffer buf
                   (buffer-substring-no-properties (point-min) (point-max)))))))
 
-(cort-deftest feather:save-variables
+(cort-deftest feather:save-and-load-variables
   `(:string= "(setq feather-installed-plist (zzz-to-char))
 (setq feather-selected-packages-list (zzz-to-char))
 (setq feather-pinned-packages-alist ((zzz-to-char . melpa)))
