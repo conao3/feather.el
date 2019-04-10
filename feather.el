@@ -461,7 +461,7 @@ such as (feather-package-info :zzz-to-char)"
 ;;;###autoload
 (defun feather-install (pkg)
   "Install specified package named PKG."
-  (interactive "nInstall package: ")
+  (interactive "sInstall package: ")
   (feather-initialize)
 
   (let* ((pkg* (intern pkg))
@@ -502,7 +502,7 @@ Packages that are no more needed by other packages in
 (defun feather-remove (pkg &optional force-p)
   "Remove specified package named PKG.
 If you want to remove packages no more needed, call `feather-autoremove'."
-  (interactive "nRemove package: ")
+  (interactive "sRemove package: ")
   (feather-initialize)
 
   (let ((pkg* (intern pkg)))
