@@ -402,15 +402,11 @@ The URL corresponding to the symbol is managed with `feather-fetcher-url-alist'.
                     (feather-fetch-recipe
                      (symbol-name x) (cdr (assq x feather-fetcher-url-alist)))))
         (load-fn  (lambda (x)
-                    (with-temp-buffer
-                      (insert-file-contents x)
-                      (eval (read (buffer-substring-no-properties
-                                   (point-min) (point-max))))))))
+                    (feather-load-recipe (symbol-name x)))))
+    (mapc fetch-fn feather-fetcher-list)
     (setq feather-recipes
-          (feather-ht-merge
-           (mapcar load-fn
-                   (mapcar fetch-fn
-                           (reverse feather-fetcher-list))))))
+          (apply 'feather-ht-merge
+                 (mapcar load-fn (reverse feather-fetcher-list)))))
 
   ;; show status
   (feather-message 'feather-refresh
