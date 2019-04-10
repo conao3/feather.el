@@ -543,9 +543,9 @@ If you want to remove packages no more needed, call `feather-autoremove'."
   "Save `feather-installed-list' (inner variable),
         `feather-selected-packages-list' (custom variable),
         `feather-pinned-packages-alist'  (custom variable)"
-  (let ((filepath (expand-file-name "feather-data.el" feather-recipes-dir)))
-    (if (file-writable-p filepath)
-        (with-temp-file filepath
+  (let ((path (expand-file-name "feather-data.el" feather-recipes-dir)))
+    (if (file-writable-p path)
+        (with-temp-file path
           (mapc (lambda (x)
                   (insert (pp-to-string
                            `(setq ,x ',(symbol-value x))))
@@ -553,8 +553,8 @@ If you want to remove packages no more needed, call `feather-autoremove'."
                 '(feather-installed-list
                   feather-selected-packages-list
                   feather-pinned-packages-alist))
-          filepath)
-      (error (format "Can not write file at %s" filepath)))))
+          path)
+      (error (format "Can not write file at %s" path)))))
 
 ;;;###autoload
 (defun feather-load-data ()
@@ -562,9 +562,9 @@ If you want to remove packages no more needed, call `feather-autoremove'."
         `feather-selected-packages-list' (custom variable),
         `feather-pinned-packages-alist'  (custom variable)"
   (let ((path (expand-file-name "feather-data.el" feather-recipes-dir)))
-    (if (file-readable-p filepath)
+    (if (file-readable-p path)
         (load-file path)
-      (error (format "Can not read file at %s")))))
+      (error (format "Can not read file at %s" path)))))
 
 ;;;###autoload
 (defun feather-initialize (&optional force-p)
