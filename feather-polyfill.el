@@ -125,6 +125,10 @@ FUNCTION is called with two arguments, KEY and VALUE."
      table)
     results))
 
+(defun feather-ht-keys (table)
+  "Return a list of all the keys in TABLE."
+  (feather-ht-map (lambda (key value) key) table))
+
 (defun feather-ht-update! (table from-table)
   "Update TABLE according to every key-value pair in FROM-TABLE."
   (maphash
