@@ -77,16 +77,16 @@
                   (buffer-substring-no-properties (point-min) (point-max)))))))
 
 (cort-deftest feather:save-and-load-variables
-  `(:string= "(setq feather-installed-plist (zzz-to-char))
+  `((:string= "(setq feather-installed-plist (zzz-to-char))
 (setq feather-selected-packages-list (zzz-to-char))
 (setq feather-pinned-packages-alist ((zzz-to-char . melpa)))
 "
-             (let ((feather-installed-list         '(zzz-to-char))
-                   (feather-selected-packages-list '(zzz-to-char))
-                   (feather-pinned-packages-alist  '((zzz-to-char . melpa))))
-               (with-temp-buffer
-                 (insert-file-contents (feather-save-data))
-                 (buffer-substring-no-properties (point-min) (point-max))))))
+              (let ((feather-installed-list         '(zzz-to-char))
+                    (feather-selected-packages-list '(zzz-to-char))
+                    (feather-pinned-packages-alist  '((zzz-to-char . melpa))))
+                (with-temp-buffer
+                  (insert-file-contents (feather-save-data))
+                  (buffer-substring-no-properties (point-min) (point-max)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
