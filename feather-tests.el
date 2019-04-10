@@ -77,13 +77,13 @@
                   (buffer-substring-no-properties (point-min) (point-max)))))))
 
 (cort-deftest feather:save-variables
-  `(:string= "(setq \"feather-installed-plist\" nil)
-(setq \"feather-selected-packages-list\" nil)
-(setq \"feather-pinned-packages-alist\" nil)
+  `(:string= "(setq feather-installed-plist (zzz-to-char))
+(setq feather-selected-packages-list (zzz-to-char))
+(setq feather-pinned-packages-alist ((zzz-to-char . melpa)))
 "
-             (let ((feather-installed-plist nil)
-                   (feather-selected-packages-list nil)
-                   (feather-pinned-packages-alist nil))
+             (let ((feather-installed-plist        '(zzz-to-char))
+                   (feather-selected-packages-list '(zzz-to-char))
+                   (feather-pinned-packages-alist  '((zzz-to-char . melpa))))
                (with-temp-buffer
                  (insert-file-contents (feather-save-data))
                  (buffer-substring-no-properties (point-min) (point-max))))))
