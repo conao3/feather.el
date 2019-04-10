@@ -279,10 +279,12 @@ This function inspired by `shell-command'"
   (unless (file-directory-p (expand-file-name pkg dir))
     (feather-async-command-queue
      (format "*feather-async-%s-%s*" pkg (gensym))
-     `(("cd" ,dir)
+     `(("echo" ,(format "[Clone] '%s'... " pkg))
+       ("mkdir" "-p" ,dir)
+       ("cd" ,dir)
        ("pwd")
-       ("echo" "[Cloning]" ,name "...")
-       ("git" "clone" ,url)))))
+       ("git" "clone" ,url)
+       ("echo" ,(format "[Clone] '%s' done" pkg))))))
 
 (defun feather-git-shallow-clone (pkg url id dir)
   "Clone PKG repository from URL on DIR. (shallow-clone)
@@ -294,15 +296,17 @@ See https://yo.eki.do/notes/git-only-single-commit ."
   (unless (filie-directory-p (expand-file-name pkg dif))
     (feather-async-command-queue
      (format "*feather-async-%s-%s*" pkg (gensym))
-     `(("cd" ,dir)
+     `(("echo" ,(format "[Shallow clone] '%s'... " pkg))
+       ("mkdir" "-p" ,dir)
+       ("cd" ,dir)
        ("pwd")
-       ("echo" "[Clonging]" ,name "...")
        ("mkdir" pkg)
        ("cd" pkg)
        ("git" "init")
        ("git" "remote" "add" "origin" ,url)
        ("git" "fetch" "--depth" "1" ,id)
-       ("git" "reset" "--hard" "FETCH_HEAD")))))
+       ("git" "reset" "--hard" "FETCH_HEAD")
+       ("echo" ,(format "[shallow clone] '%s' done" pkg))))))
 
 ;; (feather-git-pull-head (concat feather-recipes-dir "melpa"))
 ;; (defun feather-git-pull-head (pkg destpath)
@@ -321,9 +325,11 @@ see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-i
              (file-exists-p (expand-file-name (concat pkg "/.git/shallow") dir)))
     (feather-async-command-queue
      (format "*feather-async-%s-%s*" pkg (gensym))
-     `(("cd" ,dir)
+     `(("echo" ,(format "[Unshallow] '%s'... " pkg))
+       ("cd" ,dir)
        ("pwd")
-       ("git" "fetch" "--unshallow")))))
+       ("git" "fetch" "--unshallow")
+       ("echo" ,(format "[Unshallow] '%s' done " pkg))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
