@@ -545,15 +545,14 @@ If you want to remove packages no more needed, call `feather-autoremove'."
         `feather-pinned-packages-alist'  (custom variable)"
   (let ((filepath (expand-file-name "feather-data.el" feather-recipes-dir)))
     (if (file-writable-p filepath)
-        (progn
-          (with-temp-file filepath
-            (mapc (lambda (x)
-                    (insert (pp-to-string
-                             `(setq ,x ',(symbol-value x))))
-                    (insert "\n"))
-                  '(feather-installed-list
-                    feather-selected-packages-list
-                    feather-pinned-packages-alist)))
+        (with-temp-file filepath
+          (mapc (lambda (x)
+                  (insert (pp-to-string
+                           `(setq ,x ',(symbol-value x))))
+                  (insert "\n"))
+                '(feather-installed-list
+                  feather-selected-packages-list
+                  feather-pinned-packages-alist))
           filepath)
       (error (format "Can not write file at %s" filepath)))))
 
