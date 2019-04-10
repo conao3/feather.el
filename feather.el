@@ -531,7 +531,8 @@ If you want to remove packages no more needed, call `feather-autoremove'."
     (mapc (lambda (x)
             (ignore-errors
               (delete-directory (eval x) t)))
-          feather-dirs)))
+          feather-dirs))
+  t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
