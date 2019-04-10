@@ -4,7 +4,8 @@ include Makefunc.mk
 
 TOP         := $(dir $(lastword $(MAKEFILE_LIST)))
 EMACS_RAW   := $(filter-out emacs-undumped, $(shell compgen -c emacs- | xargs))
-ALL_EMACS   := $(strip $(sort $(EMACS_RAW)))
+AVAILABLE   := $(strip $(sort $(EMACS_RAW)))
+ALL_EMACS   := $(filter $(AVAILABLE),emacs-24.5 emacs-25.3 emacs-26.1)
 
 EMACS       ?= emacs
 
