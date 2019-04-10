@@ -385,96 +385,6 @@ If package have removed, return (:state :removed)"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  Remove packages
-;;
-
-;;;###autoload
-(defun feather-autoremove ()
-  "Remove packages that are no more needed.
-Packages that are no more needed by other packages in
-`feather-selected-packages-list' and their dependencies will be deleted."
-  (interactive)
-  (feather-initialize)
-  
-  (let ((lst (feather-install-selected-packages)))
-    (mapc (lambda (x) (delq x lst) feather-selected-packages-list))
-    (mapc (lambda (x) (feather-remove x)) lst)))
-
-;;;###autoload
-(defun feather-remove (pkg &optional force-p)
-  "Remove specified package named PKG.
-If you want to remove packages no more needed, call `feather-autoremove'."
-  (interactive "nRemove package: ")
-  (feather-initialize)
-
-  (let ((pkg* (intern pkg)))
-    (when (and (feather-package-installed-p pkg)
-               (or force-p
-                   (y-or-n-p (format "Really remove %s?" pkg))))
-      (condition-case err
-          (let ((info (feather-installed-package-info pkg)))
-            ;; delete package build-files
-            (mapc #'delete-file (plist-get info :build-files))
-            
-            ;; delete package source dir
-            (delete-directory (concat feather-repos-dir pkg))
-
-            ;; show info
-            (feather-message 'feather-remove
-                             "Complete remove. Refresh Emacs."))
-        (error (feather-message 'feather-remove err :warning))))))
-
-;;;###autoload
-(defun feather-clean ()
-  "Clean feather working directory and build directory."
-  (interactive)
-  (feather-initialize)
-  (when (y-or-n-p "Really clean feather directory? All packages will delete.")
-    (mapc (lambda (x) (delete-directory (eval x) t)) feather-dirs)
-    
-    ;; create raw directory
-    (feather-initialize t)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  Install packages
-;;
-
-;;;###autoload
-(defun feather-install-selected-packages ()
-  "Install `feather-selected-packages-list' listed packages."
-  (interactive)
-  (feather-initialize)
-
-  (when feather-selected-packages-list
-    (mapc (lambda (x) (feather-install (symbol-name x))
-            feather-selected-packages-list))))
-
-;;;###autoload
-(defun feather-install (pkg)
-  "Install specified package named PKG."
-  (interactive "nInstall package: ")
-  (feather-initialize)
-
-  (let* ((pkg* (intern pkg))
-         (info (gethash pkg* feather-recipes))
-    ;; remove old package if installed.
-    (if (feather-package-installed-p pkg)
-      (when (y-or-n-p (format "%s is already installed. Reinstall?" pkg))
-        (feather-remove pkg)
-        (feather-install pkg))
-
-      ;; download source
-      (feather-ensure-package pkg)
-
-      ;; generate autoloads
-      (feather-generate-autoloads pkg)
-
-      ;; acrivate package
-      (feather-activate pkg)))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
 ;;  Manage recipes
 ;;
 
@@ -543,6 +453,96 @@ such as (feather-package-info :zzz-to-char)"
   (interactive)
   (feather-initialize)
   (gethash pkg feather-recipes))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Install packages
+;;
+
+;;;###autoload
+(defun feather-install-selected-packages ()
+  "Install `feather-selected-packages-list' listed packages."
+  (interactive)
+  (feather-initialize)
+
+  (when feather-selected-packages-list
+    (mapc (lambda (x) (feather-install (symbol-name x))
+            feather-selected-packages-list))))
+
+;;;###autoload
+(defun feather-install (pkg)
+  "Install specified package named PKG."
+  (interactive "nInstall package: ")
+  (feather-initialize)
+
+  (let* ((pkg* (intern pkg))
+         (info (gethash pkg* feather-recipes))
+    ;; remove old package if installed.
+    (if (feather-package-installed-p pkg)
+      (when (y-or-n-p (format "%s is already installed. Reinstall?" pkg))
+        (feather-remove pkg)
+        (feather-install pkg))
+
+      ;; download source
+      (feather-ensure-package pkg)
+
+      ;; generate autoloads
+      (feather-generate-autoloads pkg)
+
+      ;; acrivate package
+      (feather-activate pkg)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Remove packages
+;;
+
+;;;###autoload
+(defun feather-autoremove ()
+  "Remove packages that are no more needed.
+Packages that are no more needed by other packages in
+`feather-selected-packages-list' and their dependencies will be deleted."
+  (interactive)
+  (feather-initialize)
+  
+  (let ((lst (feather-install-selected-packages)))
+    (mapc (lambda (x) (delq x lst) feather-selected-packages-list))
+    (mapc (lambda (x) (feather-remove x)) lst)))
+
+;;;###autoload
+(defun feather-remove (pkg &optional force-p)
+  "Remove specified package named PKG.
+If you want to remove packages no more needed, call `feather-autoremove'."
+  (interactive "nRemove package: ")
+  (feather-initialize)
+
+  (let ((pkg* (intern pkg)))
+    (when (and (feather-package-installed-p pkg)
+               (or force-p
+                   (y-or-n-p (format "Really remove %s?" pkg))))
+      (condition-case err
+          (let ((info (feather-installed-package-info pkg)))
+            ;; delete package build-files
+            (mapc #'delete-file (plist-get info :build-files))
+            
+            ;; delete package source dir
+            (delete-directory (concat feather-repos-dir pkg))
+
+            ;; show info
+            (feather-message 'feather-remove
+                             "Complete remove. Refresh Emacs."))
+        (error (feather-message 'feather-remove err :warning))))))
+
+;;;###autoload
+(defun feather-clean ()
+  "Clean feather working directory and build directory."
+  (interactive)
+  (feather-initialize)
+  (when (y-or-n-p "Really clean feather directory? All packages will delete.")
+    (mapc (lambda (x) (delete-directory (eval x) t)) feather-dirs)
+    
+    ;; create raw directory
+    (feather-initialize t)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
