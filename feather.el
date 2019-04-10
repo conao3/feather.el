@@ -535,7 +535,9 @@ If you want to remove packages no more needed, call `feather-autoremove'."
             (ignore-errors
               (delete-directory (eval x) t)))
           feather-dirs))
-  t)
+
+  ;; create clean directories
+  (feather-initialize 'force))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
