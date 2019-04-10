@@ -129,6 +129,18 @@ FUNCTION is called with two arguments, KEY and VALUE."
   "Return a list of all the keys in TABLE."
   (feather-ht-map (lambda (key value) key) table))
 
+(defun feahter-ht-equal? (table1 table2)
+  "Return t if TABLE1 and TABLE2 have the same keys and values.
+Does not compare equality predicates."
+  (let ((keys1 (feather-ht-keys table1))
+        (keys2 (ht-keys table2))
+        (sentinel (make-symbol "ht-sentinel")))
+    (and (equal (length keys1) (length keys2))
+         (--all?
+          (equal (ht-get table1 it)
+                 (ht-get table2 it sentinel))
+          keys1))))
+
 (defun feather-ht-update! (table from-table)
   "Update TABLE according to every key-value pair in FROM-TABLE."
   (maphash
