@@ -581,10 +581,7 @@ TODO: list support for Emacs-22"
   (interactive)
   (when (or force-p (not feather-initialized))
     ;; create dirs
-    (mapc (lambda (x)
-            (unless (file-directory-p x)
-              (make-directory x t)))
-          feather-dirs)
+    (mapc (lambda (x) (make-directory x t)) feather-dirs)
 
     ;; add load-path
     (add-to-list 'load-path feather-build-dir)
