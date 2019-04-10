@@ -243,7 +243,8 @@ This function inspired by `shell-command'"
       ;; Use the comint filter for proper handling of
       ;; carriage motion (see comint-inhibit-carriage-motion).
       (set-process-filter proc 'comint-output-filter)
-      (display-buffer (current-buffer) '(nil (allow-no-window . t))))))
+      ;; (display-buffer (current-buffer) '(nil (allow-no-window . t)))
+      )))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
