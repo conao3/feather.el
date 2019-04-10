@@ -35,6 +35,13 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+;;  Byte compiler hint
+;;
+
+(autoload 'shell-mode "shell")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;;  Customizable variables
 ;;
 
@@ -245,18 +252,19 @@ This function inspired by `shell-command'"
 
 (defun feather-show-download-progress (_fmt _perc &rest _args)
   "Show download progress.
-`:before' advice for `url-display-percentage'".
+`:before' advice for `url-display-percentage'"
+  (defvar url-show-status)
   (setq-local url-show-status t))
 
-(defun feather-advice-add (&rest _args)
-  "Execute `advice-add' after check whether defined it.
+(defun feather-advice-add (&rest args)
+  "Execute `advice-add' after check whether defined it with ARGS.
 
 \(fn SYMBOL WHERE FUNCTION &optional PROPS)"
   (when (fboundp 'advice-add)
     (apply #'advice-add args)))
 
-(defun feather-advice-remove (&rest _args)
-  "Execute `advice-remove' after check whether defined it.
+(defun feather-advice-remove (&rest args)
+  "Execute `advice-remove' after check whether defined it with ARGS.
 
 \(fn SYMBOL FUNCTION)"
   (when (fboundp 'advice-remove)
@@ -289,7 +297,7 @@ ID requires an id that can specify the repository tree such as
 
 See https://yo.eki.do/notes/git-only-single-commit ."
   (let ((repodir (expand-file-name "" dir)))
-    (unless (filie-directory-p (expand-file-name pkg dif))
+    (unless (file-directory-p (expand-file-name pkg dir))
       (feather-async-command-queue (format "*feather-async-%s-%s*" pkg (gensym))
         `(("echo" ,(format "[Shallow clone] '%s'... " pkg))
           ("mkdir" "-p" ,repodir)
@@ -334,15 +342,25 @@ see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-i
 
 (defun feather-activate (pkg)
   "Activate PKG with dependencies packages."
+  pkg
   )
 
 (defun feather-generate-autoloads (pkg)
   "Generate autoloads .el file for PKG."
+  pkg
   )
 
 (defun feather-packages-list ()
   "Return available package name list."
   (feather-ht-keys feather-recipes))
+
+(defun feather-package-installed-p (pkg)
+  "Return t if installed PKG by feather.el."
+  pkg)
+
+(defun feather-installed-package-info (pkg)
+  "Return info installed package named PKG."
+  pkg)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -369,7 +387,7 @@ EXAMPLE:
           (url-insert-file-contents url)
           (feather-advice-remove 'url-display-percentage #'feather-show-download-progress)
           path)
-      (error (format "Cannot write file at %s" file)))))
+      (error (format "Cannot write file at %s" path)))))
 
 (defun feather-load-recipe (name)
   "Load recipe named NAME.el in `feather-recipes-dir' and return hash-table.
@@ -383,7 +401,7 @@ EXAMPLE:
           (insert-file-contents path)
           (eval (read
                  (buffer-substring-no-properties (point-min) (point-max)))))
-      (error (format "Cannot read file at %s" file)))))
+      (error (format "Cannot read file at %s" path)))))
 
 ;;;###autoload
 (defun feather-refresh (&optional cache-p)
@@ -458,22 +476,20 @@ such as (feather-package-info :zzz-to-char)"
   (interactive "sInstall package: ")
   (feather-initialize)
 
-  (let* ((pkg* (intern pkg))
-         (info (gethash pkg* feather-recipes))
-    ;; remove old package if installed.
-    (if (feather-package-installed-p pkg)
+  ;; remove old package if installed.
+  (if (feather-package-installed-p pkg)
       (when (y-or-n-p (format "%s is already installed.  Reinstall it? " pkg))
         (feather-remove pkg)
         (feather-install pkg))
 
-      ;; download source
-      (feather-ensure-package pkg)
+    ;; download source
+    ;; (feather-ensure-package pkg)
 
-      ;; generate autoloads
-      (feather-generate-autoloads pkg)
+    ;; generate autoloads
+    (feather-generate-autoloads pkg)
 
-      ;; acrivate package
-      (feather-activate pkg)))))
+    ;; acrivate package
+    (feather-activate pkg)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -501,22 +517,21 @@ If you want to remove packages no more needed, call `feather-autoremove'."
   (interactive "sRemove package: ")
   (feather-initialize)
 
-  (let ((pkg* (intern pkg)))
-    (when (and (feather-package-installed-p pkg)
-               (or force-p
-                   (y-or-n-p (format "Really remove %s? " pkg))))
-      (condition-case err
-          (let ((info (feather-installed-package-info pkg)))
-            ;; delete package build-files
-            (mapc #'delete-file (plist-get info :build-files))
-            
-            ;; delete package source dir
-            (delete-directory (concat feather-repos-dir pkg))
+  (when (and (feather-package-installed-p pkg)
+             (or force-p
+                 (y-or-n-p (format "Really remove %s? " pkg))))
+    (condition-case err
+        (let ((info (feather-installed-package-info pkg)))
+          ;; delete package build-files
+          (mapc #'delete-file (plist-get info :build-files))
+          
+          ;; delete package source dir
+          (delete-directory (concat feather-repos-dir pkg))
 
-            ;; show info
-            (feather-message 'feather-remove
-                             "Complete remove. Refresh Emacs."))
-        (error (feather-message 'feather-remove err :warning))))))
+          ;; show info
+          (feather-message 'feather-remove
+                           "Complete remove. Refresh Emacs."))
+      (error (feather-message 'feather-remove err :warning)))))
 
 ;;;###autoload
 (defun feather-clean ()
