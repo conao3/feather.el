@@ -118,7 +118,7 @@
 "
               (feather-fetch-recipe
                "lite"
-               "https://raw.githubusercontent.com/conao3/feather-recipes/master/recipes/lite.el"))))
+               "https://raw.githubusercontent.com/conao3/feather-recipes/master/recipes/melpa-detail.el"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

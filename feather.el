@@ -362,12 +362,25 @@ see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-i
   (let ((path (expand-file-name (format "%s.el" name) feather-repos-dir)))
     (if (file-writable-p path)
         (with-temp-file path
+          (feather-advice-add 'url-display-percentage :before #'feather-show-download-progress)
           (url-insert-file-contents url)
+          (feather-advice-remove 'url-display-percentage #'feather-show-download-progress)
           path)
       (error (format "Cannot write file at %s" file)))))
 
 ;;;###autoload
-(defun feather-refresh (&optional cache-p)
+(defun feather-load-recipe (name)
+  "Load recipe maybe return hash-table."
+  (let ((path (expand-file-name (format "%s.el" name) feather-repos-dir)))
+    (if (file-readable-p path)
+        (with-temp-buffer
+          (insert-file-contents path)
+          (eval (read
+                 (buffer-substring-no-properties (point-min) (point-max)))))
+      (error (format "Cannot read file at %s" file)))))
+
+;;;###autoload
+(defun feather-refresh ()
   "Reflesh package recipes specified `feather-fetcher-list'.
 The URL corresponding to the symbol is managed with `feather-fetcher-url-alist'."
   (interactive)
@@ -376,41 +389,20 @@ The URL corresponding to the symbol is managed with `feather-fetcher-url-alist'.
   ;; clear all recipes.
   (setq feather-recipes (make-hash-table :test 'eq))
 
-  ;; add advice to show progress
-  (feather-advice-add 'url-display-percentage :before #'feather-show-download-progress)
-
   ;; download recipe files, read, append, save it.
-  (mapc (lambda (x)
-          (let* ((var-sym (intern (format "feather-recipes--%s" x)))
-                 (filepath (expand-file-name
-                            (format "%s.el" (symbol-value var-sym))
-                            feather-recipes-dir)))
-
-            ;; define recipe var
-            (eval `(defvar ,var-sym))
-
-            ;; load, or donload recipe if not recipe exist or chache-p is nil
-            (condition-case err
-                (progn
-                  (with-temp-file filepath
-                    (if (or (not cache-p) (not (file-exists-p filepath)))
-                        (url-insert-file-contents
-                         (cdr (assoc x feather-fetcher-url-alist)))
-                      (insert-file-contents filepath))
-
-                    ;; read file contents as sexp
-                    ;; TODO: read from list support for Emacs-22
-                    (eval `(setq ,var-sym (read (buffer-string)))))
-
-                  ;; merge to main recipes var
-                  (feather-asetq (it feather-recipes)
-                    (feather-ht-merge it (eval var-sym))))
-              (error err))))
-        ;; updated after elements. first value will adoped.
-        (reverse feather-fetcher-list))
-
-  ;; remove advice
-  (feather-advice-remove 'url-display-percentage #'feather-show-download-progress)
+  (let ((fetch-fn (lambda (x)
+                    (feather-fetch-recipe
+                     (symbol-name x) (cdr (assq x feather-fetcher-url-alist)))))
+        (load-fn  (lambda (x)
+                    (with-temp-buffer
+                      (insert-file-contents x)
+                      (eval (read (buffer-substring-no-properties
+                                   (point-min) (point-max))))))))
+    (setq feather-recipes
+          (feather-ht-merge
+           (mapcar load-fn
+                   (mapcar fetch-fn
+                           (reverse feather-fetcher-list))))))
 
   ;; show status
   (feather-message 'feather-refresh
