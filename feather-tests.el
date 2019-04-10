@@ -62,6 +62,14 @@
                                                    ("pwd")))
                 (sit-for 0.01)
                 (with-current-buffer buf
+                  (buffer-substring-no-properties (point-min) (point-max)))))
+
+    (:string= "$(whoami)\n"
+              (let ((buf (format "*feather-%sq*"
+                                 (shell-command-to-string "uuidgen"))))
+                (feather-async-command-queue buf '(("echo" "$(whoami)")))
+                (sit-for 0.01)
+                (with-current-buffer buf
                   (buffer-substring-no-properties (point-min) (point-max)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
