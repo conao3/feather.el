@@ -547,6 +547,8 @@ If you want to remove packages no more needed, call `feather-autoremove'."
   "Save `feather-installed-list' (inner variable),
         `feather-selected-packages-list' (custom variable),
         `feather-pinned-packages-alist'  (custom variable)"
+  (interactive)
+
   (let ((path (expand-file-name "feather-data.el" feather-recipes-dir)))
     (if (file-writable-p path)
         (with-temp-file path
