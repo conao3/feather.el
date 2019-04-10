@@ -362,7 +362,7 @@ see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-i
 If package haven't installed yet, return nil.
 If package have removed, return (:state :removed)"
   (let ((pkg* (intern pkg)))
-    (plist-member feather-installed-plist pkg*)))
+    (plist-member feather-installed-list pkg*)))
 
 ;;;###autoload
 (defun feather-package-installed-p (pkg)
@@ -540,7 +540,7 @@ If you want to remove packages no more needed, call `feather-autoremove'."
 
 ;;;###autoload
 (defun feather-save-data ()
-  "Save `feather-installed-plist' (inner variable),
+  "Save `feather-installed-list' (inner variable),
         `feather-selected-packages-list' (custom variable),
         `feather-pinned-packages-alist'  (custom variable)"
   (let ((filepath (expand-file-name "feather-data.el" feather-recipes-dir)))
@@ -548,10 +548,10 @@ If you want to remove packages no more needed, call `feather-autoremove'."
         (progn
           (with-temp-file filepath
             (mapc (lambda (x)
-                    (insert (prin1-to-string
-                             `(setq ,(symbol-name x) ,(eval x))))
+                    (insert (pp-to-string
+                             `(setq ,x ',(symbol-value x))))
                     (insert "\n"))
-                  '(feather-installed-plist
+                  '(feather-installed-list
                     feather-selected-packages-list
                     feather-pinned-packages-alist)))
           filepath)
@@ -559,7 +559,7 @@ If you want to remove packages no more needed, call `feather-autoremove'."
 
 ;;;###autoload
 (defun feather-load-data ()
-  "Load `feather-installed-plist' (inner variable),
+  "Load `feather-installed-list' (inner variable),
         `feather-selected-packages-list' (custom variable),
         `feather-pinned-packages-alist'  (custom variable)"
   (let ((filepath (concat feather-recipes-dir "feather-data.el")))

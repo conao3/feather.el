@@ -77,16 +77,35 @@
                   (buffer-substring-no-properties (point-min) (point-max)))))))
 
 (cort-deftest feather:save-and-load-variables
-  `((:string= "(setq feather-installed-plist (zzz-to-char))
-(setq feather-selected-packages-list (zzz-to-char))
-(setq feather-pinned-packages-alist ((zzz-to-char . melpa)))
+  `((:string= "(setq feather-installed-list
+      '(zzz-to-char))
+(setq feather-selected-packages-list
+      '(zzz-to-char))
+(setq feather-pinned-packages-alist
+      '((zzz-to-char . melpa)))
 "
               (let ((feather-installed-list         '(zzz-to-char))
                     (feather-selected-packages-list '(zzz-to-char))
                     (feather-pinned-packages-alist  '((zzz-to-char . melpa))))
                 (with-temp-buffer
                   (insert-file-contents (feather-save-data))
-                  (buffer-substring-no-properties (point-min) (point-max)))))))
+                  (buffer-substring-no-properties (point-min) (point-max)))))
+
+    (:equal '((feather-installed-list         '(zzz-to-char))
+              (feather-selected-packages-list '(zzz-to-char))
+              (feather-pinned-packages-alist  '((zzz-to-char . melpa))))
+            (let ((feather-installed-list         '(zzz-to-char))
+                  (feather-selected-packages-list '(zzz-to-char))
+                  (feather-pinned-packages-alist  '((zzz-to-char . melpa)))
+                  (path))
+              (setq path (feather-save-data))
+              (let ((feather-installed-list         nil)
+                    (feather-selected-packages-list nil)
+                    (feather-pinned-packages-alist  nil))
+                (load-file path)
+                `((feather-installed-list         ',feather-installed-list)
+                  (feather-selected-packages-list ',feather-selected-packages-list)
+                  (feather-pinned-packages-alist  ',feather-pinned-packages-alist)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
