@@ -357,7 +357,13 @@ see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-i
 ;;
 
 (defun feather-fetch-recipe (name url)
-  "Fetch recipe named NAME from url and save in `feather-recipes-dir'"
+  "Fetch recipe named NAME.el from url and save file in `feather-recipes-dir'.
+
+EXAMPLE:
+  (feather-fetch-recipe
+    \"lite\"
+    \"https://raw.githubusercontent.com/conao3/feather-recipes.el/master/recipes/lite.el\")
+  ;; => \"/Users/conao/.emacs.d/local/26.1/feather/repos/lite.el\""
   (let ((path (expand-file-name (format "%s.el" name) feather-repos-dir)))
     (if (file-writable-p path)
         (with-temp-file path
@@ -368,7 +374,11 @@ see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-i
       (error (format "Cannot write file at %s" file)))))
 
 (defun feather-load-recipe (name)
-  "Load recipe maybe return hash-table."
+  "Load recipe named NAME.el in `feather-recipes-dir' and return hash-table.
+
+EXAMPLE:
+  (feather-load-recipe \"lite\")
+  ;; => *hash-table* "
   (let ((path (expand-file-name (format "%s.el" name) feather-repos-dir)))
     (if (file-readable-p path)
         (with-temp-buffer
