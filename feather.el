@@ -580,11 +580,10 @@ TODO: list support for Emacs-22"
   "Initialize `feather'"
   (interactive)
   (when (or force-p (not feather-initialized))
-    ;; create dir
+    ;; create dirs
     (mapc (lambda (x)
-            (let ((dirpath (eval x)))
-              (unless (file-directory-p dirpath)
-                (make-directory dirpath t))))
+            (unless (file-directory-p x)
+              (make-directory x t)))
           feather-dirs)
 
     ;; add load-path
