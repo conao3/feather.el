@@ -112,6 +112,21 @@ LEVEL is one of :emargency, :error, :warning, :debug."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+;;  General list functions
+;;
+
+(defun feather-dash-all? (lst)
+  "Return t if (PRED x) is non-nil for all x in LST, else nil."
+  (let (result)
+    (mapc (lambda (x) (setq (and result x))) lst)))
+
+(defun feather-dash-any? (lst)
+  "Return t if (PRED x) is non-nil for any x in LST, else nil."
+  (let (result)
+    (mapc (lambda (x) (setq (or result x))) lst)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;;  General hash table functions
 ;;
 
