@@ -96,7 +96,7 @@ see `feather-fetcher-url-alist' available fetcher symbol"
   :group 'feather)
 
 (defvar feather-dirs '(feather-repos-dir feather-recipes-dir feather-build-dir)
-  "All directorys feather managed")
+  "All directories feather managed")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
