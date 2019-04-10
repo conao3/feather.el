@@ -32,6 +32,8 @@
 ;;  test settings
 ;;
 
+(setq inhibit-message t)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  test definition
@@ -79,10 +81,13 @@
 (cort-deftest feather:save-and-load-variables
   `((:string= "(setq feather-installed-list
       '(zzz-to-char))
+
 (setq feather-selected-packages-list
       '(zzz-to-char))
+
 (setq feather-pinned-packages-alist
       '((zzz-to-char . melpa)))
+
 "
               (let ((feather-installed-list         '(zzz-to-char))
                     (feather-selected-packages-list '(zzz-to-char))
