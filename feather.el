@@ -223,6 +223,7 @@ The case, user can't get user-name (just get \\$(whoami)).
 If CMDLST is (A B C), if A fails, B and subsequent commands will not execute.
 
 This function inspired by `shell-command'"
+  (declare (indent 1))
   (let* ((safe-cmdlst (mapcar
                        (lambda (x)
                          (mapconcat #'shell-quote-argument x " "))
@@ -278,14 +279,13 @@ This function inspired by `shell-command'"
   "Clone PKG repository from URL on DIR. (full-clone)"
   (let ((repodir (expand-file-name "" dir)))
     (unless (file-directory-p (expand-file-name pkg dir))
-      (feather-async-command-queue
-       (format "*feather-async-%s-%s*" pkg (gensym))
-       `(("echo" ,(format "[Clone] '%s'... " pkg))
-         ("mkdir" "-p" ,repodir)
-         ("cd" ,repodir)
-         ("pwd")
-         ("git" "clone" ,url)
-         ("echo" ,(format "[Clone] '%s' done" pkg)))))))
+      (feather-async-command-queue (format "*feather-async-%s-%s*" pkg (gensym))
+        `(("echo" ,(format "[Clone] '%s'... " pkg))
+          ("mkdir" "-p" ,repodir)
+          ("cd" ,repodir)
+          ("pwd")
+          ("git" "clone" ,url)
+          ("echo" ,(format "[Clone] '%s' done" pkg)))))))
 
 (defun feather-git-shallow-clone (pkg url id dir)
   "Clone PKG repository from URL on DIR. (shallow-clone)
@@ -296,19 +296,18 @@ ID requires an id that can specify the repository tree such as
 See https://yo.eki.do/notes/git-only-single-commit ."
   (let ((repodir (expand-file-name "" dir)))
     (unless (filie-directory-p (expand-file-name pkg dif))
-      (feather-async-command-queue
-       (format "*feather-async-%s-%s*" pkg (gensym))
-       `(("echo" ,(format "[Shallow clone] '%s'... " pkg))
-         ("mkdir" "-p" ,repodir)
-         ("cd" ,repodir)
-         ("pwd")
-         ("mkdir" pkg)
-         ("cd" pkg)
-         ("git" "init")
-         ("git" "remote" "add" "origin" ,url)
-         ("git" "fetch" "--depth" "1" ,id)
-         ("git" "reset" "--hard" "FETCH_HEAD")
-         ("echo" ,(format "[shallow clone] '%s' done" pkg)))))))
+      (feather-async-command-queue (format "*feather-async-%s-%s*" pkg (gensym))
+        `(("echo" ,(format "[Shallow clone] '%s'... " pkg))
+          ("mkdir" "-p" ,repodir)
+          ("cd" ,repodir)
+          ("pwd")
+          ("mkdir" pkg)
+          ("cd" pkg)
+          ("git" "init")
+          ("git" "remote" "add" "origin" ,url)
+          ("git" "fetch" "--depth" "1" ,id)
+          ("git" "reset" "--hard" "FETCH_HEAD")
+          ("echo" ,(format "[shallow clone] '%s' done" pkg)))))))
 
 ;; (feather-git-pull-head (concat feather-recipes-dir "melpa"))
 ;; (defun feather-git-pull-head (pkg destpath)
@@ -326,14 +325,13 @@ see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-i
   (let ((repodir (expand-file-name "" dir)))
     (when (and (file-directory-p (expand-file-name pkg dir))
                (file-exists-p (expand-file-name (concat pkg "/.git/shallow") dir)))
-      (feather-async-command-queue
-       (format "*feather-async-%s-%s*" pkg (gensym))
-       `(("echo" ,(format "[Unshallow] '%s'... " pkg))
-         ("mkdir" "-p" ,repodir)
-         ("cd" ,repodir)
-         ("pwd")
-         ("git" "fetch" "--unshallow")
-         ("echo" ,(format "[Unshallow] '%s' done " pkg)))))))
+      (feather-async-command-queue (format "*feather-async-%s-%s*" pkg (gensym))
+        `(("echo" ,(format "[Unshallow] '%s'... " pkg))
+          ("mkdir" "-p" ,repodir)
+          ("cd" ,repodir)
+          ("pwd")
+          ("git" "fetch" "--unshallow")
+          ("echo" ,(format "[Unshallow] '%s' done " pkg)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
