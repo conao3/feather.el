@@ -356,7 +356,6 @@ see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-i
 ;;  Manage recipes
 ;;
 
-;;;###autoload
 (defun feather-fetch-recipe (name url)
   "Fetch recipe named NAME from url and save in `feather-recipes-dir'"
   (let ((path (expand-file-name (format "%s.el" name) feather-repos-dir)))
@@ -368,7 +367,6 @@ see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-i
           path)
       (error (format "Cannot write file at %s" file)))))
 
-;;;###autoload
 (defun feather-load-recipe (name)
   "Load recipe maybe return hash-table."
   (let ((path (expand-file-name (format "%s.el" name) feather-repos-dir)))
@@ -526,7 +524,6 @@ If you want to remove packages no more needed, call `feather-autoremove'."
 ;;  Initialize feather
 ;;
 
-;;;###autoload
 (defun feather-save-data ()
   "Save `feather-installed-list' (inner variable),
         `feather-selected-packages-list' (custom variable),
@@ -547,7 +544,6 @@ If you want to remove packages no more needed, call `feather-autoremove'."
           path)
       (error (format "Can not write file at %s" path)))))
 
-;;;###autoload
 (defun feather-load-data ()
   "Load `feather-installed-list' (inner variable),
         `feather-selected-packages-list' (custom variable),
