@@ -353,27 +353,6 @@ see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-i
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  General manage packages
-;;
-
-;;;###autoload
-(defun feather-installed-package-info (pkg)
-  "Return installed package info.
-If package haven't installed yet, return nil.
-If package have removed, return (:state :removed)"
-  (let ((pkg* (intern pkg)))
-    (plist-member feather-installed-list pkg*)))
-
-;;;###autoload
-(defun feather-package-installed-p (pkg)
-  (let ((pkg* (intern pkg)))
-    (let ((info (feather-installed-package-info pkg)))
-      (feather-truep
-       (and info
-            (not (eq (plist-get info :state) :removed)))))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
 ;;  Manage recipes
 ;;
 
