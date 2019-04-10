@@ -209,6 +209,15 @@ This variable is controlled by `feather-install' and `feather-remove'.")
 ;;  Shell controllers
 ;;
 
+(defun feahter-async-shell-command-sentinel (process signal)
+  "Shell command sentinel with argument PROCESS, SIGNAL."
+  (when (memq (process-status process) '(exit signal))
+    (shell-command--set-point-after-cmd (process-buffer process))
+    (message "%s: %s."
+             (car (cdr (cdr (process-command process))))
+             (substring signal 0 -1)))
+  (message "sentinel!"))
+
 (defun feather-async-command-queue (buffer-name cmdlst)
   "Execute cmdlst(string-list) queue with `start-process'.
 
@@ -239,7 +248,7 @@ This function inspired by `shell-command'"
                                 command))
       (setq mode-line-process '(":%s"))
       (require 'shell) (shell-mode)
-      (set-process-sentinel proc 'shell-command-sentinel)
+      (set-process-sentinel proc #'feahter-async-shell-command-sentinel)
       ;; Use the comint filter for proper handling of
       ;; carriage motion (see comint-inhibit-carriage-motion).
       (set-process-filter proc 'comint-output-filter)
