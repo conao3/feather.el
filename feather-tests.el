@@ -33,6 +33,7 @@
 ;;
 
 (setq inhibit-message t)
+(feather-initialize)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
