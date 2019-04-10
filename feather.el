@@ -372,7 +372,9 @@ The URL corresponding to the symbol is managed with `feather-fetcher-url-alist'.
   ;; download recipe files, read, append, save it.
   (mapc (lambda (x)
           (let* ((var-sym (intern (format "feather-recipes--%s" x)))
-                 (filepath (format "%s%s.el" feather-recipes-dir var-sym)))
+                 (filepath (expand-file-name
+                            (format "%s.el" (symbol-value var-sym))
+                            feather-recipes-dir)))
 
             ;; define recipe var
             (eval `(defvar ,var-sym))
@@ -393,8 +395,7 @@ The URL corresponding to the symbol is managed with `feather-fetcher-url-alist'.
                   ;; merge to main recipes var
                   (feather-asetq (it feather-recipes)
                     (feather-ht-merge it (eval var-sym))))
-              (error
-               (feather-message 'feather-refresh err :error)))))
+              (error err))))
         ;; updated after elements. first value will adoped.
         (reverse feather-fetcher-list))
 
