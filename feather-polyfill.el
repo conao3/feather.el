@@ -48,7 +48,7 @@ see `gnutls-available-p'.)"
     (format "%s%s" user-emacs-directory name)))
 
 (defmacro leaf-case (fn var &rest conds)
-  "Switch case macro with FN.
+  "Switch CONDS according to the value of the VAR processed by the FN.
 Emacs-22 doesn't support `pcase'."
   (declare (indent 2))
   (let ((lcond var))
@@ -68,11 +68,11 @@ Emacs-22 doesn't support `pcase'."
 ;;
 
 (defsubst feather-truep (var)
-  "Return t if var is non-nil."
+  "Return t if VAR is non-nil."
   (not (not var)))
 
 (defsubst feather-message (from-fn msg &optional level)
-  "Show message.
+  "Show message as MSG from FROM-FN.
 LEVEL is one of :emargency, :error, :warning, :debug."
   (if level
       (display-warning 'feather (format "%s: %s" from-fn msg) level)
@@ -86,12 +86,16 @@ LEVEL is one of :emargency, :error, :warning, :debug."
 (defun feather-dash-all? (lst)
   "Return t if (PRED x) is non-nil for all x in LST, else nil."
   (let (result)
-    (mapc (lambda (x) (setq (and result x))) lst)))
+    (mapc (lambda (x)
+            (setq result (and result x)))
+          lst)))
 
 (defun feather-dash-any? (lst)
   "Return t if (PRED x) is non-nil for any x in LST, else nil."
   (let (result)
-    (mapc (lambda (x) (setq (or result x))) lst)))
+    (mapc (lambda (x)
+            (setq result (or result x)))
+          lst)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -110,7 +114,7 @@ FUNCTION is called with two arguments, KEY and VALUE."
 
 (defun feather-ht-keys (table)
   "Return a list of all the keys in TABLE."
-  (feather-ht-map (lambda (key value) key) table))
+  (feather-ht-map (lambda (key _value) key) table))
 
 (defun feahter-ht-equal? (table1 table2)
   "Return t if TABLE1 and TABLE2 have the same keys and values.
@@ -122,7 +126,7 @@ Does not compare equality predicates."
           (mapcar (lambda (key)
                     (equal (gethash key table1)
                            (gethash key table2)))
-                  key1)))))
+                  keys1)))))
 
 (defun feather-ht-update! (table from-table)
   "Update TABLE according to every key-value pair in FROM-TABLE."
@@ -145,7 +149,7 @@ table is used."
 ;;
 
 (defun feather-path-parent (path)
-  "Return parent path of PATH"
+  "Return parent path of PATH."
   (file-name-directory (directory-file-name path)))
 
 (provide 'feather-polyfill)
