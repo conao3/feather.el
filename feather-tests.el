@@ -39,44 +39,44 @@
 ;;  test definition
 ;;
 
-(cort-deftest feather:async-command-queue
-  `((:string= "test\n"
-              (let ((buf (format "*feather-%sq*"
-                                 (shell-command-to-string "uuidgen"))))
-                (feather-async-command-queue buf
-                  '(("echo" "test")))
-                (sit-for 0.01)
-                (with-current-buffer buf
-                  (buffer-substring-no-properties (point-min) (point-max)))))
+;; (cort-deftest feather:async-command-queue
+;;   `((:string= "test\n"
+;;               (let ((buf (format "*feather-%sq*"
+;;                                  (shell-command-to-string "uuidgen"))))
+;;                 (feather-async-command-queue buf
+;;                   '(("echo" "test")))
+;;                 (sit-for 0.01)
+;;                 (with-current-buffer buf
+;;                   (buffer-substring-no-properties (point-min) (point-max)))))
 
-    (:string= "test1\ntest2\n"
-              (let ((buf (format "*feather-%sq*"
-                                 (shell-command-to-string "uuidgen"))))
-                (feather-async-command-queue buf
-                  '(("echo" "test1")
-                    ("echo" "test2")))
-                (sit-for 0.01)
-                (with-current-buffer buf
-                  (buffer-substring-no-properties (point-min) (point-max)))))
+;;     (:string= "test1\ntest2\n"
+;;               (let ((buf (format "*feather-%sq*"
+;;                                  (shell-command-to-string "uuidgen"))))
+;;                 (feather-async-command-queue buf
+;;                   '(("echo" "test1")
+;;                     ("echo" "test2")))
+;;                 (sit-for 0.01)
+;;                 (with-current-buffer buf
+;;                   (buffer-substring-no-properties (point-min) (point-max)))))
 
-    (:string= "/tmp\n"
-              (let ((buf (format "*feather-%sq*"
-                                 (shell-command-to-string "uuidgen"))))
-                (feather-async-command-queue buf
-                  '(("cd" "/tmp")
-                    ("pwd")))
-                (sit-for 0.01)
-                (with-current-buffer buf
-                  (buffer-substring-no-properties (point-min) (point-max)))))
+;;     (:string= "/tmp\n"
+;;               (let ((buf (format "*feather-%sq*"
+;;                                  (shell-command-to-string "uuidgen"))))
+;;                 (feather-async-command-queue buf
+;;                   '(("cd" "/tmp")
+;;                     ("pwd")))
+;;                 (sit-for 0.01)
+;;                 (with-current-buffer buf
+;;                   (buffer-substring-no-properties (point-min) (point-max)))))
 
-    (:string= "$(whoami)\n"
-              (let ((buf (format "*feather-%sq*"
-                                 (shell-command-to-string "uuidgen"))))
-                (feather-async-command-queue buf
-                  '(("echo" "$(whoami)")))
-                (sit-for 0.01)
-                (with-current-buffer buf
-                  (buffer-substring-no-properties (point-min) (point-max)))))))
+;;     (:string= "$(whoami)\n"
+;;               (let ((buf (format "*feather-%sq*"
+;;                                  (shell-command-to-string "uuidgen"))))
+;;                 (feather-async-command-queue buf
+;;                   '(("echo" "$(whoami)")))
+;;                 (sit-for 0.01)
+;;                 (with-current-buffer buf
+;;                   (buffer-substring-no-properties (point-min) (point-max)))))))
 
 (cort-deftest feather:save-and-load-variables
   `((:string= "(setq feather-installed-list
