@@ -527,11 +527,11 @@ If you want to remove packages no more needed, call `feather-autoremove'."
   "Clean feather working directory and build directory."
   (interactive)
   (feather-initialize)
-  (when (y-or-n-p "Really clean feather directory? All packages will delete.")
-    (mapc (lambda (x) (delete-directory (eval x) t)) feather-dirs)
-    
-    ;; create raw directory
-    (feather-initialize t)))
+  (when (y-or-n-p "Really clean feather directory? All packages and downloaded recipes will remove.")
+    (mapc (lambda (x)
+            (ignore-errors
+              (delete-directory (eval x) t)))
+          feather-dirs)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
