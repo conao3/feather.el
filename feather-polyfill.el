@@ -115,6 +115,16 @@ LEVEL is one of :emargency, :error, :warning, :debug."
 ;;  General hash table functions
 ;;
 
+(defun feather-ht-map (fn table)
+  "Apply FN to each key-value pair of TABLE, and make a list of the results.
+FUNCTION is called with two arguments, KEY and VALUE."
+  (let (results)
+    (maphash
+     (lambda (key value)
+       (push (funcall fn key value) results))
+     table)
+    results))
+
 (defun feather-ht-update! (table from-table)
   "Update TABLE according to every key-value pair in FROM-TABLE."
   (maphash
