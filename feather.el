@@ -276,15 +276,16 @@ This function inspired by `shell-command'"
 ;; (feather-git-clone "feather.el" "https://github.com/conao3/feather.el.git" feather-recipes-dir)
 (defun feather-git-full-clone (pkg url dir)
   "Clone PKG repository from URL on DIR. (full-clone)"
-  (unless (file-directory-p (expand-file-name pkg dir))
-    (feather-async-command-queue
-     (format "*feather-async-%s-%s*" pkg (gensym))
-     `(("echo" ,(format "[Clone] '%s'... " pkg))
-       ("mkdir" "-p" ,dir)
-       ("cd" ,dir)
-       ("pwd")
-       ("git" "clone" ,url)
-       ("echo" ,(format "[Clone] '%s' done" pkg))))))
+  (let ((repodir (expand-file-name "" dir)))
+    (unless (file-directory-p (expand-file-name pkg dir))
+      (feather-async-command-queue
+       (format "*feather-async-%s-%s*" pkg (gensym))
+       `(("echo" ,(format "[Clone] '%s'... " pkg))
+         ("mkdir" "-p" ,repodir)
+         ("cd" ,repodir)
+         ("pwd")
+         ("git" "clone" ,url)
+         ("echo" ,(format "[Clone] '%s' done" pkg)))))))
 
 (defun feather-git-shallow-clone (pkg url id dir)
   "Clone PKG repository from URL on DIR. (shallow-clone)
@@ -293,20 +294,21 @@ ID requires an id that can specify the repository tree such as
 \"master\" (branch-name), \"v1.2\" (tag-name), \"fc697e2a9...e86\" (SHA-1)
 
 See https://yo.eki.do/notes/git-only-single-commit ."
-  (unless (filie-directory-p (expand-file-name pkg dif))
-    (feather-async-command-queue
-     (format "*feather-async-%s-%s*" pkg (gensym))
-     `(("echo" ,(format "[Shallow clone] '%s'... " pkg))
-       ("mkdir" "-p" ,dir)
-       ("cd" ,dir)
-       ("pwd")
-       ("mkdir" pkg)
-       ("cd" pkg)
-       ("git" "init")
-       ("git" "remote" "add" "origin" ,url)
-       ("git" "fetch" "--depth" "1" ,id)
-       ("git" "reset" "--hard" "FETCH_HEAD")
-       ("echo" ,(format "[shallow clone] '%s' done" pkg))))))
+  (let ((repodir (expand-file-name "" dir)))
+    (unless (filie-directory-p (expand-file-name pkg dif))
+      (feather-async-command-queue
+       (format "*feather-async-%s-%s*" pkg (gensym))
+       `(("echo" ,(format "[Shallow clone] '%s'... " pkg))
+         ("mkdir" "-p" ,repodir)
+         ("cd" ,repodir)
+         ("pwd")
+         ("mkdir" pkg)
+         ("cd" pkg)
+         ("git" "init")
+         ("git" "remote" "add" "origin" ,url)
+         ("git" "fetch" "--depth" "1" ,id)
+         ("git" "reset" "--hard" "FETCH_HEAD")
+         ("echo" ,(format "[shallow clone] '%s' done" pkg)))))))
 
 ;; (feather-git-pull-head (concat feather-recipes-dir "melpa"))
 ;; (defun feather-git-pull-head (pkg destpath)
@@ -321,15 +323,17 @@ See https://yo.eki.do/notes/git-only-single-commit ."
   "Unshallow repository to fetch whole repository.
 
 see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-is-shallow"
-  (when (and (file-directory-p (expand-file-name pkg dir))
-             (file-exists-p (expand-file-name (concat pkg "/.git/shallow") dir)))
-    (feather-async-command-queue
-     (format "*feather-async-%s-%s*" pkg (gensym))
-     `(("echo" ,(format "[Unshallow] '%s'... " pkg))
-       ("cd" ,dir)
-       ("pwd")
-       ("git" "fetch" "--unshallow")
-       ("echo" ,(format "[Unshallow] '%s' done " pkg))))))
+  (let ((repodir (expand-file-name "" dir)))
+    (when (and (file-directory-p (expand-file-name pkg dir))
+               (file-exists-p (expand-file-name (concat pkg "/.git/shallow") dir)))
+      (feather-async-command-queue
+       (format "*feather-async-%s-%s*" pkg (gensym))
+       `(("echo" ,(format "[Unshallow] '%s'... " pkg))
+         ("mkdir" "-p" ,repodir)
+         ("cd" ,repodir)
+         ("pwd")
+         ("git" "fetch" "--unshallow")
+         ("echo" ,(format "[Unshallow] '%s' done " pkg)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
