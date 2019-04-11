@@ -397,6 +397,7 @@ See `package-autoload-ensure-default-file'."
 (defvar generated-autoload-file)
 (defvar autoload-timestamps)
 (defvar version-control)
+(defvar inhibit-message)
 
 (defun feather-generate-autoloads (pkg)
   "Generate autoloads .el file for PKG.
@@ -537,8 +538,8 @@ such as (feather-package-info :zzz-to-char)"
   (feather-initialize)
 
   (when feather-selected-packages-list
-    (mapc (lambda (x) (feather-install (symbol-name x))
-            feather-selected-packages-list))))
+    (mapc (lambda (x) (feather-install (symbol-name x)))
+          feather-selected-packages-list)))
 
 ;;;###autoload
 (defun feather-install (pkg)
@@ -577,7 +578,7 @@ Packages that are no more needed by other packages in
   (feather-initialize)
   
   (let ((lst (feather-install-selected-packages)))
-    (mapc (lambda (x) (delq x lst) feather-selected-packages-list))
+    (mapc (lambda (x) (delq x lst)) feather-selected-packages-list)
     (mapc (lambda (x) (feather-remove x)) lst)))
 
 ;;;###autoload
