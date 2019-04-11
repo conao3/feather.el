@@ -659,9 +659,10 @@ If you want to remove packages no more needed, call `feather-autoremove'."
 When FORCE-P is non-nil, initialize without considering initialize history."
   (interactive)
 
-  ;; initialized frg
-  (setq feather-initialized t)
   (when (or force-p (not feather-initialized))
+    ;; initialized frg
+    (setq feather-initialized t)
+
     ;; create dirs
     (mapc (lambda (x) (make-directory (eval x) t)) feather-dirs)
 
