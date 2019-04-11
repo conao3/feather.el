@@ -422,7 +422,7 @@ See `package-generate-autoloads'."
 
 (defun feather-package-ensure (pkg)
   "Ensure PKG."
-  (let ((recipe (gethash (intern pkg) feather-recipes)))
+  (let ((recipe (feather-ht-get feather-recipes (intern pkg))))
     (feather-git-shallow-clone pkg
                                (plist-get recipe :url)
                                (plist-get recipe :commit)
@@ -524,7 +524,7 @@ If CACHE-P is non-nil, use downloaded recipes without any fetching."
 such as (feather-package-info :zzz-to-char)"
   (interactive)
   (feather-initialize)
-  (gethash (intern-soft pkg) feather-recipes))
+  (feather-ht-get feather-recipes (intern-soft pkg)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

@@ -102,6 +102,11 @@ LEVEL is one of :emargency, :error, :warning, :debug."
 ;;  General hash table functions
 ;;
 
+(defsubst feather-ht-get (table key &optional default)
+  "Look up KEY in TABLE, and return the matching value.
+If KEY isn't present, return DEFAULT (nil if not specified)."
+  (gethash key table default))
+
 (defun feather-ht-map (fn table)
   "Apply FN to each key-value pair of TABLE, and make a list of the results.
 FUNCTION is called with two arguments, KEY and VALUE."
@@ -124,8 +129,8 @@ Does not compare equality predicates."
     (and (equal (length keys1) (length keys2))
          (feather-dash-all?
           (mapcar (lambda (key)
-                    (equal (gethash key table1)
-                           (gethash key table2)))
+                    (equal (feather-ht-get table1 key)
+                           (feather-ht-get table2 key)))
                   keys1)))))
 
 (defun feather-ht-update! (table from-table)
