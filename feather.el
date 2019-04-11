@@ -24,6 +24,7 @@
 
 ;;; Code:
 
+(require 'cl-lib)
 (require 'feather-polyfill)
 
 (defgroup feather nil
@@ -209,16 +210,26 @@ This variable is controlled by `feather-install' and `feather-remove'.")
 ;;  Shell controllers
 ;;
 
-(defun feahter-async-shell-command-sentinel (process signal)
+(defvar-local feather-collect-buffer-name "*feather-async*")
+(defvar-local feather-end-msg "end")
+
+(defun feahter-async-shell-command-sentinel (process _signal)
   "Shell command sentinel with argument PROCESS, SIGNAL."
   (when (memq (process-status process) '(exit signal))
-    (shell-command--set-point-after-cmd (process-buffer process))
-    (message "%s: %s."
-             (car (cdr (cdr (process-command process))))
-             (substring signal 0 -1)))
-  (message "sentinel!"))
+    (with-current-buffer (get-buffer-create feather-collect-buffer-name)
+      (insert feather-end-msg))))
 
-(defun feather-async-command-queue (buffer-name cmdlst)
+(cl-defun feather-async-command-queue
+    (command-buffer-name
+     cmdlst
+     &key
+     (init-fn             #'ignore)
+     (sentinel-fn         #'feahter-async-shell-command-sentinel)
+     (command-buffer-pop  nil)
+     (collect-buffer-pop  t)
+     (collect-buffer-name "*feather-async*")
+     (start-msg           (format "%s start" command-buffer-name))
+     (end-msg             (format "%s end" command-buffer-name)))
   "Execute cmdlst(string-list) queue with `start-process'.
 
 Command output is appear in generated buffer named BUFFER-NAME.
@@ -240,20 +251,28 @@ This function inspired by `shell-command'"
                        cmdlst))
          (command     (mapconcat #'identity safe-cmdlst " && "))
          (proc))
-    (with-current-buffer (generate-new-buffer buffer-name)
+    (with-current-buffer (get-buffer-create collect-buffer-name)
+      (when collect-buffer-pop
+        (insert start-msg)
+        (display-buffer (current-buffer) '(nil (allow-no-window . t)))))
+
+    (with-current-buffer (generate-new-buffer command-buffer-name)
       (setq proc (start-process (buffer-name)
                                 (current-buffer)
                                 shell-file-name      ; /bin/bash (default)
 				shell-command-switch ; -c (default)
                                 command))
+      (funcall init-fn)
+      (setq-local feather-collect-buffer-name collect-buffer-name)
+      (setq-local feather-end-msg end-msg)
       (setq mode-line-process '(":%s"))
       (require 'shell) (shell-mode)
-      (set-process-sentinel proc #'feahter-async-shell-command-sentinel)
+      (set-process-sentinel proc sentinel-fn)
       ;; Use the comint filter for proper handling of
       ;; carriage motion (see comint-inhibit-carriage-motion).
       (set-process-filter proc 'comint-output-filter)
-      ;; (display-buffer (current-buffer) '(nil (allow-no-window . t)))
-      )))
+      (when command-buffer-pop
+        (display-buffer (current-buffer) '(nil (allow-no-window . t)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
