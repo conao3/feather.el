@@ -368,7 +368,9 @@ see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-i
           ("cd" ,repodir)
           ("pwd")
           ("git" "fetch" "--unshallow")
-          ("echo" ,(format "[Unshallow] '%s' done " pkg)))))))
+          ("echo" ,(format "[Unshallow] '%s' done " pkg)))
+        :start-msg (format "[Unshallow] %s...\n" pkg)
+        :end-msg   (format "[Unshallow] %s done\n" pkg)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
