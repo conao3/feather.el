@@ -99,6 +99,18 @@ LEVEL is one of :emargency, :error, :warning, :debug."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+;;  General plist functions
+;;
+
+(defun feather-plist-get (plist key &optional default)
+  "Look up KEY in TABLE, and return the matching value.
+If KEY isn't present, return DEFAULT (nil if not specified)."
+  (if (plist-member plist key)
+      (plist-get plist key)
+    default))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;;  General hash table functions
 ;;
 
