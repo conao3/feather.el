@@ -419,6 +419,14 @@ See `package-generate-autoloads'."
        (when buf (kill-buffer buf)))
      auto-name)))
 
+(defun feather-package-ensure (pkg)
+  "Ensure PKG."
+  (let ((recipe (gethash (intern pkg) feather-recipes)))
+    (feather-git-shallow-clone pkg
+                               (plist-get recipe :url)
+                               (plist-get recipe :commit)
+                               feather-repos-dir)))
+
 (defun feather-packages-list ()
   "Return available package name list."
   (feather-ht-keys feather-recipes))
