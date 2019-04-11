@@ -196,7 +196,7 @@ This variable is set automatically by `feather-initialize'.")
 ;;
 ;;  Manage packages
 
-(defvar feather-installed-list nil
+(defvar feather-installed-plist nil
   "List of all packages user installed.
 This variable is controlled by `feather-install' and `feather-remove'.")
 
@@ -513,14 +513,16 @@ such as (feather-package-info :zzz-to-char)"
         (feather-remove pkg)
         (feather-install pkg))
 
-    ;; download source
-    ;; (feather-ensure-package pkg)
-
     ;; generate autoloads
     (feather-generate-autoloads pkg)
 
     ;; acrivate package
-    (feather-activate pkg)))
+    (feather-activate pkg)
+
+    ;; save package installed info
+    (plist-put 'feather-installed-plist (intern pkg)
+               (cdr `(:feather-dummy
+                      :installed t)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -589,7 +591,7 @@ If you want to remove packages no more needed, call `feather-autoremove'."
 (defun feather-save-data ()
   "Save feather data.
 
-`feather-installed-list' (inner variable),
+`feather-installed-plist' (inner variable),
 `feather-selected-packages-list' (custom variable),
 `feather-pinned-packages-alist'  (custom variable)"
   (interactive)
@@ -602,7 +604,7 @@ If you want to remove packages no more needed, call `feather-autoremove'."
                   (insert (pp-to-string
                            `(setq ,x ',(symbol-value x))))
                   (insert "\n"))
-                '(feather-installed-list
+                '(feather-installed-plist
                   feather-selected-packages-list
                   feather-pinned-packages-alist))
           path)
@@ -611,7 +613,7 @@ If you want to remove packages no more needed, call `feather-autoremove'."
 (defun feather-load-data ()
   "Load feather data.
 
-`feather-installed-list' (inner variable),
+`feather-installed-plist' (inner variable),
 `feather-selected-packages-list' (custom variable),
 `feather-pinned-packages-alist'  (custom variable)"
   (let ((path (expand-file-name "feather-data.el" feather-recipes-dir)))
