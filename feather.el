@@ -669,11 +669,9 @@ When FORCE-P is non-nil, initialize without considering initialize history."
     ;; add load-path
     (add-to-list 'load-path feather-build-dir)
 
-    ;; load feather database
-    (ignore-errors (feather-load-data))
-
-    ;; load feather recipes
-    (feather-refresh 'cache)))
+    ;; load feather database/recipes
+    (ignore-errors (feather-load-data)
+                   (feather-refresh 'cache))))
 
 (provide 'feather)
 ;;; feather.el ends here
