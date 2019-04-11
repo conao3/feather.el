@@ -210,14 +210,14 @@ This variable is controlled by `feather-install' and `feather-remove'.")
 ;;  Shell controllers
 ;;
 
-(defvar-local feather-collect-buffer-name "*feather-async*")
-(defvar-local feather-end-msg "end")
-
 (defun feahter-async-shell-command-sentinel (process _signal)
   "Shell command sentinel with argument PROCESS, SIGNAL."
-  (when (memq (process-status process) '(exit signal))
-    (with-current-buffer (get-buffer-create feather-collect-buffer-name)
-      (insert feather-end-msg))))
+  (let ((collect-buffer-name (process-get process 'feather-collect-buffer-name))
+        (end-msg             (process-get process 'feather-end-msg)))
+    (when (memq (process-status process) '(exit signal))
+      (with-current-buffer (get-buffer-create collect-buffer-name)
+        (insert end-msg)
+        (goto-char (point-max))))))
 
 (cl-defun feather-async-command-queue
     (command-buffer-name
@@ -254,6 +254,7 @@ This function inspired by `shell-command'"
     (with-current-buffer (get-buffer-create collect-buffer-name)
       (when collect-buffer-pop
         (insert start-msg)
+        (goto-char (point-max))
         (display-buffer (current-buffer) '(nil (allow-no-window . t)))))
 
     (with-current-buffer (generate-new-buffer command-buffer-name)
@@ -263,14 +264,15 @@ This function inspired by `shell-command'"
 				shell-command-switch ; -c (default)
                                 command))
       (funcall init-fn)
-      (setq-local feather-collect-buffer-name collect-buffer-name)
-      (setq-local feather-end-msg end-msg)
+      (set-process-sentinel proc sentinel-fn)
+      (set-process-filter proc 'comint-output-filter)
+
+      (process-put proc 'feather-collect-buffer-name collect-buffer-name)
+      (process-put proc 'feather-end-msg end-msg)
+
       (setq mode-line-process '(":%s"))
       (require 'shell) (shell-mode)
-      (set-process-sentinel proc sentinel-fn)
-      ;; Use the comint filter for proper handling of
-      ;; carriage motion (see comint-inhibit-carriage-motion).
-      (set-process-filter proc 'comint-output-filter)
+
       (when command-buffer-pop
         (display-buffer (current-buffer) '(nil (allow-no-window . t)))))))
 
@@ -316,7 +318,9 @@ This function inspired by `shell-command'"
           ("cd" ,repodir)
           ("pwd")
           ("git" "clone" ,url)
-          ("echo" ,(format "[Clone] '%s' done" pkg)))))))
+          ("echo" ,(format "[Clone] '%s' done" pkg)))
+        :start-msg (format "[Clone] %s...\n" pkg)
+        :end-msg   (format "[Clone] %s done\n" pkg)))))
 
 (defun feather-git-shallow-clone (pkg url id dir)
   "Shallow clone PKG repository from URL on DIR.
@@ -338,7 +342,9 @@ See https://yo.eki.do/notes/git-only-single-commit ."
           ("git" "remote" "add" "origin" ,url)
           ("git" "fetch" "--depth" "1" ,id)
           ("git" "reset" "--hard" "FETCH_HEAD")
-          ("echo" ,(format "[shallow clone] '%s' done" pkg)))))))
+          ("echo" ,(format "[shallow clone] '%s' done" pkg)))
+        :start-msg (format "[Shallow clone] %s...\n" pkg)
+        :end-msg   (format "[Shallow clone] %s done\n" pkg)))))
 
 ;; (feather-git-pull-head (concat feather-recipes-dir "melpa"))
 ;; (defun feather-git-pull-head (pkg destpath)
