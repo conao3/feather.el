@@ -217,7 +217,8 @@ This variable is controlled by `feather-install' and `feather-remove'.")
     (when (memq (process-status process) '(exit signal))
       (with-current-buffer (get-buffer-create collect-buffer-name)
         (insert end-msg)
-        (goto-char (point-max))))))
+        (goto-char (point-max)))
+      (kill-buffer (process-buffer process)))))
 
 (cl-defun feather-async-command-queue
     (command-buffer-name
