@@ -383,10 +383,41 @@ see https://stackoverflow.com/questions/37531605/how-to-test-if-git-repository-i
   pkg
   )
 
+(declare-function autoload-rubric "autoload" (file &optional type feature))
+
+(defun feather-autoload-ensure-default-file (file)
+  "Make sure that the autoload file FILE exists and if not create it.
+
+See `package-autoload-ensure-default-file'."
+  (unless (file-exists-p file)
+    (require 'autoload)
+    (write-region (autoload-rubric file "feather" nil) nil file nil 'silent))
+  file)
+
+(defvar generated-autoload-file)
+(defvar autoload-timestamps)
+(defvar version-control)
+
 (defun feather-generate-autoloads (pkg)
-  "Generate autoloads .el file for PKG."
-  pkg
-  )
+  "Generate autoloads .el file for PKG.
+
+See `package-generate-autoloads'."
+  (let ((name    pkg)
+        (pkg-dir (expand-file-name pkg feather-repos-dir)))
+   (let* ((auto-name (format "%s-autoloads.el" name))
+          ;; (ignore-name (concat name "-pkg.el"))
+          (generated-autoload-file (expand-file-name auto-name pkg-dir))
+          ;; We don't need 'em, and this makes the output reproducible.
+          (autoload-timestamps nil)
+          ;; Silence `autoload-generate-file-autoloads'.
+          (noninteractive inhibit-message)
+          (backup-inhibited t)
+          (version-control 'never))
+     (feather-autoload-ensure-default-file generated-autoload-file)
+     (update-directory-autoloads pkg-dir)
+     (let ((buf (find-buffer-visiting generated-autoload-file)))
+       (when buf (kill-buffer buf)))
+     auto-name)))
 
 (defun feather-packages-list ()
   "Return available package name list."
