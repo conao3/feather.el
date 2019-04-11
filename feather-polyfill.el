@@ -99,11 +99,23 @@ LEVEL is one of :emargency, :error, :warning, :debug."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+;;  General alist functions
+;;
+
+(defun feather-alist-get (alist key &optional default)
+  "Look up KEY in ALIST, and return the matching value.
+If KEY isn't present, return DEFAULT (nil if not specified)."
+  (if (assoc key alist)
+      (cdr (assoc key alist))
+    default))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;;  General plist functions
 ;;
 
 (defun feather-plist-get (plist key &optional default)
-  "Look up KEY in TABLE, and return the matching value.
+  "Look up KEY in PLIST, and return the matching value.
 If KEY isn't present, return DEFAULT (nil if not specified)."
   (if (plist-member plist key)
       (plist-get plist key)
