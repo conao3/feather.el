@@ -471,13 +471,6 @@ If CACHE-P is non-nil, use downloaded recipes without any fetching."
                            (hash-table-count feather-recipes))))
 
 ;;;###autoload
-(defun feather-load ()
-  "Load recipes without any fetching."
-  (interactive)
-  (feather-initialize)
-  (feather-refresh 'cache))
-
-;;;###autoload
 (defun feather-list-packages ()
   "Show available packages list."
   (interactive)
@@ -632,6 +625,9 @@ If you want to remove packages no more needed, call `feather-autoremove'."
 
 When FORCE-P is non-nil, initialize without considering initialize history."
   (interactive)
+
+  ;; initialized frg
+  (setq feather-initialized t)
   (when (or force-p (not feather-initialized))
     ;; create dirs
     (mapc (lambda (x) (make-directory (eval x) t)) feather-dirs)
@@ -642,8 +638,8 @@ When FORCE-P is non-nil, initialize without considering initialize history."
     ;; load feather database
     (ignore-errors (feather-load-data))
 
-    ;; initialized frg
-    (setq feather-initialized t)))
+    ;; load feather recipes
+    (feather-refresh 'cache)))
 
 (provide 'feather)
 ;;; feather.el ends here
