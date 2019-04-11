@@ -424,8 +424,8 @@ See `package-generate-autoloads'."
   "Ensure PKG."
   (let ((recipe (feather-ht-get feather-recipes (intern pkg))))
     (feather-git-shallow-clone pkg
-                               (plist-get recipe :url)
-                               (plist-get recipe :commit)
+                               (feather-plist-get recipe :url)
+                               (feather-plist-get recipe :commit "master")
                                feather-repos-dir)))
 
 (defun feather-packages-list ()
