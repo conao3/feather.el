@@ -52,10 +52,6 @@ see `gnutls-available-p'.)"
 ;;  General functions
 ;;
 
-(defsubst feather-truep (var)
-  "Return t if VAR is non-nil."
-  (not (not var)))
-
 (defsubst feather-message (from-fn msg &optional level)
   "Show message as MSG from FROM-FN.
 LEVEL is one of :emargency, :error, :warning, :debug."
