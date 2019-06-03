@@ -31,7 +31,7 @@ ELS         := feather.el
 ELS           += feather-polyfill.el
 
 CORTELS     := $(TESTFILE) cort-test.el
-CORT_ARGS   := -l $(TESTFILE) -f cort-run-tests
+CORT_ARGS   := -l $(TESTFILE) -f cort-test-run
 
 LOGFILE     := .make-check.log
 

@@ -31,8 +31,9 @@
                (substring (shell-command-to-string "uuidgen") 0 -1))
        "/tmp"))
 
+(load "cort-test")
 (require 'feather)
-(require 'cort-test)
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -89,78 +90,78 @@
 ;;                 (with-current-buffer buf
 ;;                   (buffer-substring-no-properties (point-min) (point-max)))))))
 
-(cort-deftest feather:save-and-load-variables
-  `((:string= "(setq feather-installed-plist
-      '(zzz-to-char))
+;; (cort-deftest feather:save-and-load-variables
+;;   `((:string= "(setq feather-installed-plist
+;;       '(zzz-to-char))
 
-(setq feather-selected-packages-list
-      '(zzz-to-char))
+;; (setq feather-selected-packages-list
+;;       '(zzz-to-char))
 
-(setq feather-pinned-packages-alist
-      '((zzz-to-char . melpa)))
+;; (setq feather-pinned-packages-alist
+;;       '((zzz-to-char . melpa)))
 
-"
-              (let ((feather-installed-plist         '(zzz-to-char))
-                    (feather-selected-packages-list '(zzz-to-char))
-                    (feather-pinned-packages-alist  '((zzz-to-char . melpa))))
-                (with-temp-buffer
-                  (insert-file-contents (feather-save-data))
-                  (buffer-substring-no-properties (point-min) (point-max)))))
+;; "
+;;               (let ((feather-installed-plist         '(zzz-to-char))
+;;                     (feather-selected-packages-list '(zzz-to-char))
+;;                     (feather-pinned-packages-alist  '((zzz-to-char . melpa))))
+;;                 (with-temp-buffer
+;;                   (insert-file-contents (feather-save-data))
+;;                   (buffer-substring-no-properties (point-min) (point-max)))))
 
-    (:equal '((feather-installed-plist         '(zzz-to-char))
-              (feather-selected-packages-list '(zzz-to-char))
-              (feather-pinned-packages-alist  '((zzz-to-char . melpa))))
-            (let ((feather-installed-plist         '(zzz-to-char))
-                  (feather-selected-packages-list '(zzz-to-char))
-                  (feather-pinned-packages-alist  '((zzz-to-char . melpa)))
-                  (path))
-              (setq path (feather-save-data))
-              (let ((feather-installed-plist         nil)
-                    (feather-selected-packages-list nil)
-                    (feather-pinned-packages-alist  nil))
-                (load-file path)
-                `((feather-installed-plist         ',feather-installed-plist)
-                  (feather-selected-packages-list ',feather-selected-packages-list)
-                  (feather-pinned-packages-alist  ',feather-pinned-packages-alist)))))))
+;;     (:equal '((feather-installed-plist         '(zzz-to-char))
+;;               (feather-selected-packages-list '(zzz-to-char))
+;;               (feather-pinned-packages-alist  '((zzz-to-char . melpa))))
+;;             (let ((feather-installed-plist         '(zzz-to-char))
+;;                   (feather-selected-packages-list '(zzz-to-char))
+;;                   (feather-pinned-packages-alist  '((zzz-to-char . melpa)))
+;;                   (path))
+;;               (setq path (feather-save-data))
+;;               (let ((feather-installed-plist         nil)
+;;                     (feather-selected-packages-list nil)
+;;                     (feather-pinned-packages-alist  nil))
+;;                 (load-file path)
+;;                 `((feather-installed-plist         ',feather-installed-plist)
+;;                   (feather-selected-packages-list ',feather-selected-packages-list)
+;;                   (feather-pinned-packages-alist  ',feather-pinned-packages-alist)))))))
 
-(cort-deftest feaher:fetch-and-load-recipe
-  `((:string= "#s(hash-table size 65 test eq rehash-size 1.5 rehash-threshold 0.8125 data 
-   (zzz-to-char (:fetcher \"github\" :repo \"mrkkrp/zzz-to-char\" :files nil)
-    zygospore (:fetcher \"github\" :repo \"LouisKottmann/zygospore.el\" :files nil)
-    zweilight-theme (:fetcher \"github\" :repo \"philiparvidsson/Zweilight-Theme-for-Emacs\" :files nil)
-    ztree (:fetcher \"github\" :repo \"fourier/ztree\" :files nil)
-    zprint-mode (:fetcher \"github\" :repo \"pesterhazy/zprint-mode.el\" :files nil)
-   ))
-"
-              (with-temp-buffer
-                (insert-file-contents
-                 (feather-fetch-recipe
-                  "lite"
-                  "https://raw.githubusercontent.com/conao3/feather-recipes.el/master/recipes/lite.el"))
-                (buffer-substring-no-properties (point-min) (point-max))))
-    (:feahter-ht-equal? #s(hash-table size 65 test eq rehash-size 1.5 rehash-threshold 0.8125 data
-                                      (zzz-to-char (:fetcher "github" :repo "mrkkrp/zzz-to-char" :files nil)
-                                                   zygospore (:fetcher "github" :repo "LouisKottmann/zygospore.el" :files nil)
-                                                   zweilight-theme (:fetcher "github" :repo "philiparvidsson/Zweilight-Theme-for-Emacs" :files nil)
-                                                   ztree (:fetcher "github" :repo "fourier/ztree" :files nil)
-                                                   zprint-mode (:fetcher "github" :repo "pesterhazy/zprint-mode.el" :files nil)))
-                        (progn
-                          (feather-fetch-recipe
-                           "lite"
-                           "https://raw.githubusercontent.com/conao3/feather-recipes.el/master/recipes/lite.el")
-                          (feather-load-recipe "lite")))))
+;; (cort-deftest feaher:fetch-and-load-recipe
+;;   `((:string= "#s(hash-table size 65 test eq rehash-size 1.5 rehash-threshold 0.8125 data 
+;;    (zzz-to-char (:fetcher \"github\" :repo \"mrkkrp/zzz-to-char\" :files nil)
+;;     zygospore (:fetcher \"github\" :repo \"LouisKottmann/zygospore.el\" :files nil)
+;;     zweilight-theme (:fetcher \"github\" :repo \"philiparvidsson/Zweilight-Theme-for-Emacs\" :files nil)
+;;     ztree (:fetcher \"github\" :repo \"fourier/ztree\" :files nil)
+;;     zprint-mode (:fetcher \"github\" :repo \"pesterhazy/zprint-mode.el\" :files nil)
+;;    ))
+;; "
+;;               (with-temp-buffer
+;;                 (insert-file-contents
+;;                  (feather-fetch-recipe
+;;                   "lite"
+;;                   "https://raw.githubusercontent.com/conao3/feather-recipes.el/master/recipes/lite.el"))
+;;                 (buffer-substring-no-properties (point-min) (point-max))))
+;;     (:feahter-ht-equal? #s(hash-table size 65 test eq rehash-size 1.5 rehash-threshold 0.8125 data
+;;                                       (zzz-to-char (:fetcher "github" :repo "mrkkrp/zzz-to-char" :files nil)
+;;                                                    zygospore (:fetcher "github" :repo "LouisKottmann/zygospore.el" :files nil)
+;;                                                    zweilight-theme (:fetcher "github" :repo "philiparvidsson/Zweilight-Theme-for-Emacs" :files nil)
+;;                                                    ztree (:fetcher "github" :repo "fourier/ztree" :files nil)
+;;                                                    zprint-mode (:fetcher "github" :repo "pesterhazy/zprint-mode.el" :files nil)))
+;;                         (progn
+;;                           (feather-fetch-recipe
+;;                            "lite"
+;;                            "https://raw.githubusercontent.com/conao3/feather-recipes.el/master/recipes/lite.el")
+;;                           (feather-load-recipe "lite")))))
 
-(cort-deftest feather:refresh-recipes
-  `((:feahter-ht-equal? #s(hash-table size 65 test eq rehash-size 1.5 rehash-threshold 0.8125 data
-                                      (zzz-to-char (:fetcher "github" :repo "mrkkrp/zzz-to-char" :files nil)
-                                                   zygospore (:fetcher "github" :repo "LouisKottmann/zygospore.el" :files nil)
-                                                   zweilight-theme (:fetcher "github" :repo "philiparvidsson/Zweilight-Theme-for-Emacs" :files nil)
-                                                   ztree (:fetcher "github" :repo "fourier/ztree" :files nil)
-                                                   zprint-mode (:fetcher "github" :repo "pesterhazy/zprint-mode.el" :files nil)))
-                        (let ((feather-recipes nil)
-                              (feather-fetcher-list '(lite)))
-                          (feather-refresh)
-                          feather-recipes))))
+;; (cort-deftest feather:refresh-recipes
+;;   `((:feahter-ht-equal? #s(hash-table size 65 test eq rehash-size 1.5 rehash-threshold 0.8125 data
+;;                                       (zzz-to-char (:fetcher "github" :repo "mrkkrp/zzz-to-char" :files nil)
+;;                                                    zygospore (:fetcher "github" :repo "LouisKottmann/zygospore.el" :files nil)
+;;                                                    zweilight-theme (:fetcher "github" :repo "philiparvidsson/Zweilight-Theme-for-Emacs" :files nil)
+;;                                                    ztree (:fetcher "github" :repo "fourier/ztree" :files nil)
+;;                                                    zprint-mode (:fetcher "github" :repo "pesterhazy/zprint-mode.el" :files nil)))
+;;                         (let ((feather-recipes nil)
+;;                               (feather-fetcher-list '(lite)))
+;;                           (feather-refresh)
+;;                           feather-recipes))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
