@@ -34,9 +34,6 @@
   "Emacs package manager with parallel processing."
   :group 'lisp)
 
-(defconst feather-version "0.0.1"
-  "Version of feather.el.")
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Byte compiler hint
