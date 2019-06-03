@@ -30,6 +30,8 @@ It provides a front end for [[https://github.com/conao3/leaf.el][leaf.el]], and 
 It works from Emacs 22 and you can eliminate worry of reinstallation
 by getting a strong partner called [[https://github.com/conao3/leaf.el][leaf.el]].
 
+Now developing it, here is debuging screen-shot.
+[[https://raw.githubusercontent.com/conao3/files/master/blob/feather.el/feather.gif]]
 * Install
 #+begin_src sh
   git clone https://github.com/conao3/feather.el.git
