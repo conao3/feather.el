@@ -13,68 +13,88 @@
 # You should have received a copy of the Affero GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+
 all:
 
 include Makefunc.mk
 
-TOP         := $(dir $(lastword $(MAKEFILE_LIST)))
-EMACS_RAW   := $(filter-out emacs-undumped, $(shell compgen -c emacs- | xargs))
-AVAILABLE   := $(strip $(sort $(EMACS_RAW)))
-ALL_EMACS   := $(filter $(AVAILABLE),emacs-24.5 emacs-25.3 emacs-26.1)
+TOP          := $(dir $(lastword $(MAKEFILE_LIST)))
+EMACS_RAW    := $(sort $(shell compgen -c emacs- | xargs))
+EXPECT_EMACS := 22.1 21.2 21.3 21.4
+EXPECT_EMACS  += 23.1 23.2 23.4
+EXPECT_EMACS  += 24.1 24.2 24.3 24.4 24.5
+EXPECT_EMACS  += 25.1 25.2 25.3
+EXPECT_EMACS  += 26.1 26.2
 
-EMACS       ?= emacs
+ALL_EMACS    := $(filter $(EMACS_RAW),$(EXPECT_EMACS:%=emacs-%))
 
-BATCH       := $(EMACS) -Q --batch -L $(TOP)
+EMACS        ?= emacs
+BATCH        := $(EMACS) -Q --batch -L $(TOP)
 
-TESTFILE    := feather-tests.el
-ELS         := feather.el
-ELS           += feather-polyfill.el
+DEPENDS      :=
 
-CORTELS     := $(TESTFILE) cort-test.el
-CORT_ARGS   := -l $(TESTFILE) -f cort-test-run
+TESTFILE     := feather-tests.el
+ELS          := feather.el
 
-LOGFILE     := .make-check.log
+CORTELS      := $(TESTFILE) cort-test.el
 
 ##################################################
-# $(if $(findstring 22,$(shell $* --version)),[emacs-22],[else emacs-22])
 
-all: git-hook $(ELS:.el=.elc)
+.PHONY: all git-hook build check allcheck test clean clean-v
+
+all: git-hook build
+
+##############################
 
 git-hook:
 	cp -a git-hooks/* .git/hooks/
 
-include Makefile-check.mk
+build: $(ELS:%.el=%.elc)
+
+%.elc: %.el $(DEPENDS)
+	$(BATCH) $(DEPENDS:%=-L %/) -f batch-byte-compile $<
 
 ##############################
-#  test on all Emacs
+#
+#  one-time test (on top level)
+#
 
-allcheck: $(ALL_EMACS:%=.make-check-%)
+check: build
+	$(BATCH) -l $(TESTFILE) -f cort-test-run
+
+##############################
+#
+#  multi Emacs version test (on independent environment)
+#
+
+allcheck: $(ALL_EMACS:%=.make/verbose-%)
 	@echo ""
-	@cat $(LOGFILE) | grep =====
-	@rm $(LOGFILE)
+	@cat $(^:%=%/.make-test-log) | grep =====
+	@rm -rf $^
 
-.make-check-%:
-	mkdir -p .make-$*
-	cp -f $(ELS) $(CORTELS) .make-$*/
-	cp -f Makefile-check.mk .make-$*/Makefile
-	$(MAKE) -C .make-$* clean
-	$(call EXPORT,ELS CORT_ARGS) \
-	  EMACS=$* $(MAKE) -C .make-$* check 2>&1 | tee -a $(LOGFILE)
-	rm -rf .make-$*
+.make/verbose-%: $(DEPENDS)
+	mkdir -p $@
+	cp -rf $(ELS) $(CORTELS) $(DEPENDS) $@/
+	cd $@; echo $(ELS) | xargs -n1 -t $* -Q --batch -L ./ $(DEPENDS:%=-L ./%/) -f batch-byte-compile
+	cd $@; $* -Q --batch -L ./ -l $(TESTFILE) -f cort-test-run | tee .make-test-log
 
 ##############################
+#
 #  silent `allcheck' job
+#
 
-test: $(ALL_EMACS:%=.make-test-%)
+test: $(ALL_EMACS:%=.make/silent-%)
 	@echo ""
-	@cat $(LOGFILE) | grep =====
-	@rm $(LOGFILE)
+	@cat $(^:%=%/.make-test-log) | grep =====
+	@rm -rf $^
 
-.make-test-%:
-	mkdir -p .make-$*
-	cp -f $(ELS) $(CORTELS) .make-$*/
-	cp -f Makefile-check.mk .make-$*/Makefile
-	$(MAKE) -C .make-$* clean
-	$(call EXPORT,ELS CORT_ARGS) \
-	  EMACS=$* $(MAKE) -C .make-$* check 2>&1 >> $(LOGFILE)
-	rm -rf .make-$*
+.make/silent-%: $(DEPENDS)
+	@mkdir -p $@
+	@cp -rf $(ELS) $(CORTELS) $(DEPENDS) $@/
+	@cd $@; echo $(ELS) | xargs -n1 $* -Q --batch -L ./ $(DEPENDS:%=-L ./%/) -f batch-byte-compile
+	@cd $@; $* -Q --batch -L ./ -l $(TESTFILE) -f cort-test-run > .make-test-log 2>&1
+
+##############################
+
+clean:
+	rm -rf $(ELC) $(DEPENDS) .make
