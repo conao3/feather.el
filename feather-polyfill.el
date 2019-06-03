@@ -64,19 +64,15 @@ LEVEL is one of :emargency, :error, :warning, :debug."
 ;;  General list functions
 ;;
 
-(defun feather-dash-all? (lst)
-  "Return t if (PRED x) is non-nil for all x in LST, else nil."
+(defun feather-list-all (lst)
+  "Return t if all element in LST is non-nil, else nil."
   (let (result)
-    (mapc (lambda (x)
-            (setq result (and result x)))
-          lst)))
+    (mapc (lambda (x) (setq result (and result x))) lst) result))
 
-(defun feather-dash-any? (lst)
-  "Return t if (PRED x) is non-nil for any x in LST, else nil."
+(defun feather-list-any (lst)
+  "Return t if any elemetn in LST is non-nil, else nil."
   (let (result)
-    (mapc (lambda (x)
-            (setq result (or result x)))
-          lst)))
+    (mapc (lambda (x) (setq result (or result x))) lst) result))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -132,7 +128,7 @@ Does not compare equality predicates."
   (let ((keys1 (feather-ht-keys table1))
         (keys2 (feather-ht-keys table2)))
     (and (equal (length keys1) (length keys2))
-         (feather-dash-all?
+         (feather-list-all
           (mapcar (lambda (key)
                     (equal (feather-ht-get table1 key)
                            (feather-ht-get table2 key)))
