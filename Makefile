@@ -35,6 +35,7 @@ DEPENDS      :=
 
 TESTFILE     := feather-tests.el
 ELS          := feather.el
+ELS           += feather-polyfill.el
 
 CORTELS      := $(TESTFILE) cort-test.el
 
@@ -97,4 +98,4 @@ test: $(ALL_EMACS:%=.make/silent-%)
 ##############################
 
 clean:
-	rm -rf $(ELC) $(DEPENDS) .make
+	rm -rf $(ELS:%.el=%.elc) $(DEPENDS) .make
