@@ -667,16 +667,14 @@ If you want to remove packages no more needed, call `feather-autoremove'."
 ;;;###autoload
 (defun feather-initialize (&optional force-p)
   "Initialize packages if it has not been initialized.
-
 When FORCE-P is non-nil, initialize without considering initialize history."
   (interactive)
-
   (when (or force-p (not feather-initialized))
     ;; initialized frg
     (setq feather-initialized t)
 
     ;; create dirs
-    (mapc (lambda (x) (make-directory (eval x) t)) feather-dirs)
+    (mapc (lambda (x) (make-directory (symbol-value x) t)) feather-dirs)
 
     ;; add load-path
     (add-to-list 'load-path feather-build-dir)
