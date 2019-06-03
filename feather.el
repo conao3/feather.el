@@ -28,7 +28,6 @@
 
 ;;; Code:
 
-(require 'cl-lib)
 (require 'feather-polyfill)
 
 (defgroup feather nil
