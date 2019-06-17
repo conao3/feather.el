@@ -104,8 +104,8 @@ See `feather-fetcher-url-alist' available fetcher symbol."
 ;;  Package configuration
 ;;
 
-(defcustom feather-user-recipes-hash-table nil
-  "User defined package recipes hash table.  Overrides any recipes.
+(defcustom feather-user-recipes-flist nil
+  "User defined package recipes hash table or list.  Overrides any recipes.
 Recipe need `:repo', [`:fetcher'], [`:commit'], [`:files'].
 See `feather-recipes'.
 
