@@ -168,5 +168,5 @@
 ;;  simple test
 ;;
 
-(provide 'feather-tests)
+;; (provide 'feather-tests)
 ;;; feather-tests.el ends here
