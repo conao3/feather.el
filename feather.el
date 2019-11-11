@@ -4,7 +4,7 @@
 
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
-;; Keywords: elisp package
+;; Keywords: tools, elisp, package
 ;; Version: 0.1.0
 ;; URL: https://github.com/conao3/feather.el
 ;; Package-Requires: ((emacs "24.4"))
