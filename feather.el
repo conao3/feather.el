@@ -81,7 +81,8 @@ PKGS accepts list of package name symbol (list)."
 ;;; advice
 (defvar feather-advice-alist
   '((package-install . feather--advice-package-install)
-    (advice-package-compute-transaction . feather--advice-package-compute-transaction))
+    (package-compute-transaction . feather--advice-package-compute-transaction)
+    (package-download-transaction . feather--advice-package-download-transaction))
   "Alist for feather advice.
 See `feather-setup' and `feather-teardown'.")
 
@@ -134,6 +135,18 @@ See `package-compute-transaction'."
                (package-desc-name elm))
              packages)
             (prin1-to-string requirements)))
+    (apply fn args)))
+
+(defun feather--advice-package-download-transaction (fn &rest args)
+  "Around advice for FN with ARGS.
+See `package-download-transaction'."
+  (pcase-let ((`(,packages) args))
+    (feather--debug 'package-download-transaction
+      "%s"
+      (list (mapcar
+             (lambda (elm)
+               (package-desc-name elm))
+             packages)))
     (apply fn args)))
 
 
