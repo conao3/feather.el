@@ -113,6 +113,7 @@ See `package-install'."
     (let ((name (if (package-desc-p pkg)
                     (package-desc-name pkg)
                   pkg)))
+      (feather--debug 'package-install "%s" (list name))
       (unless (or dont-select (package--user-selected-p name))
         (package--save-selected-packages
          (cons name package-selected-packages)))
@@ -122,7 +123,10 @@ See `package-install'."
                        (package-compute-transaction (list pkg)
                                                     (package-desc-reqs pkg)))
                    (package-compute-transaction () (list (list pkg))))))
-          (package-download-transaction transaction)
+          (progn
+            (feather--debug 'package-install--depends "%s depends %s"
+                            (list name (feather--resolve-dependencies name)))
+            (package-download-transaction transaction))
         (message "`%s' is already installed" name)))))
 
 (defun feather--advice-package-compute-transaction (fn &rest args)
