@@ -37,6 +37,8 @@
   "Parallel thread modern Emacs package manager."
   :group 'lisp)
 
+
+;;; advice
 (defvar feather-advice-alist
   '((package-install . feather--advice-package-install))
   "Alist for feather advice.
@@ -79,6 +81,9 @@ See `package-install'."
                    (package-compute-transaction () (list (list pkg))))))
           (package-download-transaction transaction)
         (message "`%s' is already installed" name)))))
+
+
+;;; main
 
 ;;;###autoload
 (defun feather-setup ()
