@@ -1,0 +1,22 @@
+## docker-compose.yml
+
+version: "3"
+
+services:
+  emacs-26.1:
+    container_name: ${PACKAGE_NAME}_emacs-26.1
+    image: conao3/emacs:alpine-min-26.1
+    volumes:
+      - ./.docker/emacs-26.1:/${PACKAGE_NAME}
+    env_file: .docker.env
+    command: ["/bin/sh"]
+    tty: true
+
+  emacs-26.2:
+    container_name: ${PACKAGE_NAME}_emacs-26.2
+    image: conao3/emacs:alpine-min-26.2
+    volumes:
+      - ./.docker/emacs-26.2:/${PACKAGE_NAME}
+    env_file: .docker.env
+    command: ["/bin/sh"]
+    tty: true

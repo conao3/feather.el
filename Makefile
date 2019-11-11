@@ -16,86 +16,118 @@
 
 all:
 
-include Makefunc.mk
-
-TOP          := $(dir $(lastword $(MAKEFILE_LIST)))
-EMACS_RAW    := $(sort $(shell compgen -c emacs- | xargs))
-EXPECT_EMACS := 22.1 21.2 21.3 21.4
-EXPECT_EMACS  += 23.1 23.2 23.4
-EXPECT_EMACS  += 24.1 24.2 24.3 24.4 24.5
-EXPECT_EMACS  += 25.1 25.2 25.3
-EXPECT_EMACS  += 26.1 26.2
-
-ALL_EMACS    := $(filter $(EMACS_RAW),$(EXPECT_EMACS:%=emacs-%))
+PACKAGE_NAME := feather
+REPO_USER    := conao3
+REPO_NAME    := feather.el
+VERSIONS     := 26.1 26.2
 
 EMACS        ?= emacs
-BATCH        := $(EMACS) -Q --batch -L $(TOP)
+LOADPATH     := $$(cask load-path)
+BATCH        := EMACSLOADPATH=$(LOADPATH) $(EMACS) -Q --batch
 
-DEPENDS      :=
+TESTFILE     := $(PACKAGE_NAME)-tests.el
+ELS          := $(shell cask files)
 
-TESTFILE     := feather-tests.el
-ELS          := feather.el
-ELS           += feather-polyfill.el
+GIT_HOOKS    := pre-commit
 
-CORTELS      := $(TESTFILE) cort-test.el
+MAKEARGS     := --no-print-directory
+
+export PACKAGE_NAME
+export ELS
+export TESTFILE
 
 ##################################################
 
-.PHONY: all git-hook build check allcheck test clean clean-v
+.PHONY: all git-hook localbuild localtest up down build test clean
+.PRECIOUS: $(VERSIONS:%=.docker/emacs-%/Makefile)
 
-all: git-hook build
+all: git-hook help
+
+git-hook: $(GIT_HOOKS:%=.git/hooks/%)
+
+help:
+	$(info )
+	$(info Commands)
+	$(info ========)
+	$(info   - make             # Install git-hook to your local .git folder)
+	$(info   - make test        # Test $(PACKAGE_NAME) via docker-compose)
+	$(info   - make down        # Down docker-compose)
+	$(info )
+	$(info Commands using your emacs)
+	$(info =========================)
+	$(info   - make localtest   # Test $(PACKAGE_NAME) via your `emacs`)
+	$(info )
+	$(info Cleaning)
+	$(info ========)
+	$(info   - make clean       # Clean compiled files, docker conf files)
+	$(info )
+	$(info Required `cask`, `docker` and `docker-compose`.)
+	$(info See https://github.com/$(REPO_USER)/$(REPO_NAME)#contribution)
+	$(info )
 
 ##############################
 
-git-hook:
-	cp -a git-hooks/* .git/hooks/
-
-build: $(ELS:%.el=%.elc)
-
-%.elc: %.el $(DEPENDS)
-	$(BATCH) $(DEPENDS:%=-L %/) -f batch-byte-compile $<
-
-##############################
-#
-#  one-time test (on top level)
-#
-
-check: build
+localbuild: $(ELS:%.el=%.elc)
+localtest: localbuild
 	$(BATCH) -l $(TESTFILE) -f cort-test-run
 
 ##############################
-#
-#  multi Emacs version test (on independent environment)
-#
 
-allcheck: $(ALL_EMACS:%=.make/verbose-%)
-	@echo ""
-	@cat $(^:%=%/.make-test-log) | grep =====
-	@rm -rf $^
+.git/hooks/%: git-hooks/%
+	cp -a $< $@
 
-.make/verbose-%: $(DEPENDS)
-	mkdir -p $@
-	cp -rf $(ELS) $(CORTELS) $(DEPENDS) $@/
-	cd $@; echo $(ELS) | xargs -n1 -t $* -Q --batch -L ./ $(DEPENDS:%=-L ./%/) -f batch-byte-compile
-	cd $@; $* -Q --batch -L ./ -l $(TESTFILE) -f cort-test-run | tee .make-test-log
+%.elc: %.el .cask
+	$(BATCH) -f batch-byte-compile $<
 
 ##############################
 #
-#  silent `allcheck' job
+#  dynamic resources
 #
 
-test: $(ALL_EMACS:%=.make/silent-%)
-	@echo ""
-	@cat $(^:%=%/.make-test-log) | grep =====
-	@rm -rf $^
+# listed below will remove via `make clean`
+GABAGES := .cask .env .docker.env .docker
 
-.make/silent-%: $(DEPENDS)
-	@mkdir -p $@
-	@cp -rf $(ELS) $(CORTELS) $(DEPENDS) $@/
-	@cd $@; echo $(ELS) | xargs -n1 $* -Q --batch -L ./ $(DEPENDS:%=-L ./%/) -f batch-byte-compile
-	@cd $@; $* -Q --batch -L ./ -l $(TESTFILE) -f cort-test-run > .make-test-log 2>&1
+.cask: Cask
+	cask install
+	find $@ -name "*.elc" | xargs rm -f
+	touch $@
+
+.docker/emacs-%/Makefile: Makefile-docker.mk
+	mkdir -p $(@D)
+	cp $< $@
+
+.env:
+	echo "PACKAGE_NAME=$(PACKAGE_NAME)" > $@
+
+.docker.env: .cask
+	echo "EMACSLOADPATH=$$(cask load-path | tr ':' '\n' | \
+grep -o '\.cask.*' | sed 's|^|/$(PACKAGE_NAME)/|g' | \
+tr '\n' ':' | sed 's|^|/$(PACKAGE_NAME)/:|g')" > $@
+
+##############################
+#
+#  docker managemant
+#
+
+.docker/up: .cask .env .docker.env $(VERSIONS:%=.docker/emacs-%/Makefile)
+	docker-compose up -d --no-recreate
+	touch .docker/up
+
+up: .docker/up
+down:
+	if [ -e .docker/up ]; then docker-compose down; fi
+	rm -rf .docker/up
+
+build: $(VERSIONS:%=.make-build-%)
+test:  $(VERSIONS:%=.make-test-%)
+
+.make-build-%: up
+	$(MAKE) $(MAKEARGS) build -C .docker/emacs-$* VERSION=$* 
+
+.make-test-%: up
+	$(MAKE) $(MAKEARGS) test -C .docker/emacs-$* VERSION=$*
 
 ##############################
 
-clean:
-	rm -rf $(ELS:%.el=%.elc) $(DEPENDS) .make
+clean: down
+	rm -rf $(ELS:%.el=%.elc) $(GABAGES)
