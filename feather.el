@@ -61,6 +61,22 @@ FORMAT and FORMAT-ARGS passed `format'."
       (insert
        (format "%s: %s\n" fn (apply #'format `(,format ,@format-args)))))))
 
+(defun feather--resolve-dependencies-1 (pkgs)
+  "Resolve dependencies for PKGS using package.el cache.
+PKGS accepts list of package name symbol (list)."
+  (when pkgs
+    (mapcan
+     (lambda (pkg)
+       (let* ((pkg* (if (symbolp pkg) (list pkg '(0 1)) pkg))
+              (elm  (assq (car pkg*) package-archive-contents))
+              (req  (and elm (package-desc-reqs (cadr elm)))))
+         (append req (funcall #'feather--resolve-dependencies-1 req))))
+     (if (symbolp pkgs) (list pkgs) pkgs))))
+
+(defun feather--resolve-dependencies (pkg)
+  "Resolve dependencies for PKG."
+  (funcall #'feather--resolve-dependencies-1 pkg))
+
 
 ;;; advice
 (defvar feather-advice-alist
