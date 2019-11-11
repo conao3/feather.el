@@ -132,8 +132,14 @@ See `package-install'."
                                                     (package-desc-reqs pkg)))
                    (package-compute-transaction () (list (list pkg))))))
           (progn
-            (feather--debug 'package-install--depends "%s depends %s"
-                            (list name (feather--resolve-dependencies name)))
+            (feather--debug
+                'package-install--depends "%s depends %s"
+                (list name
+                      (append (list
+                               (list name
+                                     (package-desc-version
+                                      (cadr (assq 'helm package-archive-contents)))))
+                              (feather--resolve-dependencies name))))
             (package-download-transaction transaction))
         (message "`%s' is already installed" name)))))
 
