@@ -75,7 +75,15 @@ PKGS accepts list of package name symbol (list)."
 
 (defun feather--resolve-dependencies (pkg)
   "Resolve dependencies for PKG."
-  (funcall #'feather--resolve-dependencies-1 pkg))
+  (let (ret)
+    (dolist (req (funcall #'feather--resolve-dependencies-1 pkg))
+      (let ((sym (car  req))
+            (ver (cadr req)))
+        (if (assq sym ret)
+            (when (version-list-< (car (alist-get sym ret)) ver)
+              (setf (alist-get sym ret) (list ver)))
+          (push req ret))))
+    (nreverse ret)))
 
 
 ;;; advice
