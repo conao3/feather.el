@@ -38,6 +38,30 @@
   :group 'lisp)
 
 
+;;; customize
+
+(defcustom feather-debug-buffer "*Feather Debug*"
+  "Buffer for feather debug."
+  :group 'feather
+  :type 'string)
+
+
+;;; functions
+
+(defun feather--debug (fn format format-args &optional buf)
+  "Output debug information for FN in BUF.
+FORMAT and FORMAT-ARGS passed `format'."
+  (declare (indent 1))
+  (let ((buf* (or buf (get-buffer-create feather-debug-buffer))))
+    (with-current-buffer buf*
+      (display-buffer buf*)
+      (goto-char (point-max))
+      (when (eq fn 'package-install)
+        (insert "\n"))
+      (insert
+       (format "%s: %s\n" fn (apply #'format `(,format ,@format-args)))))))
+
+
 ;;; advice
 (defvar feather-advice-alist
   '((package-install . feather--advice-package-install))
