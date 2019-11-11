@@ -37,6 +37,11 @@
   "Parallel thread modern Emacs package manager."
   :group 'lisp)
 
+(defvar feather-advice-alist
+  '((package-install . feather--advice-package-install))
+  "Alist for feather advice.
+See `feather-setup' and `feather-teardown'.")
+
 (defun feather--advice-package-install (_fn &rest args)
   "Around advice for FN with ARGS.
 This code based package.el bundled with Emacs 26.3.
@@ -74,6 +79,20 @@ See `package-install'."
                    (package-compute-transaction () (list (list pkg))))))
           (package-download-transaction transaction)
         (message "`%s' is already installed" name)))))
+
+;;;###autoload
+(defun feather-setup ()
+  "Setup feather."
+  (interactive)
+  (pcase-dolist (`(,sym . ,fn) feather-advice-alist)
+    (advice-add sym :around fn)))
+
+;;;###autoload
+(defun feather-teardown ()
+  "Setup feather."
+  (interactive)
+  (pcase-dolist (`(,sym . ,fn) feather-advice-alist)
+    (advice-remove sym fn)))
 
 (provide 'feather)
 ;;; feather.el ends here
