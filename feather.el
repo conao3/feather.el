@@ -140,7 +140,7 @@ See `package-install'."
                    (package-compute-transaction () (list (list pkg))))))
           (progn
             (feather--debug
-                'package-install--depends "%s depends %s"
+                'package-install "%s depends %s"
                 (list name
                       (feather--resolve-dependencies name)))
             (package-download-transaction transaction))
