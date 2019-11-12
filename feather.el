@@ -192,9 +192,11 @@ See `package-install-from-archive'."
 See `package-unpack'."
   (pcase-let ((`(,pkg-desc) args))
     (let* ((name (package-desc-name pkg-desc))
-           (dirname (package-desc-full-name pkg-desc)))
+           (dirname (package-desc-full-name pkg-desc))
+           (kind (package-desc-kind pkg-desc)))
       (feather--debug 'package-unpack "%s" (list name))
-      (feather--debug 'pacakge-unpack "unpack %s" (list dirname)))
+      (feather--debug 'package-unpack
+        "unpack %s, kind %s" (list dirname kind)))
     (apply fn args)))
 
 
