@@ -178,6 +178,12 @@ See `package-install-from-archive'."
     (feather--debug 'package-install-from-archive
       "%s"
       (list (package-desc-name pkg-desc)))
+    (let ((location (package-archive-base pkg-desc))
+          (file (concat (package-desc-full-name pkg-desc)
+                        (package-desc-suffix pkg-desc))))
+      (feather--debug 'package-install-from-archive
+        "fetch %s"
+        (list (concat location file))))
     (apply fn args)))
 
 
