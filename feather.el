@@ -83,7 +83,10 @@ PKGS accepts list of package name symbol (list)."
             (when (version-list-< (car (alist-get sym ret)) ver)
               (setf (alist-get sym ret) (list ver)))
           (push req ret))))
-    (nreverse ret)))
+    (append
+     `((,pkg ,(package-desc-version
+               (cadr (assq 'helm package-archive-contents)))))
+     (nreverse ret))))
 
 
 ;;; advice
@@ -135,11 +138,7 @@ See `package-install'."
             (feather--debug
                 'package-install--depends "%s depends %s"
                 (list name
-                      (append (list
-                               (list name
-                                     (package-desc-version
-                                      (cadr (assq 'helm package-archive-contents)))))
-                              (feather--resolve-dependencies name))))
+                      (feather--resolve-dependencies name)))
             (package-download-transaction transaction))
         (message "`%s' is already installed" name)))))
 
