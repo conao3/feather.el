@@ -63,7 +63,8 @@ FORMAT and FORMAT-ARGS passed `format'."
 
 (defun feather--resolve-dependencies-1 (pkgs)
   "Resolve dependencies for PKGS using package.el cache.
-PKGS accepts list of package name symbol (list)."
+PKGS accepts package name symbol or list of these.
+Return a list of dependencies, allowing duplicates."
   (when pkgs
     (mapcan
      (lambda (pkg)
@@ -74,7 +75,10 @@ PKGS accepts list of package name symbol (list)."
      (if (symbolp pkgs) (list pkgs) pkgs))))
 
 (defun feather--resolve-dependencies (pkg)
-  "Resolve dependencies for PKG."
+  "Resolve dependencies for PKG.
+PKGS accepts package name symbol.
+Return a list of dependencies, duplicates are resolved by more
+restrictive."
   (let (ret)
     (dolist (req (funcall #'feather--resolve-dependencies-1 pkg))
       (let ((sym (car  req))
