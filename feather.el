@@ -98,7 +98,8 @@ restrictive."
   '((package-install . feather--advice-package-install)
     (package-compute-transaction . feather--advice-package-compute-transaction)
     (package-download-transaction . feather--advice-package-download-transaction)
-    (package-install-from-archive . feather--advice-package-install-from-archive))
+    (package-install-from-archive . feather--advice-package-install-from-archive)
+    (package-unpack . feather--advice-package-unpack))
   "Alist for feather advice.
 See `feather-setup' and `feather-teardown'.")
 
@@ -184,6 +185,15 @@ See `package-install-from-archive'."
       (feather--debug 'package-install-from-archive
         "fetch %s"
         (list (concat location file))))
+    (apply fn args)))
+
+(defun feather--advice-package-unpack (fn &rest args)
+  "Around advice for FN with ARGS.
+See `package-unpack'."
+  (pcase-let ((`(,pkg-desc) args))
+    (feather--debug 'package-unpack
+      "%s"
+      (list (package-desc-name pkg-desc)))
     (apply fn args)))
 
 
