@@ -177,24 +177,24 @@ See `package-download-transaction'."
   "Around advice for FN with ARGS.
 See `package-install-from-archive'."
   (pcase-let ((`(,pkg-desc) args))
-    (feather--debug 'package-install-from-archive
-      "%s"
-      (list (package-desc-name pkg-desc)))
-    (let ((location (package-archive-base pkg-desc))
+    (let ((name (package-desc-name pkg-desc))
+          (location (package-archive-base pkg-desc))
           (file (concat (package-desc-full-name pkg-desc)
                         (package-desc-suffix pkg-desc))))
       (feather--debug 'package-install-from-archive
-        "fetch %s"
-        (list (concat location file))))
+        "%s" (list name))
+      (feather--debug 'package-install-from-archive
+        "fetch %s" (list (concat location file))))
     (apply fn args)))
 
 (defun feather--advice-package-unpack (fn &rest args)
   "Around advice for FN with ARGS.
 See `package-unpack'."
   (pcase-let ((`(,pkg-desc) args))
-    (feather--debug 'package-unpack
-      "%s"
-      (list (package-desc-name pkg-desc)))
+    (let* ((name (package-desc-name pkg-desc))
+           (dirname (package-desc-full-name pkg-desc)))
+      (feather--debug 'package-unpack "%s" (list name))
+      (feather--debug 'pacakge-unpack "unpack %s" (list dirname)))
     (apply fn args)))
 
 
