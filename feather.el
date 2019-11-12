@@ -48,15 +48,16 @@
 
 ;;; functions
 
-(defun feather--debug (fn format format-args &optional buf)
+(defun feather--debug (fn format format-args &optional buf break)
   "Output debug information for FN in BUF.
-FORMAT and FORMAT-ARGS passed `format'."
+FORMAT and FORMAT-ARGS passed `format'.
+If BREAK is non-nil, output page break before output string."
   (declare (indent 1))
   (let ((buf* (or buf (get-buffer-create feather-debug-buffer))))
     (with-current-buffer buf*
       (display-buffer buf*)
       (goto-char (point-max))
-      (when (eq fn 'package-install)
+      (when break
         (insert "\n"))
       (insert
        (format "%s: %s\n" fn (apply #'format `(,format ,@format-args)))))))
@@ -129,7 +130,7 @@ See `package-install'."
     (let ((name (if (package-desc-p pkg)
                     (package-desc-name pkg)
                   pkg)))
-      (feather--debug 'package-install "%s" (list name))
+      (feather--debug 'package-install "%s" (list name) nil 'break)
       (unless (or dont-select (package--user-selected-p name))
         (package--save-selected-packages
          (cons name package-selected-packages)))
