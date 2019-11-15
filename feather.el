@@ -100,7 +100,8 @@ restrictive."
     (package-compute-transaction . feather--advice-package-compute-transaction)
     (package-download-transaction . feather--advice-package-download-transaction)
     (package-install-from-archive . feather--advice-package-install-from-archive)
-    (package-unpack . feather--advice-package-unpack))
+    (package-unpack . feather--advice-package-unpack)
+    (package-untar-buffer . feather--advice-package-untar-buffer))
   "Alist for feather advice.
 See `feather-setup' and `feather-teardown'.")
 
@@ -197,6 +198,13 @@ See `package-unpack'."
       (feather--debug 'package-unpack "%s" (list name))
       (feather--debug 'package-unpack
         "unpack %s, kind %s" (list dirname kind)))
+    (apply fn args)))
+
+(defun feather--advice-package-untar-buffer (fn &rest args)
+  "Around advice for FN with ARGS.
+See `package-untar-buffer'."
+  (pcase-let ((`(,dir) args))
+    (feather--debug 'package-untar-buffer "%s" (list dir))
     (apply fn args)))
 
 
