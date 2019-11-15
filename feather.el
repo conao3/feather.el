@@ -105,49 +105,19 @@ restrictive."
   "Alist for feather advice.
 See `feather-setup' and `feather-teardown'.")
 
-(defun feather--advice-package-install (_fn &rest args)
+(defun feather--advice-package-install (fn &rest args)
   "Around advice for FN with ARGS.
-This code based package.el bundled with Emacs 26.3.
 See `package-install'."
-  (interactive
-   (progn
-     ;; Initialize the package system to get the list of package
-     ;; symbols for completion.
-     (unless package--initialized
-       (package-initialize t))
-     (unless package-archive-contents
-       (package-refresh-contents))
-     (list (intern (completing-read
-                    "Install package: "
-                    (delq nil
-                          (mapcar (lambda (elt)
-                                    (unless (package-installed-p (car elt))
-                                      (symbol-name (car elt))))
-                                  package-archive-contents))
-                    nil t))
-           nil)))
-  (pcase-let ((`(,pkg ,dont-select) args))
-    (add-hook 'post-command-hook #'package-menu--post-refresh)
+  (pcase-let ((`(,pkg ,_dont-select) args))
     (let ((name (if (package-desc-p pkg)
                     (package-desc-name pkg)
                   pkg)))
       (feather--debug 'package-install "%s" (list name) nil 'break)
-      (unless (or dont-select (package--user-selected-p name))
-        (package--save-selected-packages
-         (cons name package-selected-packages)))
-      (if-let* ((transaction
-                 (if (package-desc-p pkg)
-                     (unless (package-installed-p pkg)
-                       (package-compute-transaction (list pkg)
-                                                    (package-desc-reqs pkg)))
-                   (package-compute-transaction () (list (list pkg))))))
-          (progn
-            (feather--debug
-                'package-install "%s depends %s"
-                (list name
-                      (feather--resolve-dependencies name)))
-            (package-download-transaction transaction))
-        (message "`%s' is already installed" name)))))
+      (feather--debug 'package-install
+        "%s depends %s"
+        (list name
+              (feather--resolve-dependencies name))))
+    (apply fn args)))
 
 (defun feather--advice-package-compute-transaction (fn &rest args)
   "Around advice for FN with ARGS.
