@@ -185,7 +185,7 @@ See `package-unpack'."
 (defun feather--advice-package-untar-buffer (fn &rest args)
   "Around advice for FN with ARGS.
 See `package-untar-buffer'."
-  (pcase-let ((`(,dir) args))
+  (seq-let (dir) args
     (feather--debug 'package-untar-buffer "%s" dir)
     (apply fn args)))
 
