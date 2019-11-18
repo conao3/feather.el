@@ -48,38 +48,34 @@
 
 ;;; functions
 
-(defun feather--debug (fn &rest args)
-  "Output debug information for FN in BUF.
+(defun feather--debug (&rest args)
+  "Output debug information.
 FORMAT and FORMAT-ARGS passed `format'.
 If BREAK is non-nil, output page break before output string.
 
+ARGS accept (fn &rest FORMAT-ARGS &key buffer break).
+
 \(fn FN FORMAT &rest FORMAT-ARGS &key buffer break)"
-  (declare (indent 1))
-  (let (format format-args buf break)
+  (declare (indent defun))
+  (let (fn format format-args buf break elm)
     (while (keywordp (setq elm (pop args)))
       (cond ((eq :buffer elm)
              (setq buf (pop args)))
             ((eq :break elm)
              (setq break (pop args)))
-            (_
-             (error "%s is unknown keyword." elm))))
-    (setq format elm)
+            (t
+             (error "Unknown keyword: %s" elm))))
+    (setq fn elm)
+    (setq format (pop args))
     (setq format-args args)
-    `(,fn ,format ,format-args ,buf ,break)))
-
-(defun feather--debug (fn format format-args &optional buf break)
-  "Output debug information for FN in BUF.
-FORMAT and FORMAT-ARGS passed `format'.
-If BREAK is non-nil, output page break before output string."
-  (declare (indent 1))
-  (let ((buf* (or buf (get-buffer-create feather-debug-buffer))))
-    (with-current-buffer buf*
-      (display-buffer buf*)
-      (goto-char (point-max))
-      (when break
-        (insert "\n"))
-      (insert
-       (format "%s: %s\n" fn (apply #'format `(,format ,@format-args)))))))
+    (let ((buf* (or buf (get-buffer-create feather-debug-buffer))))
+      (with-current-buffer buf*
+        (display-buffer buf*)
+        (goto-char (point-max))
+        (when break
+          (insert "\n"))
+        (insert
+         (format "%s: %s\n" fn (apply #'format `(,format ,@format-args))))))))
 
 (defun feather--resolve-dependencies-1 (pkgs)
   "Resolve dependencies for PKGS using package.el cache.
@@ -131,11 +127,11 @@ See `package-install'."
     (let ((name (if (package-desc-p pkg)
                     (package-desc-name pkg)
                   pkg)))
-      (feather--debug 'package-install "%s" (list name) nil 'break)
+      (feather--debug :break t
+        'package-install "%s" name)
       (feather--debug 'package-install
         "%s depends %s"
-        (list name
-              (feather--resolve-dependencies name))))
+        name (feather--resolve-dependencies name)))
     (apply fn args)))
 
 (defun feather--advice-package-compute-transaction (fn &rest args)
@@ -144,11 +140,8 @@ See `package-compute-transaction'."
   (seq-let (packages requirements _seen) args
     (feather--debug 'package-compute-transaction
       "%s, required %s"
-      (list (mapcar
-             (lambda (elm)
-               (package-desc-name elm))
-             packages)
-            (prin1-to-string requirements)))
+      (mapcar (lambda (elm) (package-desc-name elm)) packages)
+      (prin1-to-string requirements))
     (apply fn args)))
 
 (defun feather--advice-package-download-transaction (fn &rest args)
@@ -157,10 +150,7 @@ See `package-download-transaction'."
   (seq-let (packages) args
     (feather--debug 'package-download-transaction
       "%s"
-      (list (mapcar
-             (lambda (elm)
-               (package-desc-name elm))
-             packages)))
+      (mapcar (lambda (elm) (package-desc-name elm)) packages))
     (apply fn args)))
 
 (defun feather--advice-package-install-from-archive (fn &rest args)
@@ -172,9 +162,9 @@ See `package-install-from-archive'."
           (file (concat (package-desc-full-name pkg-desc)
                         (package-desc-suffix pkg-desc))))
       (feather--debug 'package-install-from-archive
-        "%s" (list name))
+        "%s" name)
       (feather--debug 'package-install-from-archive
-        "fetch %s" (list (concat location file))))
+        "fetch %s" (concat location file)))
     (apply fn args)))
 
 (defun feather--advice-package-unpack (fn &rest args)
@@ -184,16 +174,16 @@ See `package-unpack'."
     (let* ((name (package-desc-name pkg-desc))
            (dirname (package-desc-full-name pkg-desc))
            (kind (package-desc-kind pkg-desc)))
-      (feather--debug 'package-unpack "%s" (list name))
+      (feather--debug 'package-unpack "%s" name)
       (feather--debug 'package-unpack
-        "unpack %s, kind %s" (list dirname kind)))
+        "unpack %s, kind %s" dirname kind))
     (apply fn args)))
 
 (defun feather--advice-package-untar-buffer (fn &rest args)
   "Around advice for FN with ARGS.
 See `package-untar-buffer'."
   (pcase-let ((`(,dir) args))
-    (feather--debug 'package-untar-buffer "%s" (list dir))
+    (feather--debug 'package-untar-buffer "%s" dir)
     (apply fn args)))
 
 
