@@ -119,7 +119,8 @@ restrictive."
     (package-untar-buffer         . feather--advice-package-untar-buffer)
     (package--make-autoloads-and-stuff . feather--advice-package--make-autoloads-and-stuff)
     (package-generate-autoloads        . feather--advice-package-generate-autoloads)
-    (package-generate-description-file . feather--advice-package-generate-description-file))
+    (package-generate-description-file . feather--advice-package-generate-description-file)
+    (package-activate                  . feather--advice-package-activate))
   "Alist for feather advice.
 See `feather-setup' and `feather-teardown'.")
 
@@ -213,6 +214,14 @@ See `package-generate-description-file'."
     (let ((name (package-desc-name pkg-desc)))
       (feather--debug 'package-generate-description-file
         "%s %s" name pkg-file))
+    (apply fn args)))
+
+(defun feather--advice-package-activate (fn &rest args)
+  "Around advice for FN with ARGS.
+See `package-activate'."
+  (seq-let (package force) args
+    (feather--debug 'package-activate
+      "%s, force activate: %s" package force)
     (apply fn args)))
 
 
