@@ -111,12 +111,12 @@ restrictive."
 
 ;;; advice
 (defvar feather-advice-alist
-  '((package-install . feather--advice-package-install)
-    (package-compute-transaction . feather--advice-package-compute-transaction)
+  '((package-install              . feather--advice-package-install)
+    (package-compute-transaction  . feather--advice-package-compute-transaction)
     (package-download-transaction . feather--advice-package-download-transaction)
     (package-install-from-archive . feather--advice-package-install-from-archive)
-    (package-unpack . feather--advice-package-unpack)
-    (package-untar-buffer . feather--advice-package-untar-buffer))
+    (package-unpack               . feather--advice-package-unpack)
+    (package-untar-buffer         . feather--advice-package-untar-buffer))
   "Alist for feather advice.
 See `feather-setup' and `feather-teardown'.")
 
