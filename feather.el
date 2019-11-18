@@ -116,7 +116,8 @@ restrictive."
     (package-download-transaction . feather--advice-package-download-transaction)
     (package-install-from-archive . feather--advice-package-install-from-archive)
     (package-unpack               . feather--advice-package-unpack)
-    (package-untar-buffer         . feather--advice-package-untar-buffer))
+    (package-untar-buffer         . feather--advice-package-untar-buffer)
+    (package--make-autoloads-and-stuff . feather--advice-package--make-autoloads-and-stuff))
   "Alist for feather advice.
 See `feather-setup' and `feather-teardown'.")
 
@@ -184,6 +185,15 @@ See `package-unpack'."
 See `package-untar-buffer'."
   (pcase-let ((`(,dir) args))
     (feather--debug 'package-untar-buffer "%s" dir)
+    (apply fn args)))
+
+(defun feather--advice-package--make-autoloads-and-stuff (fn &rest args)
+  "Around advice for FN with ARGS.
+See `package--make-autoloads-and-stuff'."
+  (seq-let (pkg-desc pkg-dir) args
+    (let ((name (package-desc-name pkg-desc)))
+      (feather--debug 'package--make-autoloads-and-stuff
+        "%s in %s" name pkg-dir))
     (apply fn args)))
 
 
