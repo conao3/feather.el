@@ -1,4 +1,4 @@
-;;; feather.el --- Parallel thread modern Emacs package manager        -*- lexical-binding: t; -*-
+;;; feather.el --- Parallel thread modern package manager        -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2018-2019  Naoya Yamashita
 
