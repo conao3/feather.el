@@ -127,7 +127,7 @@ See `feather-setup' and `feather-teardown'.")
 (defun feather--advice-package-install (fn &rest args)
   "Around advice for FN with ARGS.
 See `package-install'."
-  (pcase-let ((`(,pkg ,_dont-select) args))
+  (seq-let (pkg _dont-select) args
     (let ((name (if (package-desc-p pkg)
                     (package-desc-name pkg)
                   pkg)))
@@ -141,7 +141,7 @@ See `package-install'."
 (defun feather--advice-package-compute-transaction (fn &rest args)
   "Around advice for FN with ARGS.
 See `package-compute-transaction'."
-  (pcase-let ((`(,packages ,requirements ,_seen) args))
+  (seq-let (packages requirements _seen) args
     (feather--debug 'package-compute-transaction
       "%s, required %s"
       (list (mapcar
@@ -154,7 +154,7 @@ See `package-compute-transaction'."
 (defun feather--advice-package-download-transaction (fn &rest args)
   "Around advice for FN with ARGS.
 See `package-download-transaction'."
-  (pcase-let ((`(,packages) args))
+  (seq-let (packages) args
     (feather--debug 'package-download-transaction
       "%s"
       (list (mapcar
@@ -166,7 +166,7 @@ See `package-download-transaction'."
 (defun feather--advice-package-install-from-archive (fn &rest args)
   "Around advice for FN with ARGS.
 See `package-install-from-archive'."
-  (pcase-let ((`(,pkg-desc) args))
+  (seq-let (pkg-desc) args
     (let ((name (package-desc-name pkg-desc))
           (location (package-archive-base pkg-desc))
           (file (concat (package-desc-full-name pkg-desc)
@@ -180,7 +180,7 @@ See `package-install-from-archive'."
 (defun feather--advice-package-unpack (fn &rest args)
   "Around advice for FN with ARGS.
 See `package-unpack'."
-  (pcase-let ((`(,pkg-desc) args))
+  (seq-let (pkg-desc) args
     (let* ((name (package-desc-name pkg-desc))
            (dirname (package-desc-full-name pkg-desc))
            (kind (package-desc-kind pkg-desc)))
