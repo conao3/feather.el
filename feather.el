@@ -48,6 +48,25 @@
 
 ;;; functions
 
+(defun feather--debug (fn &rest args)
+  "Output debug information for FN in BUF.
+FORMAT and FORMAT-ARGS passed `format'.
+If BREAK is non-nil, output page break before output string.
+
+\(fn FN FORMAT &rest FORMAT-ARGS &key buffer break)"
+  (declare (indent 1))
+  (let (format format-args buf break)
+    (while (keywordp (setq elm (pop args)))
+      (cond ((eq :buffer elm)
+             (setq buf (pop args)))
+            ((eq :break elm)
+             (setq break (pop args)))
+            (_
+             (error "%s is unknown keyword." elm))))
+    (setq format elm)
+    (setq format-args args)
+    `(,fn ,format ,format-args ,buf ,break)))
+
 (defun feather--debug (fn format format-args &optional buf break)
   "Output debug information for FN in BUF.
 FORMAT and FORMAT-ARGS passed `format'.
