@@ -118,6 +118,7 @@ restrictive."
     (package-unpack               . feather--advice-package-unpack)
     (package-untar-buffer         . feather--advice-package-untar-buffer)
     (package--make-autoloads-and-stuff . feather--advice-package--make-autoloads-and-stuff)
+    (package-generate-autoloads        . feather--advice-package-generate-autoloads)
     (package-generate-description-file . feather--advice-package-generate-description-file))
   "Alist for feather advice.
 See `feather-setup' and `feather-teardown'.")
@@ -195,6 +196,14 @@ See `package--make-autoloads-and-stuff'."
     (let ((name (package-desc-name pkg-desc)))
       (feather--debug 'package--make-autoloads-and-stuff
         "%s in %s" name pkg-dir))
+    (apply fn args)))
+
+(defun feather--advice-package-generate-autoloads (fn &rest args)
+  "Around advice for FN with ARGS.
+See `package-generate-autoloads'."
+  (seq-let (name pkg-dir) args
+    (feather--debug 'package-generate-autoloads
+      "%s saved in %s" name pkg-dir)
     (apply fn args)))
 
 (defun feather--advice-package-generate-description-file (fn &rest args)
