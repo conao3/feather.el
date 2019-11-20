@@ -127,7 +127,8 @@ restrictive."
     (package-generate-autoloads        . feather--advice-package-generate-autoloads)
     (package-generate-description-file . feather--advice-package-generate-description-file)
     (package-activate                  . feather--advice-package-activate)
-    (package-activate-1                . feather--advice-package-activate-1))
+    (package-activate-1                . feather--advice-package-activate-1)
+    (package--compile                  . feather--advice-package--compile))
   "Alist for feather advice.
 See `feather-setup' and `feather-teardown'.")
 
@@ -238,6 +239,15 @@ See `package-activate-1'."
     (let ((name (package-desc-name pkg-desc)))
       (feather--debug 'package-activate-1
         "%s, reload: %s, deps: %s" name reload deps))
+    (apply fn args)))
+
+(defun feather--advice-package--compile (fn &rest args)
+  "Around advice for FN with ARGS.
+See `package--compile'."
+  (seq-let (pkg-desc) args
+    (let ((name (package-desc-name pkg-desc)))
+      (feather--debug 'package--compile
+        "%s" name))
     (apply fn args)))
 
 
