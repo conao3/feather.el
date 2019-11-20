@@ -128,7 +128,8 @@ restrictive."
     (package-generate-description-file . feather--advice-package-generate-description-file)
     (package-activate                  . feather--advice-package-activate)
     (package-activate-1                . feather--advice-package-activate-1)
-    (package--compile                  . feather--advice-package--compile))
+    (package--compile                  . feather--advice-package--compile)
+    (package--load-files-for-activation . feather--advice-package--load-files-for-activation))
   "Alist for feather advice.
 See `feather-setup' and `feather-teardown'.")
 
@@ -241,14 +242,58 @@ See `package-activate-1'."
         "%s, reload: %s, deps: %s" name reload deps))
     (apply fn args)))
 
-(defun feather--advice-package--compile (fn &rest args)
+(defun feather--advice-package--compile (_fn &rest args)
   "Around advice for FN with ARGS.
+This function is based `package' bundled Emacs-26.3.
 See `package--compile'."
   (seq-let (pkg-desc) args
     (let ((name (package-desc-name pkg-desc)))
       (feather--debug 'package--compile
         "%s" name))
-    (apply fn args)))
+    (promise-chain
+        (promise:async-start
+         `(lambda ()
+            (let ((warning-minimum-level :error)
+                  (load-path ',load-path))
+              (byte-recompile-directory ,(package-desc-dir pkg-desc) 0 t))))
+      (then (lambda (res)
+              (feather--debug 'package--compile
+                "done. res:%s" (prin1-to-string res)))
+            (lambda (res)
+              (feather--debug 'package--compile
+                "fail! res:%s" (prin1-to-string res))))
+      (then (lambda (_res)
+              (seq-let (pkg-desc reload) `(,pkg-desc :reload)
+                (let* ((loaded-files-list (when reload
+                                            (package--list-loaded-files (package-desc-dir pkg-desc)))))
+                  ;; Add to load path, add autoloads, and activate the package.
+                  (package--activate-autoloads-and-load-path pkg-desc)
+                  ;; Call `load' on all files in `package-desc-dir' already present in
+                  ;; `load-history'.  This is done so that macros in these files are updated
+                  ;; to their new definitions.  If another package is being installed which
+                  ;; depends on this new definition, not doing this update would cause
+                  ;; compilation errors and break the installation.
+                  (with-demoted-errors "Error in package--load-files-for-activation: %s"
+                    (mapc (lambda (feature) (load feature nil t))
+                          ;; Skip autoloads file since we already evaluated it above.
+                          (remove (file-truename (package--autoloads-file-name pkg-desc))
+                                  loaded-files-list)))))))
+      (then (lambda (res)
+              (feather--debug 'package--compile
+                "done. res:%s" (prin1-to-string res)))
+            (lambda (res)
+              (feather--debug 'package--compile
+                "fail! res:%s" (prin1-to-string res)))))))
+
+(defun feather--advice-package--load-files-for-activation (_fn &rest args)
+  "Around advice for FN with ARGS.
+See `package--load-files-for-activation'."
+  (seq-let (pkg-desc reload) args
+    (let ((name (package-desc-name pkg-desc)))
+      (feather--debug 'package--load-files-for-activation
+        "%s, reload: %s" name reload))
+    ;; (apply fn args)
+    ))
 
 
 ;;; main
