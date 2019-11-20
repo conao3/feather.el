@@ -71,11 +71,16 @@ ARGS accept (fn &rest FORMAT-ARGS &key buffer break).
     (let ((buf* (or buf (get-buffer-create feather-debug-buffer))))
       (with-current-buffer buf*
         (display-buffer buf*)
-        (goto-char (point-max))
-        (when break
-          (insert "\n"))
-        (insert
-         (format "%s: %s\n" fn (apply #'format `(,format ,@format-args))))))))
+        (let ((condition (equal (point) (point-max))))
+          (save-excursion
+            (goto-char (point-max))
+            (when break
+              (insert "\n"))
+            (insert
+             (format "%s: %s\n" fn (apply #'format `(,format ,@format-args)))))
+          (when condition
+            (goto-char (point-max))
+            (set-window-point (get-buffer-window buf*) (point-max))))))))
 
 (defun feather--resolve-dependencies-1 (pkgs)
   "Resolve dependencies for PKGS using package.el cache.
