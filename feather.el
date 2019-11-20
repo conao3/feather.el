@@ -70,6 +70,7 @@ ARGS accept (fn &rest FORMAT-ARGS &key buffer break).
     (setq format-args args)
     (let ((buf* (or buf (get-buffer-create feather-debug-buffer))))
       (with-current-buffer buf*
+        (emacs-lisp-mode)
         (display-buffer buf*)
         (let ((condition (equal (point) (point-max))))
           (save-excursion
