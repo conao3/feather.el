@@ -148,22 +148,22 @@ See `package-install'."
     (add-hook 'post-command-hook #'package-menu--post-refresh)
     (let ((name (if (package-desc-p pkg)
                     (package-desc-name pkg)
-                  pkg)))
+                  pkg))
+          (transaction
+           (if (package-desc-p pkg)
+               (unless (package-installed-p pkg)
+                 (package-compute-transaction (list pkg)
+                                              (package-desc-reqs pkg)))
+             (package-compute-transaction () (list (list pkg))))))
       (unless (or dont-select (package--user-selected-p name))
         (package--save-selected-packages
          (cons name package-selected-packages)))
-      (if-let* ((transaction
-                 (if (package-desc-p pkg)
-                     (unless (package-installed-p pkg)
-                       (package-compute-transaction (list pkg)
-                                                    (package-desc-reqs pkg)))
-                   (package-compute-transaction () (list (list pkg))))))
-          (progn
-            (feather--debug 'package-install
-              "%s depends %s"
-              name (feather--resolve-dependencies name)) ; feather
-            (package-download-transaction transaction))
-        (message "`%s' is already installed" name)))))
+      (if (not transaction)
+          (message "`%s' is already installed" name)
+        (feather--debug 'package-install
+          "%s depends %s"
+          name (feather--resolve-dependencies name))
+        (package-download-transaction transaction)))))
 
 (defun feather--advice-package-compute-transaction (fn &rest args)
   "Around advice for FN with ARGS.
