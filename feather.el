@@ -354,4 +354,9 @@ See `package--load-files-for-activation'."
     (advice-remove sym fn)))
 
 (provide 'feather)
+
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
+
 ;;; feather.el ends here

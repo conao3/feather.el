@@ -32,4 +32,9 @@
       (expect t :to-be t)))
 
 ;; (provide 'feather-test)
+
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
+
 ;;; feather-test.el ends here

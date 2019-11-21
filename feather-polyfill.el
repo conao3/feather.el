@@ -26,4 +26,9 @@
 
 
 (provide 'feather-polyfill)
+
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
+
 ;;; feather-polyfill.el ends here
