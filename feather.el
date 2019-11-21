@@ -162,7 +162,9 @@ See `package-install'."
         (feather--debug 'package-install
           "%s depends %s"
           name (feather--resolve-dependencies name))
-        (package-download-transaction transaction)))))
+
+        ;; `package-download-transaction'
+        (mapc #'package-install-from-archive transaction)))))
 
 (defun feather--advice-package-download-transaction (fn &rest args)
   "Around advice for FN with ARGS.
