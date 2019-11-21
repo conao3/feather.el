@@ -165,7 +165,7 @@ See `package-install'."
         ;; `package-download-transaction'
         (mapc #'package-install-from-archive transaction)))))
 
-(defun feather--advice-package-install-from-archive (fn &rest args)
+(defun feather--advice-package-install-from-archive (_fn &rest args)
   "Around advice for FN with ARGS.
 See `package-install-from-archive'."
   (seq-let (pkg-desc) args
@@ -177,7 +177,49 @@ See `package-install-from-archive'."
         "%s" name)
       (feather--debug 'package-install-from-archive
         "fetch %s" (concat location file)))
-    (apply fn args)))
+
+    ;; `pacakge-install-from-archive'
+    ;; This won't happen, unless the archive is doing something wrong.
+    (when (eq (package-desc-kind pkg-desc) 'dir)
+      (error "Can't install directory package from archive"))
+    (let* ((location (package-archive-base pkg-desc))
+           (file (concat (package-desc-full-name pkg-desc)
+                         (package-desc-suffix pkg-desc))))
+      (package--with-response-buffer location :file file
+        (if (or (not package-check-signature)
+                (member (package-desc-archive pkg-desc)
+                        package-unsigned-archives))
+            ;; If we don't care about the signature, unpack and we're
+            ;; done.
+            (let ((save-silently t))
+              (package-unpack pkg-desc))
+          ;; If we care, check it and *then* write the file.
+          (let ((content (package--buffer-string)))
+            (package--check-signature
+             location file content nil
+             ;; This function will be called after signature checking.
+             (lambda (&optional good-sigs)
+               ;; Signature checked, unpack now.
+               (with-temp-buffer
+                 (insert content)
+                 (setq buffer-file-coding-system (package--cs content))
+                 (let ((save-silently t))
+                   (package-unpack pkg-desc)))
+               ;; Here the package has been installed successfully, mark it as
+               ;; signed if appropriate.
+               (when good-sigs
+                 ;; Write out good signatures into NAME-VERSION.signed file.
+                 (write-region (mapconcat #'epg-signature-to-string good-sigs "\n")
+                               nil
+                               (expand-file-name
+                                (concat (package-desc-full-name pkg-desc) ".signed")
+                                package-user-dir)
+                               nil 'silent)
+                 ;; Update the old pkg-desc which will be shown on the description buffer.
+                 (setf (package-desc-signed pkg-desc) t)
+                 ;; Update the new (activated) pkg-desc as well.
+                 (when-let* ((pkg-descs (cdr (assq (package-desc-name pkg-desc) package-alist))))
+                   (setf (package-desc-signed (car pkg-descs)) t)))))))))))
 
 (defun feather--advice-package-unpack (fn &rest args)
   "Around advice for FN with ARGS.
