@@ -133,10 +133,11 @@ restrictive."
   "Alist for feather advice.
 See `feather-setup' and `feather-teardown'.")
 
-(defun feather--advice-package-install (fn &rest args)
+(defun feather--advice-package-install (_fn &rest args)
   "Around advice for FN with ARGS.
+This code based package.el bundled Emacs-26.3.
 See `package-install'."
-  (seq-let (pkg _dont-select) args
+  (seq-let (pkg dont-select) args
     (let ((name (if (package-desc-p pkg)
                     (package-desc-name pkg)
                   pkg)))
@@ -145,7 +146,23 @@ See `package-install'."
       (feather--debug 'package-install
         "%s depends %s"
         name (feather--resolve-dependencies name)))
-    (apply fn args)))
+
+    ;; `package-install'
+    (add-hook 'post-command-hook #'package-menu--post-refresh)
+    (let ((name (if (package-desc-p pkg)
+                    (package-desc-name pkg)
+                  pkg)))
+      (unless (or dont-select (package--user-selected-p name))
+        (package--save-selected-packages
+         (cons name package-selected-packages)))
+      (if-let* ((transaction
+                 (if (package-desc-p pkg)
+                     (unless (package-installed-p pkg)
+                       (package-compute-transaction (list pkg)
+                                                    (package-desc-reqs pkg)))
+                   (package-compute-transaction () (list (list pkg))))))
+          (package-download-transaction transaction)
+        (message "`%s' is already installed" name)))))
 
 (defun feather--advice-package-compute-transaction (fn &rest args)
   "Around advice for FN with ARGS.
