@@ -118,7 +118,6 @@ restrictive."
 ;;; advice
 (defvar feather-advice-alist
   '((package-install              . feather--advice-package-install)
-    (package-compute-transaction  . feather--advice-package-compute-transaction)
     (package-download-transaction . feather--advice-package-download-transaction)
     (package-install-from-archive . feather--advice-package-install-from-archive)
     (package-unpack               . feather--advice-package-unpack)
@@ -164,16 +163,6 @@ See `package-install'."
           "%s depends %s"
           name (feather--resolve-dependencies name))
         (package-download-transaction transaction)))))
-
-(defun feather--advice-package-compute-transaction (fn &rest args)
-  "Around advice for FN with ARGS.
-See `package-compute-transaction'."
-  (seq-let (packages requirements _seen) args
-    (feather--debug 'package-compute-transaction
-      "%s, required %s"
-      (mapcar (lambda (elm) (package-desc-name elm)) packages)
-      (prin1-to-string requirements))
-    (apply fn args)))
 
 (defun feather--advice-package-download-transaction (fn &rest args)
   "Around advice for FN with ARGS.
