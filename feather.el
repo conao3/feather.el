@@ -142,10 +142,7 @@ See `package-install'."
                     (package-desc-name pkg)
                   pkg)))
       (feather--debug :break t
-        'package-install "%s" name)
-      (feather--debug 'package-install
-        "%s depends %s"
-        name (feather--resolve-dependencies name)))
+        'package-install "%s" name))
 
     ;; `package-install'
     (add-hook 'post-command-hook #'package-menu--post-refresh)
@@ -161,7 +158,11 @@ See `package-install'."
                        (package-compute-transaction (list pkg)
                                                     (package-desc-reqs pkg)))
                    (package-compute-transaction () (list (list pkg))))))
-          (package-download-transaction transaction)
+          (progn
+            (feather--debug 'package-install
+              "%s depends %s"
+              name (feather--resolve-dependencies name)) ; feather
+            (package-download-transaction transaction))
         (message "`%s' is already installed" name)))))
 
 (defun feather--advice-package-compute-transaction (fn &rest args)
