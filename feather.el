@@ -118,7 +118,6 @@ restrictive."
 ;;; advice
 (defvar feather-advice-alist
   '((package-install              . feather--advice-package-install)
-    (package-download-transaction . feather--advice-package-download-transaction)
     (package-install-from-archive . feather--advice-package-install-from-archive)
     (package-unpack               . feather--advice-package-unpack)
     (package-untar-buffer         . feather--advice-package-untar-buffer)
@@ -165,15 +164,6 @@ See `package-install'."
 
         ;; `package-download-transaction'
         (mapc #'package-install-from-archive transaction)))))
-
-(defun feather--advice-package-download-transaction (fn &rest args)
-  "Around advice for FN with ARGS.
-See `package-download-transaction'."
-  (seq-let (packages) args
-    (feather--debug 'package-download-transaction
-      "%s"
-      (mapcar (lambda (elm) (package-desc-name elm)) packages))
-    (apply fn args)))
 
 (defun feather--advice-package-install-from-archive (fn &rest args)
   "Around advice for FN with ARGS.
