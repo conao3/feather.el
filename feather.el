@@ -170,6 +170,7 @@ See `package-install'."
 
 (defun feather--advice-package-install-from-archive (_fn &rest args)
   "Around advice for FN with ARGS.
+This code based package.el bundled Emacs-26.3.
 See `package-install-from-archive'."
   (seq-let (pkg-desc) args
     (let ((name (package-desc-name pkg-desc))
