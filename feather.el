@@ -161,6 +161,9 @@ See `package-install'."
         (feather--debug 'package-install
           "%s depends %s"
           name (feather--resolve-dependencies name))
+        (feather--debug 'package-install
+          "install %s"
+          (mapcar #'package-desc-name transaction))
 
         ;; `package-download-transaction'
         (mapc #'package-install-from-archive transaction)))))
