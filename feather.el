@@ -178,9 +178,7 @@ See `package-install-from-archive'."
           (file (concat (package-desc-full-name pkg-desc)
                         (package-desc-suffix pkg-desc))))
       (feather--debug 'package-install-from-archive
-        "%s" name)
-      (feather--debug 'package-install-from-archive
-        "fetch %s" (concat location file)))
+        "%s fetch from: %s" name (concat location file)))
 
     ;; `pacakge-install-from-archive'
     ;; This won't happen, unless the archive is doing something wrong.
