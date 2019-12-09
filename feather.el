@@ -137,7 +137,11 @@ restrictive."
      (promise-reject `(fail-install-package ,reason)))))
 
 (async-defun feather--install-packages (pkgs)
-  "Install PKGS async."
+  "Install PKGS async.
+PKGS is packages symbol list as (a b c).
+
+This list must be processed orderd.
+By because b depends a, and c depends a and b."
   (dolist (pkg pkgs)
     (condition-case err
         (let* ((res (await (feather--promise-install-package pkg))))
