@@ -141,7 +141,7 @@ See `package-install'."
                (unless (package-installed-p pkg)
                  (package-compute-transaction (list pkg)
                                               (package-desc-reqs pkg)))
-             (package-compute-transaction () (list (list pkg))))))
+             (package-compute-transaction nil (list (list pkg))))))
       (unless (or dont-select (package--user-selected-p name))
         (package--save-selected-packages
          (cons name package-selected-packages)))
