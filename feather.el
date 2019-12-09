@@ -116,6 +116,32 @@ restrictive."
 
 ;;; main loop
 
+(defun feather--promise-install-package (pkg)
+  "Return promise to install PKG."
+  (promise-then
+   (promise:async-start
+    `(lambda ()
+       (let ((package-user-dir ,package-user-dir)
+             (package-archives ',package-archives))
+         (require 'package)
+         (package-initialize)
+         (package-install-from-archive ,pkg))))
+   (lambda (res)
+     (promise-resolve res))
+   (lambda (reason)
+     (promise-reject `(fail-install-package ,reason ,pkg)))))
+
+(async-defun feather--install-packages (pkgs)
+  "Install PKGS async."
+  (dolist (pkg pkgs)
+    (condition-case err
+        (let* ((res (await (feather--promise-install-package pkg))))
+          (feather--debug 'install-packages
+            "done: %s" (pp-to-string res)))
+      (error
+       (feather--debug 'install-packages
+         "fail: %s" (pp-to-string err))))))
+
 
 ;;; advice
 
@@ -157,13 +183,7 @@ See `package-install'."
         (feather--debug 'package-install
           "install %s"
           (mapcar #'package-desc-name transaction))
-
-        ;; `package-download-transaction'
-        (dolist (target transaction)
-          (feather--debug 'package-install
-            "%s fetch from %s"
-            (package-desc-name target) (package-desc-archive target))
-          (package-install-from-archive target))))))
+        (feather--install-packages transaction)))))
 
 
 ;;; main
