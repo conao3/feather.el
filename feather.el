@@ -114,7 +114,11 @@ restrictive."
      (nreverse ret))))
 
 
+;;; main loop
+
+
 ;;; advice
+
 (defvar feather-advice-alist
   '((package-install . feather--advice-package-install))
   "Alist for feather advice.
