@@ -129,6 +129,13 @@ This variable is below form.
   <package> := symbol
   <status>  := 'queue | 'install | 'done")
 
+(defun feather--promise-change-queue-state (pkg state)
+  "Change `feather-install-queue-alist' state for PKG to STATE."
+  (promise-new
+   (lambda (resolve _reject)
+     (setf (alist-get pkg feather-install-queue-alist) state)
+     (funcall resolve (alist-get pkg feather-install-queue-alist)))))
+
 (defun feather--promise-install-package (pkg)
   "Return promise to install PKG."
   (promise-then
@@ -151,15 +158,13 @@ PKGS is packages symbol list as (a b c).
 This list must be processed orderd.
 By because b depends a, and c depends a and b."
   (dolist (pkg pkgs)
-    (setf (alist-get pkg feather-install-queue-alist) 'queue))
+    (await (feather--promise-change-queue-state pkg 'queue)))
 
   (dolist (pkg pkgs)
     (condition-case err
-        (setf (alist-get pkg feather-install-queue-alist) 'install)
-        (let* ((res (await (feather--promise-install-package pkg))))
-          (feather--debug 'install-packages
-            "done: %s" (pp-to-string res)))
-        (setf (alist-get pkg feather-install-queue-alist) 'done)
+        (let* ((res (await (feather--promise-change-queue-state pkg 'install)))
+               (res (await (feather--promise-install-package pkg)))
+               (res (await (feather--promise-change-queue-state pkg 'done)))))
       (error
        (pcase err
          (`(error (fail-install-package ,reason))
