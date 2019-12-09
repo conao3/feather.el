@@ -162,7 +162,7 @@ ARGS is passed to `feather--debug'."
 
 (async-defun feather--install-packages (pkgs)
   "Install PKGS async.
-PKGS is packages symbol list as (a b c).
+PKGS is `package-desc' list as (a b c).
 
 This list must be processed orderd.
 By because b depends a, and c depends a and b."
