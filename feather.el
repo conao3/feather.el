@@ -142,7 +142,7 @@ ARGS is passed to `feather--debug'."
   (declare (indent defun))
   (promise-new
    (lambda (resolve _reject)
-     (apply feather--debug args)
+     (apply #'feather--debug args)
      (promise-resolve t))))
 
 (defun feather--promise-install-package (pkg)
