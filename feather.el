@@ -31,7 +31,6 @@
 
 (require 'package)
 (require 'async-await)
-(require 'feather-polyfill)
 
 (defgroup feather nil
   "Parallel thread modern Emacs package manager."
