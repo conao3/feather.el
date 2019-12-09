@@ -47,6 +47,11 @@
 
 ;;; functions
 
+(defun feather--warn (message &rest args)
+  "Warn with `feather' type.
+Display a warning message made from (format-message MESSAGE ARGS...)."
+  (apply #'lwarn `(feather :warning ,message ,@args)))
+
 (defun feather--debug (&rest args)
   "Output debug information.
 FORMAT and FORMAT-ARGS passed `format'.
@@ -129,7 +134,7 @@ restrictive."
    (lambda (res)
      (promise-resolve res))
    (lambda (reason)
-     (promise-reject `(fail-install-package ,reason ,pkg)))))
+     (promise-reject `(fail-install-package ,reason)))))
 
 (async-defun feather--install-packages (pkgs)
   "Install PKGS async."
@@ -139,8 +144,11 @@ restrictive."
           (feather--debug 'install-packages
             "done: %s" (pp-to-string res)))
       (error
-       (feather--debug 'install-packages
-         "fail: %s" (pp-to-string err))))))
+       (pcase err
+         (`(error (fail-install-package ,reason))
+          (feather--warn "Cannot install package.
+  package: %s\n  reason: %s"
+                         pkg reason)))))))
 
 
 ;;; advice
