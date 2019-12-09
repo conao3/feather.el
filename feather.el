@@ -136,6 +136,15 @@ This variable is below form.
      (setf (alist-get pkg feather-install-queue-alist) state)
      (funcall resolve (alist-get pkg feather-install-queue-alist)))))
 
+(defun feather--promise-show-debug (&rest args)
+  "Return promise to show debug.
+ARGS is passed to `feather--debug'."
+  (declare (indent defun))
+  (promise-new
+   (lambda (resolve _reject)
+     (apply feather--debug args)
+     (promise-resolve t))))
+
 (defun feather--promise-install-package (pkg)
   "Return promise to install PKG."
   (promise-then
@@ -163,8 +172,14 @@ By because b depends a, and c depends a and b."
   (dolist (pkg pkgs)
     (condition-case err
         (let* ((res (await (feather--promise-change-queue-state pkg 'install)))
+               (res (await (feather--promise-show-debug 'install-packages
+                             "Install start %s" pkg)))
+
                (res (await (feather--promise-install-package pkg)))
-               (res (await (feather--promise-change-queue-state pkg 'done)))))
+
+               (res (await (feather--promise-change-queue-state pkg 'done)))
+               (res (await (feather--promise-show-debug 'install-packages
+                             "Install done: %s" pkg)))))
       (error
        (pcase err
          (`(error (fail-install-package ,reason))
