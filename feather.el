@@ -155,7 +155,11 @@ See `package-install'."
           (mapcar #'package-desc-name transaction))
 
         ;; `package-download-transaction'
-        (mapc #'package-install-from-archive transaction)))))
+        (dolist (target transaction)
+          (feather--debug 'package-install
+            "%s fetch from %s"
+            (package-desc-name target) (package-desc-archive target))
+          (package-install-from-archive target))))))
 
 
 ;;; main
