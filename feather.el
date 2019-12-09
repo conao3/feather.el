@@ -167,29 +167,31 @@ PKGS is packages symbol list as (a b c).
 This list must be processed orderd.
 By because b depends a, and c depends a and b."
   (dolist (pkg pkgs)
-    (await (feather--promise-change-queue-state pkg 'queue)))
+    (await (feather--promise-change-queue-state
+            (package-desc-name pkg) 'queue)))
 
   (dolist (pkg pkgs)
-    (condition-case err
-        (let* ((res (await (feather--promise-change-queue-state pkg 'install)))
-               (res (await (feather--promise-show-debug 'install-packages
-                             "Install start %s" pkg)))
+    (let ((name (package-desc-name pkg)))
+      (condition-case err
+          (let* ((res (await (feather--promise-change-queue-state name 'install)))
+                 (res (await (feather--promise-show-debug 'install-packages
+                               "Install start %s" name)))
 
-               (res (await (feather--promise-install-package pkg)))
+                 (res (await (feather--promise-install-package pkg)))
 
-               (res (await (feather--promise-change-queue-state pkg 'done)))
-               (res (await (feather--promise-show-debug 'install-packages
-                             "Install done: %s" pkg)))))
-      (error
-       (pcase err
-         (`(error (fail-install-package ,reason))
-          (feather--warn "Cannot install package.
+                 (res (await (feather--promise-change-queue-state name 'done)))
+                 (res (await (feather--promise-show-debug 'install-packages
+                               "Install done: %s" name)))))
+        (error
+         (pcase err
+           (`(error (fail-install-package ,reason))
+            (feather--warn "Cannot install package.
   package: %s\n  reason: %s"
-                         pkg reason))
-         (t
-          (feather--warn "Something wrong while installing package.
+                           name reason))
+           (t
+            (feather--warn "Something wrong while installing package.
   package: %s\n  reason: %s"
-                         pkg err)))))))
+                           name err))))))))
 
 
 ;;; advice
