@@ -136,17 +136,10 @@ This variable is below form.
      (setf (alist-get pkg feather-install-queue-alist) state)
      (funcall resolve (alist-get pkg feather-install-queue-alist)))))
 
-(defun feather--promise-show-debug (&rest args)
-  "Return promise to show debug.
-ARGS is passed to `feather--debug'."
-  (declare (indent defun))
-  (promise-new
-   (lambda (resolve _reject)
-     (apply #'feather--debug args)
-     (funcall resolve t))))
-
 (defun feather--promise-install-package (pkg)
   "Return promise to install PKG."
+  (feather--debug 'promise-install-package
+    "Install start %s" (package-desc-name pkg))
   (promise-then
    (promise:async-start
     `(lambda ()
@@ -156,6 +149,8 @@ ARGS is passed to `feather--debug'."
          (package-initialize)
          (package-install-from-archive ,pkg))))
    (lambda (res)
+     (feather--debug 'promise-install-package
+       "Install done %s" (package-desc-name pkg))
      (promise-resolve res))
    (lambda (reason)
      (promise-reject `(fail-install-package ,reason)))))
@@ -174,14 +169,8 @@ By because b depends a, and c depends a and b."
     (let ((name (package-desc-name pkg)))
       (condition-case err
           (let* ((res (await (feather--promise-change-queue-state name 'install)))
-                 (res (await (feather--promise-show-debug 'install-packages
-                               "Install start %s" name)))
-
                  (res (await (feather--promise-install-package pkg)))
-
-                 (res (await (feather--promise-change-queue-state name 'done)))
-                 (res (await (feather--promise-show-debug 'install-packages
-                               "Install done: %s" name)))))
+                 (res (await (feather--promise-change-queue-state name 'done)))))
         (error
          (pcase err
            (`(error (fail-install-package ,reason))
