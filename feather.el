@@ -155,6 +155,38 @@ This variable is below form.
    (lambda (reason)
      (promise-reject `(fail-install-package ,reason)))))
 
+(defun feather--promise-activate-package (pkg-desc)
+  "Return promise to activate PKG-DESC.
+see `package-unpack'."
+  (feather--debug 'promise-install-package
+    "Activate start %s" (package-desc-name pkg-desc))
+  (promise-new
+   (lambda (resolve reject)
+     (let* ((dirname (package-desc-full-name pkg-desc))
+            (pkg-dir (expand-file-name dirname package-user-dir))
+            (new-desc (package-load-descriptor pkg-dir)))
+       (condition-case err
+           (unless (equal (package-desc-full-name new-desc)
+                          (package-desc-full-name pkg-desc))
+             (error "The retrieved package (`%s') doesn't match what the archive offered (`%s')"
+                    (package-desc-full-name new-desc) (package-desc-full-name pkg-desc)))
+         ;; Activation has to be done before compilation, so that if we're
+         ;; upgrading and macros have changed we load the new definitions
+         ;; before compiling.
+         (when (package-activate-1 new-desc :reload :deps)
+           ;; FIXME: Compilation should be done as a separate, optional, step.
+           ;; E.g. for multi-package installs, we should first install all packages
+           ;; and then compile them.
+           (package--compile new-desc)
+           ;; After compilation, load again any files loaded by
+           ;; `activate-1', so that we use the byte-compiled definitions.
+           (package--load-files-for-activation new-desc :reload))
+         (error
+          (funcall reject `(fail-activate-package ,err))))
+       (feather--debug 'promise-install-package
+         "Activate done %s" (package-desc-name pkg-desc))
+       (funcall resolve pkg-dir)))))
+
 (async-defun feather--install-packages (pkgs)
   "Install PKGS async.
 PKGS is `package-desc' list as (a b c).
@@ -170,6 +202,7 @@ By because b depends a, and c depends a and b."
       (condition-case err
           (let* ((res (await (feather--promise-change-queue-state name 'install)))
                  (res (await (feather--promise-install-package pkg)))
+                 (res (await (feather--promise-activate-package pkg)))
                  (res (await (feather--promise-change-queue-state name 'done)))))
         (error
          (pcase err
