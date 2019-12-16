@@ -143,7 +143,7 @@ ARGS is passed to `feather--debug'."
   (promise-new
    (lambda (resolve _reject)
      (apply #'feather--debug args)
-     (promise-resolve t))))
+     (funcall resolve t))))
 
 (defun feather--promise-install-package (pkg)
   "Return promise to install PKG."
