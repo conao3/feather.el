@@ -196,6 +196,14 @@ By because b depends a, and c depends a and b.
 
 see `package-install' and `package-download-transaction'."
   (dolist (pkg pkgs)
+    (let ((pkg-name (package-desc-name pkg)))
+      (when (assq pkg-name feather-install-queue-alist)
+        (while (not (eq 'done (alist-get pkg-name feather-install-queue-alist)))
+          (feather--debug 'promise-install-packages
+            "Waiting install done for %s" pkg-name)
+          (await (promise:delay 0.5))))))
+
+  (dolist (pkg pkgs)
     (await (feather--promise-change-queue-state
             (package-desc-name pkg) 'queue)))
 
