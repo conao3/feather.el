@@ -225,6 +225,11 @@ see `package-install' and `package-download-transaction'."
   package: %s\n  reason: %s"
                            name err)))))))
 
+  ;; ensure processed package state become 'done
+  (dolist (pkg pkgs)
+    (await (feather--promise-change-queue-state
+            (package-desc-name pkg) 'done)))
+
   (package-menu--post-refresh))
 
 
