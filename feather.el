@@ -192,7 +192,9 @@ see `package-unpack'."
 PKGS is `package-desc' list as (a b c).
 
 This list must be processed orderd.
-By because b depends a, and c depends a and b."
+By because b depends a, and c depends a and b.
+
+see `package-install' and `package-download-transaction'."
   (dolist (pkg pkgs)
     (await (feather--promise-change-queue-state
             (package-desc-name pkg) 'queue)))
@@ -213,7 +215,9 @@ By because b depends a, and c depends a and b."
            (_
             (feather--warn "Something wrong while installing package.
   package: %s\n  reason: %s"
-                           name err))))))))
+                           name err)))))))
+
+  (package-menu--post-refresh))
 
 
 ;;; advice
@@ -235,7 +239,6 @@ See `package-install'."
         'package-install "%s" name))
 
     ;; `package-install'
-    (add-hook 'post-command-hook #'package-menu--post-refresh)
     (let ((name (if (package-desc-p pkg)
                     (package-desc-name pkg)
                   pkg))
