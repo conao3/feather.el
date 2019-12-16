@@ -188,7 +188,7 @@ By because b depends a, and c depends a and b."
             (feather--warn "Cannot install package.
   package: %s\n  reason: %s"
                            name reason))
-           (t
+           (_
             (feather--warn "Something wrong while installing package.
   package: %s\n  reason: %s"
                            name err))))))))
