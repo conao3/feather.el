@@ -195,35 +195,42 @@ This list must be processed orderd.
 By because b depends a, and c depends a and b.
 
 see `package-install' and `package-download-transaction'."
-  (dolist (pkg pkgs)
-    (let ((pkg-name (package-desc-name pkg)))
-      (when (assq pkg-name feather-install-queue-alist)
-        (while (not (eq 'done (alist-get pkg-name feather-install-queue-alist)))
-          (feather--debug 'promise-install-packages
-            "Waiting install done for %s" pkg-name)
-          (await (promise:delay 0.5))))))
+  (let ((target-pkg-name (package-desc-name
+                          (car (last pkgs)))))
+    (dolist (pkg pkgs)
+      (let ((pkg-name (package-desc-name pkg)))
+        (when (assq pkg-name feather-install-queue-alist)
+          (while (not (eq 'done (alist-get pkg-name feather-install-queue-alist)))
+            (feather--debug 'promise-install-packages
+              (concat
+               (format
+                "Waiting install done for %s" pkg-name)
+               (unless (eq pkg-name target-pkg-name)
+                 (format " (dependency from %s)"
+                         target-pkg-name))))
+            (await (promise:delay 0.5))))))
 
-  (dolist (pkg pkgs)
-    (await (feather--promise-change-queue-state
-            (package-desc-name pkg) 'queue)))
+    (dolist (pkg pkgs)
+      (await (feather--promise-change-queue-states
+              (package-desc-name pkg) 'queue))
 
-  (dolist (pkg pkgs)
-    (let ((name (package-desc-name pkg)))
-      (condition-case err
-          (let* ((res (await (feather--promise-change-queue-state name 'install)))
-                 (res (await (feather--promise-install-package pkg)))
-                 (res (await (feather--promise-activate-package pkg)))
-                 (res (await (feather--promise-change-queue-state name 'done)))))
-        (error
-         (pcase err
-           (`(error (fail-install-package ,reason))
-            (feather--warn "Cannot install package.
+      (dolist (pkg pkgs)
+        (let ((name (package-desc-name pkg)))
+          (condition-case err
+              (let* ((res (await (feather--promise-change-queue-state name 'install)))
+                     (res (await (feather--promise-install-package pkg)))
+                     (res (await (feather--promise-activate-package pkg)))
+                     (res (await (feather--promise-change-queue-state name 'done)))))
+            (error
+             (pcase err
+               (`(error (fail-install-package ,reason))
+                (feather--warn "Cannot install package.
   package: %s\n  reason: %s"
-                           name reason))
-           (_
-            (feather--warn "Something wrong while installing package.
+                               name reason))
+               (_
+                (feather--warn "Something wrong while installing package.
   package: %s\n  reason: %s"
-                           name err)))))))
+                               name err)))))))))
 
   ;; ensure processed package state become 'done
   (dolist (pkg pkgs)
