@@ -39,6 +39,11 @@
 
 ;;; customize
 
+(defcustom feather-pallarel-process-number 8
+  "Count of pallarel process number."
+  :group 'feather
+  :type 'number)
+
 (defcustom feather-debug-buffer "*Feather Debug*"
   "Buffer for feather debug."
   :group 'feather
@@ -129,6 +134,9 @@ This variable is below form.
   <package> := symbol
   <status>  := 'queue | 'install | 'done")
 
+(defvar feather-current-pallarel-process-number 0
+  "Count of current processed parallel Emacs.")
+
 (defun feather--promise-change-queue-state (pkg state)
   "Change `feather-install-queue-alist' state for PKG to STATE."
   (promise-new
@@ -210,34 +218,49 @@ see `package-install' and `package-download-transaction'."
                          target-pkg-name))))
             (await (promise:delay 0.5))))))
 
-    (dolist (pkg pkgs)
-      (await (feather--promise-change-queue-states
-              (package-desc-name pkg) 'queue))
+    (while (< feather-pallarel-process-number
+              feather-current-pallarel-process-number)
+      (feather--debug 'promise-install-packages
+        (format
+         "A parallel limit has been reached.  Wait installing %s"
+         target-pkg-name))
+      (await (promise:delay 0.5)))
 
+    ;; increment current-pallarel-process-number
+    (cl-incf feather-current-pallarel-process-number)
+
+    (unwind-protect
+        (dolist (pkg pkgs)
+          (await (feather--promise-change-queue-state
+                  (package-desc-name pkg) 'queue))
+
+          (dolist (pkg pkgs)
+            (let ((name (package-desc-name pkg)))
+              (condition-case err
+                  (let* ((res (await (feather--promise-change-queue-state name 'install)))
+                         (res (await (feather--promise-install-package pkg)))
+                         (res (await (feather--promise-activate-package pkg)))
+                         (res (await (feather--promise-change-queue-state name 'done)))))
+                (error
+                 (pcase err
+                   (`(error (fail-install-package ,reason))
+                    (feather--warn "Cannot install package.
+  package: %s\n  reason: %s"
+                                   name reason))
+                   (_
+                    (feather--warn "Something wrong while installing package.
+  package: %s\n  reason: %s"
+                                   name err))))))))
+
+      ;; decrement current-pallarel-process-number
+      (cl-decf feather-current-pallarel-process-number)
+
+      ;; ensure processed package state become 'done
       (dolist (pkg pkgs)
-        (let ((name (package-desc-name pkg)))
-          (condition-case err
-              (let* ((res (await (feather--promise-change-queue-state name 'install)))
-                     (res (await (feather--promise-install-package pkg)))
-                     (res (await (feather--promise-activate-package pkg)))
-                     (res (await (feather--promise-change-queue-state name 'done)))))
-            (error
-             (pcase err
-               (`(error (fail-install-package ,reason))
-                (feather--warn "Cannot install package.
-  package: %s\n  reason: %s"
-                               name reason))
-               (_
-                (feather--warn "Something wrong while installing package.
-  package: %s\n  reason: %s"
-                               name err)))))))))
+        (await (feather--promise-change-queue-state
+                (package-desc-name pkg) 'done)))
 
-  ;; ensure processed package state become 'done
-  (dolist (pkg pkgs)
-    (await (feather--promise-change-queue-state
-            (package-desc-name pkg) 'done)))
-
-  (package-menu--post-refresh))
+      (package-menu--post-refresh))))
 
 
 ;;; advice
