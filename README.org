@@ -23,21 +23,25 @@
   - [[#contributors][Contributors]]
 
 * Description
-~feather.el~ is completely new Emacs package manager with parallel processing.
+~feather.el~ is a wrapper for ~package.el~ that supports parallel processing.
 
-It provides a front end for [[https://github.com/conao3/leaf.el][leaf.el]], and you can seamlessly manage Emacs packages.
-
-It works from Emacs 22 and you can eliminate worry of reinstallation
-by getting a strong partner called [[https://github.com/conao3/leaf.el][leaf.el]].
+It have already prepared front end for [[https://github.com/conao3/leaf.el][leaf.el]] in leaf-keywword.el, and you can seamlessly manage Emacs packages.
 
 Now developing it, here is debuging screen-shot.
 [[https://raw.githubusercontent.com/conao3/files/master/blob/feather.el/feather.gif]]
+
 * Install
-#+begin_src sh
-  git clone https://github.com/conao3/feather.el.git
+~feather~ is available via ~el-get~
+#+begin_src emacs-lisp
+  (leaf feather
+    :el-get conao3/feather.el
+    :config (feather-setup))
 #+end_src
 
 * Usage
+If ~feather-setup~ invoked, ~feather.el~ advices ~package.el~ internal functions.
+So, all installation using ~package.el~ is handled by ~feather.el~.
+This ensures maximum compatibility with other packages.
 
 * Information
 ** Donation
