@@ -316,7 +316,7 @@ See `package-install'."
 
 ;;;###autoload
 (defun feather-teardown ()
-  "Setup feather."
+   "Teardown feather."
   (interactive)
   (pcase-dolist (`(,sym . ,fn) feather-advice-alist)
     (advice-remove sym fn)))
