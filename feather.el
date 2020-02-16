@@ -7,8 +7,7 @@
 ;; Keywords: tools, elisp, package
 ;; Version: 0.1.0
 ;; URL: https://github.com/conao3/feather.el
-;; Package-Requires: ((emacs "26.3") (async-await "1.0"))
-
+;; Package-Requires: ((emacs "26.3") (async-await "1.0") (ppp "1.0"))
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the Affero GNU General Public License as
 ;; published by the Free Software Foundation, either version 3 of the
@@ -31,6 +30,7 @@
 
 (require 'package)
 (require 'async-await)
+(require 'ppp)
 
 (defgroup feather nil
   "Parallel thread modern Emacs package manager."
