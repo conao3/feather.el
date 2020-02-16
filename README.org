@@ -62,7 +62,7 @@ Feel free to send PR!
 
 ** License
 #+begin_example
-  Affero General Public License Version 3 (AGPLv3)
+  General Public License Version 3 (GPLv3)
   Copyright (c) Naoya Yamashita - https://conao3.com
   https://github.com/conao3/feather.el/blob/master/LICENSE
 #+end_example
