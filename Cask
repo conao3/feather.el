@@ -1,4 +1,4 @@
-;; -*- mode:lisp -*-
+;;; Cask
 
 (source gnu)
 (source melpa)
