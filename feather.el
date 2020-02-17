@@ -58,41 +58,6 @@
 Display a warning message made from (format-message MESSAGE ARGS...)."
   (apply #'lwarn `(feather :warning ,message ,@args)))
 
-(defun feather--debug (&rest args)
-  "Output debug information.
-FORMAT and FORMAT-ARGS passed `format'.
-If BREAK is non-nil, output page break before output string.
-
-ARGS accept (fn &rest FORMAT-ARGS &key buffer break).
-
-\(fn FN FORMAT &rest FORMAT-ARGS &key buffer break)"
-  (declare (indent defun))
-  (let (fn format format-args buf break elm)
-    (while (keywordp (setq elm (pop args)))
-      (cond ((eq :buffer elm)
-             (setq buf (pop args)))
-            ((eq :break elm)
-             (setq break (pop args)))
-            (t
-             (error "Unknown keyword: %s" elm))))
-    (setq fn elm)
-    (setq format (pop args))
-    (setq format-args args)
-    (let ((buf* (or buf (get-buffer-create feather-debug-buffer))))
-      (with-current-buffer buf*
-        (emacs-lisp-mode)
-        (display-buffer buf*)
-        (let ((condition (equal (point) (point-max))))
-          (save-excursion
-            (goto-char (point-max))
-            (when break
-              (insert "\n"))
-            (insert
-             (format "%s: %s\n" fn (apply #'format `(,format ,@format-args)))))
-          (when condition
-            (goto-char (point-max))
-            (set-window-point (get-buffer-window buf*) (point-max))))))))
-
 (defun feather--resolve-dependencies-1 (pkgs)
   "Resolve dependencies for PKGS using package.el cache.
 PKGS accepts package name symbol or list of these.
@@ -147,7 +112,7 @@ This variable is below form.
 
 (defun feather--promise-install-package (pkg)
   "Return promise to install PKG."
-  (feather--debug 'promise-install-package
+  (ppp-debug 'feather
     "Install start %s" (package-desc-name pkg))
   (promise-then
    (promise:async-start
@@ -158,7 +123,7 @@ This variable is below form.
          (package-initialize)
          (package-install-from-archive ,pkg))))
    (lambda (res)
-     (feather--debug 'promise-install-package
+     (ppp-debug 'feather
        "Install done %s" (package-desc-name pkg))
      (promise-resolve res))
    (lambda (reason)
@@ -167,7 +132,7 @@ This variable is below form.
 (defun feather--promise-activate-package (pkg-desc)
   "Return promise to activate PKG-DESC.
 see `package-unpack'."
-  (feather--debug 'promise-install-package
+  (ppp-debug 'feather
     "Activate start %s" (package-desc-name pkg-desc))
   (promise-new
    (lambda (resolve reject)
@@ -192,7 +157,7 @@ see `package-unpack'."
            (package--load-files-for-activation new-desc :reload))
          (error
           (funcall reject `(fail-activate-package ,err))))
-       (feather--debug 'promise-install-package
+       (ppp-debug 'feather
          "Activate done %s" (package-desc-name pkg-desc))
        (funcall resolve pkg-dir)))))
 
@@ -210,7 +175,7 @@ see `package-install' and `package-download-transaction'."
       (let ((pkg-name (package-desc-name pkg)))
         (when (assq pkg-name feather-install-queue-alist)
           (while (not (eq 'done (alist-get pkg-name feather-install-queue-alist)))
-            (feather--debug 'promise-install-packages
+            (ppp-debug 'feather
               (concat
                (format
                 "Waiting install done for %s" pkg-name)
@@ -221,7 +186,7 @@ see `package-install' and `package-download-transaction'."
 
     (while (< feather-pallarel-process-number
               feather-current-pallarel-process-number)
-      (feather--debug 'promise-install-packages
+      (ppp-debug 'feather
         (format
          "A parallel limit has been reached.  Wait installing %s"
          target-pkg-name))
@@ -279,7 +244,7 @@ See `package-install'."
     (let ((name (if (package-desc-p pkg)
                     (package-desc-name pkg)
                   pkg)))
-      (feather--debug :break t
+      (ppp-debug :break t 'feather
         'package-install "%s" name))
 
     ;; `package-install'
@@ -297,10 +262,10 @@ See `package-install'."
          (cons name package-selected-packages)))
       (if (not transaction)
           (message "`%s' is already installed" name)
-        (feather--debug 'package-install
+        (ppp-debug 'feather
           "%s depends %s"
           name (feather--resolve-dependencies name))
-        (feather--debug 'package-install
+        (ppp-debug 'feather
           "install %s"
           (mapcar #'package-desc-name transaction))
         (feather--install-packages transaction)))))
