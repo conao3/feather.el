@@ -195,38 +195,37 @@ see `package-install' and `package-download-transaction'."
     ;; increment current-pallarel-process-number
     (cl-incf feather-current-pallarel-process-number)
 
-    (unwind-protect
-        (dolist (pkg pkgs)
-          (await (feather--promise-change-queue-state
-                  (package-desc-name pkg) 'queue))
+    (dolist (pkg pkgs)
+      (await (feather--promise-change-queue-state
+              (package-desc-name pkg) 'queue))
 
-          (dolist (pkg pkgs)
-            (let ((name (package-desc-name pkg)))
-              (condition-case err
-                  (let* ((res (await (feather--promise-change-queue-state name 'install)))
-                         (res (await (feather--promise-install-package pkg)))
-                         (res (await (feather--promise-activate-package pkg)))
-                         (res (await (feather--promise-change-queue-state name 'done)))))
-                (error
-                 (pcase err
-                   (`(error (fail-install-package ,reason))
-                    (feather--warn "Cannot install package.
-  package: %s\n  reason: %s"
-                                   name reason))
-                   (_
-                    (feather--warn "Something wrong while installing package.
-  package: %s\n  reason: %s"
-                                   name err))))))))
-
-      ;; decrement current-pallarel-process-number
-      (cl-decf feather-current-pallarel-process-number)
-
-      ;; ensure processed package state become 'done
       (dolist (pkg pkgs)
-        (await (feather--promise-change-queue-state
-                (package-desc-name pkg) 'done)))
+        (let ((name (package-desc-name pkg)))
+          (condition-case err
+              (let* ((res (await (feather--promise-change-queue-state name 'install)))
+                     (res (await (feather--promise-install-package pkg)))
+                     (res (await (feather--promise-activate-package pkg)))
+                     (res (await (feather--promise-change-queue-state name 'done)))))
+            (error
+             (pcase err
+               (`(error (fail-install-package ,reason))
+                (feather--warn "Cannot install package.
+  package: %s\n  reason: %s"
+                               name reason))
+               (_
+                (feather--warn "Something wrong while installing package.
+  package: %s\n  reason: %s"
+                               name err))))))))
 
-      (package-menu--post-refresh))))
+    ;; decrement current-pallarel-process-number
+    (cl-decf feather-current-pallarel-process-number)
+
+    ;; ensure processed package state become 'done
+    (dolist (pkg pkgs)
+      (await (feather--promise-change-queue-state
+              (package-desc-name pkg) 'done)))
+
+    (package-menu--post-refresh)))
 
 
 ;;; advice
