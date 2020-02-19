@@ -271,7 +271,7 @@ See `package-install'."
     (advice-add sym :around fn)))
 
 (defun feather--teardown ()
-   "Teardown feather."
+  "Teardown feather."
   (interactive)
   (pcase-dolist (`(,sym . ,fn) feather-advice-alist)
     (advice-remove sym fn)))
