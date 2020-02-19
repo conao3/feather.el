@@ -244,8 +244,26 @@ see `package-install' and `package-download-transaction'."
   "Main process for feather."
   (setq feather-running t)
 
-  (ppp-debug 'feather
-    (prin1-to-string feather-install-queue-explicit))
+  (while feather-install-queue-explicit
+    (let* ((pkg (pop feather-install-queue-explicit))
+           (name (if (package-desc-p pkg) (package-desc-name pkg) pkg))
+           (transaction
+            (if (package-desc-p pkg)
+                (unless (package-installed-p pkg)
+                  (package-compute-transaction (list pkg)
+                                               (package-desc-reqs pkg)))
+              (package-compute-transaction nil (list (list pkg))))))
+      (ppp-debug 'feather
+        (prin1-to-string feather-install-queue-explicit))
+      (if (not transaction)
+          (message "`%s' is already installed" name)
+        (ppp-debug :break t 'feather
+          "Install package\n%s"
+          (ppp-plist-to-string
+           (list :target name
+                 :depends (feather--resolve-dependencies name)
+                 :queued (mapcar #'package-desc-name transaction))))
+        (feather--install-packages transaction))))
 
   (setq feather-running nil))
 
@@ -266,31 +284,13 @@ See `package-install'."
 
     ;; moved `feather--install-packages'.
     ;; (add-hook 'post-command-hook #'package-menu--post-refresh)
-    (let ((name (if (package-desc-p pkg)
-                    (package-desc-name pkg)
-                  pkg))
-          ;; (transaction
-          ;;  (if (package-desc-p pkg)
-          ;;      (unless (package-installed-p pkg)
-          ;;        (package-compute-transaction (list pkg)
-          ;;                                     (package-desc-reqs pkg)))
-          ;;    (package-compute-transaction nil (list (list pkg)))))
-          )
+    (let ((name (if (package-desc-p pkg) (package-desc-name pkg) pkg)))
       (unless (or dont-select (package--user-selected-p name))
         (package--save-selected-packages
-         (cons name package-selected-packages)))
-      ;; (if (not transaction)
-      ;;     (message "`%s' is already installed" name)
-      ;;   (ppp-debug :break t 'feather
-      ;;     "Install package\n%s"
-      ;;     (ppp-plist-to-string
-      ;;      (list :target name
-      ;;            :depends (feather--resolve-dependencies name)
-      ;;            :queued (mapcar #'package-desc-name transaction))))
-      ;;   (feather--install-packages transaction))
-      (push name feather-install-queue-explicit)
-      (unless feather-running
-        (feather--main-process)))))
+         (cons name package-selected-packages))))
+    (push pkg feather-install-queue-explicit)
+    (unless feather-running
+      (feather--main-process))))
 
 
 ;;; main
