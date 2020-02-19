@@ -89,7 +89,7 @@ Key is package name as symbol.
 Value is alist.
   - NAME is package as string.
   - STATUS is install status one of (queue install done).
-  - PKG-DESC is `package-desc'.")
+  - PKG is `package-desc'.")
 
 (defvar feather-install-queue (make-hash-table :test 'eq)
   "All install queues, including dependencies.
@@ -280,7 +280,7 @@ See `package-install'."
       (puthash name
                `((name . ,(symbol-name name))
                  (status . queue)
-                 (pkg-desc . ,pkg))
+                 (pkg . ,pkg))
                feather-install-queue-explicit))))
 
 
