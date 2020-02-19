@@ -45,18 +45,8 @@
   :group 'feather
   :type 'number)
 
-(defcustom feather-debug-buffer "*Feather Debug*"
-  "Buffer for feather debug."
-  :group 'feather
-  :type 'string)
-
 
 ;;; functions
-
-(defun feather--warn (message &rest args)
-  "Warn with `feather' type.
-Display a warning message made from (format-message MESSAGE ARGS...)."
-  (apply #'lwarn `(feather :warning ,message ,@args)))
 
 (defun feather--resolve-dependencies-1 (pkgs)
   "Resolve dependencies for PKGS using package.el cache.
@@ -209,13 +199,15 @@ see `package-install' and `package-download-transaction'."
             (error
              (pcase err
                (`(error (fail-install-package ,reason))
-                (feather--warn "Cannot install package.
+                (ppp-debug :level :warning 'feather
+                  "Cannot install package.
   package: %s\n  reason: %s"
-                               name reason))
+                  name reason))
                (_
-                (feather--warn "Something wrong while installing package.
+                (ppp-debug :level :warning 'feather
+                  "Something wrong while installing package.
   package: %s\n  reason: %s"
-                               name err))))))))
+                  name err))))))))
 
     ;; decrement current-pallarel-process-number
     (cl-decf feather-current-pallarel-process-number)
