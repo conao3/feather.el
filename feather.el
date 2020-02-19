@@ -239,6 +239,9 @@ See `package-install'."
         "%s" name))
 
     ;; `package-install'
+
+    ;; moved `feather--install-packages'.
+    ;; (add-hook 'post-command-hook #'package-menu--post-refresh)
     (let ((name (if (package-desc-p pkg)
                     (package-desc-name pkg)
                   pkg))
