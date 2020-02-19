@@ -82,6 +82,9 @@ restrictive."
 
 ;;; main loop
 
+(defvar feather-running nil
+  "If non-nil, running feather main process.")
+
 (defvar feather-install-queue-explicit nil
   "Install queues list, explicitly required.")
 
@@ -237,6 +240,15 @@ see `package-install' and `package-download-transaction'."
 
   (package-menu--post-refresh))
 
+(async-defun feather--main-process ()
+  "Main process for feather."
+  (setq feather-running t)
+
+  (ppp-debug 'feather
+    (prin1-to-string feather-install-queue-explicit))
+
+  (setq feather-running nil))
+
 
 ;;; advice
 
@@ -276,7 +288,9 @@ See `package-install'."
       ;;            :depends (feather--resolve-dependencies name)
       ;;            :queued (mapcar #'package-desc-name transaction))))
       ;;   (feather--install-packages transaction))
-      (push name feather-install-queue-explicit))))
+      (push name feather-install-queue-explicit)
+      (unless feather-running
+        (feather--main-process)))))
 
 
 ;;; main
