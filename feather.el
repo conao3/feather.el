@@ -244,7 +244,7 @@ See `package-install'."
                     (package-desc-name pkg)
                   pkg)))
       (ppp-debug :break t 'feather
-        'package-install "%s" name))
+        "%s" name))
 
     ;; `package-install'
     (let ((name (if (package-desc-p pkg)
