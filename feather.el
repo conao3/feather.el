@@ -85,8 +85,9 @@ restrictive."
 (defvar feather-running nil
   "If non-nil, running feather main process.")
 
-(defvar feather-install-queue-explicit nil
-  "Install queues list, explicitly required.")
+(defvar feather-package-install-args nil
+  "List of `package-install' args.
+see `feather--advice-package-install' and `feather--main-process'.")
 
 (defvar feather-install-queue (make-hash-table :test 'eq)
   "All install queues, including dependencies.
@@ -244,8 +245,8 @@ see `package-install' and `package-download-transaction'."
   "Main process for feather."
   (setq feather-running t)
 
-  (while feather-install-queue-explicit
-    (seq-let (pkg dont-select) (pop feather-install-queue-explicit)
+  (while feather-package-install-args
+    (seq-let (pkg dont-select) (pop feather-package-install-args)
       (let ((name (if (package-desc-p pkg) (package-desc-name pkg) pkg))
             (transaction
              (if (package-desc-p pkg)
@@ -254,7 +255,7 @@ see `package-install' and `package-download-transaction'."
                                                 (package-desc-reqs pkg)))
                (package-compute-transaction nil (list (list pkg))))))
         (ppp-debug 'feather
-          (prin1-to-string feather-install-queue-explicit))
+          (prin1-to-string feather-package-install-args))
         (unless (or dont-select (package--user-selected-p name))
           (package--save-selected-packages
            (cons name package-selected-packages)))
@@ -283,7 +284,7 @@ See `feather--setup' and `feather--teardown'.")
   "Around advice for FN with ARGS.
 This code based package.el bundled Emacs-26.3.
 See `package-install'."
-  (push args feather-install-queue-explicit)
+  (push args feather-package-install-args)
   (unless feather-running
     (feather--main-process)))
 
