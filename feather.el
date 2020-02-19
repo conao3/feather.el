@@ -254,8 +254,6 @@ see `package-install' and `package-download-transaction'."
                    (package-compute-transaction (list pkg)
                                                 (package-desc-reqs pkg)))
                (package-compute-transaction nil (list (list pkg))))))
-        (ppp-debug 'feather
-          (prin1-to-string feather-package-install-args))
         (unless (or dont-select (package--user-selected-p name))
           (package--save-selected-packages
            (cons name package-selected-packages)))
