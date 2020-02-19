@@ -194,29 +194,29 @@ see `package-install' and `package-download-transaction'."
     ;; `package-download-transaction'
     (dolist (pkg pkgs)
       (await (feather--promise-change-queue-state
-              (package-desc-name pkg) 'queue))
+              (package-desc-name pkg) 'queue)))
 
-      (dolist (pkg pkgs)
-        (let ((name (package-desc-name pkg)))
-          (condition-case err
-              (let* ((res (await (feather--promise-change-queue-state name 'install)))
-                     (res (await (feather--promise-install-package pkg)))
-                     (res (await (feather--promise-activate-package pkg)))
-                     (res (await (feather--promise-change-queue-state name 'done)))))
-            (error
-             (pcase err
-               (`(error (fail-install-package ,reason))
-                (ppp-debug :level :warning 'feather
-                  "Cannot install package\n%s"
-                  (ppp-plist-to-string
-                   (list :package name
-                         :reason reason))))
-               (_
-                (ppp-debug :level :warning 'feather
-                  "Something wrong while installing package\n%s"
-                  (ppp-plist-to-string
-                   (list :package name
-                         :reason err))))))))))
+    (dolist (pkg pkgs)
+      (let ((name (package-desc-name pkg)))
+        (condition-case err
+            (let* ((res (await (feather--promise-change-queue-state name 'install)))
+                   (res (await (feather--promise-install-package pkg)))
+                   (res (await (feather--promise-activate-package pkg)))
+                   (res (await (feather--promise-change-queue-state name 'done)))))
+          (error
+           (pcase err
+             (`(error (fail-install-package ,reason))
+              (ppp-debug :level :warning 'feather
+                "Cannot install package\n%s"
+                (ppp-plist-to-string
+                 (list :package name
+                       :reason reason))))
+             (_
+              (ppp-debug :level :warning 'feather
+                "Something wrong while installing package\n%s"
+                (ppp-plist-to-string
+                 (list :package name
+                       :reason err)))))))))
 
     ;; decrement current-pallarel-process-number
     (cl-decf feather-current-pallarel-process-number)
