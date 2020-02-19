@@ -82,13 +82,17 @@ restrictive."
 
 ;;; main loop
 
-(defvar feather-install-queue-alist nil
-  "Queue alist for feather.
+(defvar feather-install-queue-alist-explicit nil
+  "Install queues, explicitly required.
 
 This variable is below form.
   <alist>   := (<package> . <status>)
   <package> := symbol
   <status>  := 'queue | 'install | 'done")
+
+(defvar feather-install-queue-alist nil
+  "All install queues, including dependencies.
+Format is the same for `feather-install-queue-alist-explicit'.")
 
 (defvar feather-current-pallarel-process-number 0
   "Count of current processed parallel Emacs.")
