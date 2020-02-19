@@ -245,26 +245,30 @@ see `package-install' and `package-download-transaction'."
   (setq feather-running t)
 
   (while feather-install-queue-explicit
-    (let* ((pkg (pop feather-install-queue-explicit))
-           (name (if (package-desc-p pkg) (package-desc-name pkg) pkg))
-           (transaction
-            (if (package-desc-p pkg)
-                (unless (package-installed-p pkg)
-                  (package-compute-transaction (list pkg)
-                                               (package-desc-reqs pkg)))
-              (package-compute-transaction nil (list (list pkg))))))
-      (ppp-debug 'feather
-        (prin1-to-string feather-install-queue-explicit))
-      (if (not transaction)
-          (message "`%s' is already installed" name)
-        (ppp-debug :break t 'feather
-          "Install package\n%s"
-          (ppp-plist-to-string
-           (list :target name
-                 :depends (feather--resolve-dependencies name)
-                 :queued (mapcar #'package-desc-name transaction))))
-        (feather--install-packages transaction))))
+    (seq-let (pkg dont-select) (pop feather-install-queue-explicit)
+      (let ((name (if (package-desc-p pkg) (package-desc-name pkg) pkg))
+            (transaction
+             (if (package-desc-p pkg)
+                 (unless (package-installed-p pkg)
+                   (package-compute-transaction (list pkg)
+                                                (package-desc-reqs pkg)))
+               (package-compute-transaction nil (list (list pkg))))))
+        (ppp-debug 'feather
+          (prin1-to-string feather-install-queue-explicit))
+        (unless (or dont-select (package--user-selected-p name))
+          (package--save-selected-packages
+           (cons name package-selected-packages)))
+        (if (not transaction)
+            (message "`%s' is already installed" name)
+          (ppp-debug :break t 'feather
+            "Install package\n%s"
+            (ppp-plist-to-string
+             (list :target name
+                   :depends (feather--resolve-dependencies name)
+                   :queued (mapcar #'package-desc-name transaction))))
+          (feather--install-packages transaction)))))
 
+  (add-hook 'post-command-hook #'package-menu--post-refresh)
   (setq feather-running nil))
 
 
@@ -279,18 +283,9 @@ See `feather--setup' and `feather--teardown'.")
   "Around advice for FN with ARGS.
 This code based package.el bundled Emacs-26.3.
 See `package-install'."
-  (seq-let (pkg dont-select) args
-    ;; `package-install'
-
-    ;; moved `feather--install-packages'.
-    ;; (add-hook 'post-command-hook #'package-menu--post-refresh)
-    (let ((name (if (package-desc-p pkg) (package-desc-name pkg) pkg)))
-      (unless (or dont-select (package--user-selected-p name))
-        (package--save-selected-packages
-         (cons name package-selected-packages))))
-    (push pkg feather-install-queue-explicit)
-    (unless feather-running
-      (feather--main-process))))
+  (push args feather-install-queue-explicit)
+  (unless feather-running
+    (feather--main-process)))
 
 
 ;;; main
