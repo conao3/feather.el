@@ -82,15 +82,16 @@ restrictive."
 
 ;;; main loop
 
-(defvar feather-install-queue-alist-explicit nil
+(defvar feather-install-queue-explicit (make-hash-table :test 'eq)
   "Install queues, explicitly required.
 
-This variable is below form.
-  <alist>   := (<package> . <status>)
-  <package> := symbol
-  <status>  := 'queue | 'install | 'done")
+Key is package name as symbol.
+Value is alist.
+  - NAME is package as string.
+  - STATUS is install status one of (queue install done).
+  - PKG-DESC is `package-desc'.")
 
-(defvar feather-install-queue-alist nil
+(defvar feather-install-queue (make-hash-table :test 'eq)
   "All install queues, including dependencies.
 Format is the same for `feather-install-queue-alist-explicit'.")
 
@@ -98,11 +99,11 @@ Format is the same for `feather-install-queue-alist-explicit'.")
   "Count of current processed parallel Emacs.")
 
 (defun feather--promise-change-queue-state (pkg state)
-  "Change `feather-install-queue-alist' state for PKG to STATE."
+  "Change `feather-install-queue' state for PKG to STATE."
   (promise-new
    (lambda (resolve _reject)
-     (setf (alist-get pkg feather-install-queue-alist) state)
-     (funcall resolve (alist-get pkg feather-install-queue-alist)))))
+     (setf (alist-get pkg feather-install-queue) state)
+     (funcall resolve (alist-get pkg feather-install-queue)))))
 
 (defun feather--promise-install-package (pkg)
   "Return promise to install PKG."
@@ -199,8 +200,8 @@ see `package-install' and `package-download-transaction'."
                           (car (last pkgs)))))
     (dolist (pkg pkgs)
       (let ((pkg-name (package-desc-name pkg)))
-        (when (assq pkg-name feather-install-queue-alist)
-          (while (not (eq 'done (alist-get pkg-name feather-install-queue-alist)))
+        (when (assq pkg-name feather-install-queue)
+          (while (not (eq 'done (alist-get pkg-name feather-install-queue)))
             (ppp-debug 'feather
               "Waiting install done\n%s"
               (ppp-plist-to-string
@@ -274,7 +275,12 @@ See `package-install'."
            (list :target name
                  :depends (feather--resolve-dependencies name)
                  :queued (mapcar #'package-desc-name transaction))))
-        (feather--install-packages transaction)))))
+        ;; (feather--install-packages transaction)
+        (puthash name
+                 `((name . ,(symbol-name name))
+                   (status . queue)
+                   (pkg-desc . pkg))
+                 feather-install-queue-explicit)))))
 
 
 ;;; main
