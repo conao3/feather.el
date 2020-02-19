@@ -4,7 +4,7 @@
 
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
-;; Keywords: tools, elisp, package
+;; Keywords: convenience package
 ;; Version: 0.1.0
 ;; URL: https://github.com/conao3/feather.el
 ;; Package-Requires: ((emacs "26.3") (async-await "1.0") (ppp "1.0"))
@@ -35,7 +35,7 @@
 
 (defgroup feather nil
   "Parallel thread modern Emacs package manager."
-  :group 'lisp)
+  :group 'applications)
 
 
 ;;; customize
