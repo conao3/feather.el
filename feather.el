@@ -103,7 +103,9 @@ This variable is below form.
 (defun feather--promise-install-package (pkg)
   "Return promise to install PKG."
   (ppp-debug 'feather
-    "Install start %s" (package-desc-name pkg))
+    "Start install\n%s"
+    (ppp-plist-to-string
+     (list :package (package-desc-name pkg))))
   (promise-then
    (promise:async-start
     `(lambda ()
@@ -114,7 +116,9 @@ This variable is below form.
          (package-install-from-archive ,pkg))))
    (lambda (res)
      (ppp-debug 'feather
-       "Install done %s" (package-desc-name pkg))
+       "Done install\n%s"
+       (ppp-plist-to-string
+        (list :package (package-desc-name pkg))))
      (promise-resolve res))
    (lambda (reason)
      (promise-reject `(fail-install-package ,reason)))))
@@ -123,7 +127,9 @@ This variable is below form.
   "Return promise to activate PKG-DESC.
 see `package-unpack'."
   (ppp-debug 'feather
-    "Activate start %s" (package-desc-name pkg-desc))
+    "Start activate\n%s"
+    (ppp-plist-to-string
+     (list :package (package-desc-name pkg-desc))))
   (promise-new
    (lambda (resolve reject)
      (let* ((dirname (package-desc-full-name pkg-desc))
@@ -148,7 +154,9 @@ see `package-unpack'."
          (error
           (funcall reject `(fail-activate-package ,err))))
        (ppp-debug 'feather
-         "Activate done %s" (package-desc-name pkg-desc))
+         "Done activate\n%s"
+         (ppp-plist-to-string
+          (list :package (package-desc-name pkg-desc))))
        (funcall resolve pkg-dir)))))
 
 (async-defun feather--install-packages (pkgs)
@@ -166,20 +174,18 @@ see `package-install' and `package-download-transaction'."
         (when (assq pkg-name feather-install-queue-alist)
           (while (not (eq 'done (alist-get pkg-name feather-install-queue-alist)))
             (ppp-debug 'feather
-              (concat
-               (format
-                "Waiting install done for %s" pkg-name)
-               (unless (eq pkg-name target-pkg-name)
-                 (format " (dependency from %s)"
-                         target-pkg-name))))
+              "Waiting install done\n%s"
+              (ppp-plist-to-string
+               (list :package pkg-name
+                     :dependency-from target-pkg-name)))
             (await (promise:delay 0.5))))))
 
     (while (< feather-pallarel-process-number
               feather-current-pallarel-process-number)
       (ppp-debug 'feather
-        (format
-         "A parallel limit has been reached.  Wait installing %s"
-         target-pkg-name))
+        "A parallel limit has been reached\n%s"
+        (ppp-plist-to-string
+         (list :package target-pkg-name)))
       (await (promise:delay 0.5)))
 
     ;; increment current-pallarel-process-number
@@ -200,14 +206,16 @@ see `package-install' and `package-download-transaction'."
              (pcase err
                (`(error (fail-install-package ,reason))
                 (ppp-debug :level :warning 'feather
-                  "Cannot install package.
-  package: %s\n  reason: %s"
-                  name reason))
+                  "Cannot install package\n%s"
+                  (ppp-plist-to-string
+                   (list :package name
+                         :reason reason))))
                (_
                 (ppp-debug :level :warning 'feather
-                  "Something wrong while installing package.
-  package: %s\n  reason: %s"
-                  name err))))))))
+                  "Something wrong while installing package\n%s"
+                  (ppp-plist-to-string
+                   (list :package name
+                         :reason err))))))))))
 
     ;; decrement current-pallarel-process-number
     (cl-decf feather-current-pallarel-process-number)
@@ -232,12 +240,6 @@ See `feather--setup' and `feather--teardown'.")
 This code based package.el bundled Emacs-26.3.
 See `package-install'."
   (seq-let (pkg dont-select) args
-    (let ((name (if (package-desc-p pkg)
-                    (package-desc-name pkg)
-                  pkg)))
-      (ppp-debug :break t 'feather
-        "%s" name))
-
     ;; `package-install'
 
     ;; moved `feather--install-packages'.
@@ -256,12 +258,12 @@ See `package-install'."
          (cons name package-selected-packages)))
       (if (not transaction)
           (message "`%s' is already installed" name)
-        (ppp-debug 'feather
-          "%s depends %s"
-          name (feather--resolve-dependencies name))
-        (ppp-debug 'feather
-          "install %s"
-          (mapcar #'package-desc-name transaction))
+        (ppp-debug :break t 'feather
+          "Install package\n%s"
+          (ppp-plist-to-string
+           (list :target name
+                 :depends (feather--resolve-dependencies name)
+                 :queued (mapcar #'package-desc-name transaction))))
         (feather--install-packages transaction)))))
 
 
