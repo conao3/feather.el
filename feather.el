@@ -258,29 +258,30 @@ See `package-install'."
     (let ((name (if (package-desc-p pkg)
                     (package-desc-name pkg)
                   pkg))
-          (transaction
-           (if (package-desc-p pkg)
-               (unless (package-installed-p pkg)
-                 (package-compute-transaction (list pkg)
-                                              (package-desc-reqs pkg)))
-             (package-compute-transaction nil (list (list pkg))))))
+          ;; (transaction
+          ;;  (if (package-desc-p pkg)
+          ;;      (unless (package-installed-p pkg)
+          ;;        (package-compute-transaction (list pkg)
+          ;;                                     (package-desc-reqs pkg)))
+          ;;    (package-compute-transaction nil (list (list pkg)))))
+          )
       (unless (or dont-select (package--user-selected-p name))
         (package--save-selected-packages
          (cons name package-selected-packages)))
-      (if (not transaction)
-          (message "`%s' is already installed" name)
-        (ppp-debug :break t 'feather
-          "Install package\n%s"
-          (ppp-plist-to-string
-           (list :target name
-                 :depends (feather--resolve-dependencies name)
-                 :queued (mapcar #'package-desc-name transaction))))
-        ;; (feather--install-packages transaction)
-        (puthash name
-                 `((name . ,(symbol-name name))
-                   (status . queue)
-                   (pkg-desc . pkg))
-                 feather-install-queue-explicit)))))
+      ;; (if (not transaction)
+      ;;     (message "`%s' is already installed" name)
+      ;;   (ppp-debug :break t 'feather
+      ;;     "Install package\n%s"
+      ;;     (ppp-plist-to-string
+      ;;      (list :target name
+      ;;            :depends (feather--resolve-dependencies name)
+      ;;            :queued (mapcar #'package-desc-name transaction))))
+      ;;   (feather--install-packages transaction))
+      (puthash name
+               `((name . ,(symbol-name name))
+                 (status . queue)
+                 (pkg-desc . ,pkg))
+               feather-install-queue-explicit))))
 
 
 ;;; main
