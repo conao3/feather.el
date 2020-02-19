@@ -191,11 +191,11 @@ see `package-install' and `package-download-transaction'."
     ;; increment current-pallarel-process-number
     (cl-incf feather-current-pallarel-process-number)
 
-    ;; `package-download-transaction'
     (dolist (pkg pkgs)
       (await (feather--promise-change-queue-state
               (package-desc-name pkg) 'queue)))
 
+    ;; `package-download-transaction'
     (dolist (pkg pkgs)
       (let ((name (package-desc-name pkg)))
         (condition-case err
