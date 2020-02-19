@@ -225,7 +225,7 @@ see `package-install' and `package-download-transaction'."
 (defvar feather-advice-alist
   '((package-install . feather--advice-package-install))
   "Alist for feather advice.
-See `feather-setup' and `feather-teardown'.")
+See `feather--setup' and `feather--teardown'.")
 
 (defun feather--advice-package-install (_fn &rest args)
   "Around advice for FN with ARGS.
@@ -264,15 +264,13 @@ See `package-install'."
 
 ;;; main
 
-;;;###autoload
-(defun feather-setup ()
+(defun feather--setup ()
   "Setup feather."
   (interactive)
   (pcase-dolist (`(,sym . ,fn) feather-advice-alist)
     (advice-add sym :around fn)))
 
-;;;###autoload
-(defun feather-teardown ()
+(defun feather--teardown ()
    "Teardown feather."
   (interactive)
   (pcase-dolist (`(,sym . ,fn) feather-advice-alist)
@@ -283,8 +281,8 @@ See `package-install'."
   "Toggle feather."
   :global t
   (if feather-mode
-      (feather-setup)
-    (feather-teardown)))
+      (feather--setup)
+    (feather--teardown)))
 
 (provide 'feather)
 
