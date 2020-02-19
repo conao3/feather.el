@@ -210,28 +210,28 @@ see `package-install' and `package-download-transaction'."
         "A parallel limit has been reached\n%s"
         (ppp-plist-to-string
          (list :package target-pkg-name)))
-      (await (promise:delay 0.5)))
+      (await (promise:delay 0.5))))
 
-    ;; increment current-pallarel-process-number
-    (cl-incf feather-current-pallarel-process-number)
+  ;; increment current-pallarel-process-number
+  (cl-incf feather-current-pallarel-process-number)
 
-    (dolist (pkg pkgs)
-      (await (feather--promise-change-queue-state
-              (package-desc-name pkg) 'queue)))
+  (dolist (pkg pkgs)
+    (await (feather--promise-change-queue-state
+            (package-desc-name pkg) 'queue)))
 
-    ;; `package-download-transaction'
-    (dolist (pkg pkgs)
-      (await (feather--install-package pkg)))
+  ;; `package-download-transaction'
+  (dolist (pkg pkgs)
+    (await (feather--install-package pkg)))
 
-    ;; decrement current-pallarel-process-number
-    (cl-decf feather-current-pallarel-process-number)
+  ;; decrement current-pallarel-process-number
+  (cl-decf feather-current-pallarel-process-number)
 
-    ;; ensure processed package state become 'done
-    (dolist (pkg pkgs)
-      (await (feather--promise-change-queue-state
-              (package-desc-name pkg) 'done)))
+  ;; ensure processed package state become 'done
+  (dolist (pkg pkgs)
+    (await (feather--promise-change-queue-state
+            (package-desc-name pkg) 'done)))
 
-    (package-menu--post-refresh)))
+  (package-menu--post-refresh))
 
 
 ;;; advice
