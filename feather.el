@@ -82,18 +82,17 @@ restrictive."
 
 ;;; main loop
 
-(defvar feather-install-queue-explicit (make-hash-table :test 'eq)
-  "Install queues, explicitly required.
+(defvar feather-install-queue-explicit nil
+  "Install queues list, explicitly required.")
+
+(defvar feather-install-queue (make-hash-table :test 'eq)
+  "All install queues, including dependencies.
 
 Key is package name as symbol.
 Value is alist.
   - NAME is package as string.
   - STATUS is install status one of (queue install done).
   - PKG is `package-desc'.")
-
-(defvar feather-install-queue (make-hash-table :test 'eq)
-  "All install queues, including dependencies.
-Format is the same for `feather-install-queue-alist-explicit'.")
 
 (defvar feather-current-pallarel-process-number 0
   "Count of current processed parallel Emacs.")
@@ -277,11 +276,7 @@ See `package-install'."
       ;;            :depends (feather--resolve-dependencies name)
       ;;            :queued (mapcar #'package-desc-name transaction))))
       ;;   (feather--install-packages transaction))
-      (puthash name
-               `((name . ,(symbol-name name))
-                 (status . queue)
-                 (pkg . ,pkg))
-               feather-install-queue-explicit))))
+      (push name feather-install-queue-explicit))))
 
 
 ;;; main
