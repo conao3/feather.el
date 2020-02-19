@@ -278,6 +278,14 @@ See `package-install'."
   (pcase-dolist (`(,sym . ,fn) feather-advice-alist)
     (advice-remove sym fn)))
 
+;;;###autoload
+(define-minor-mode feather-mode
+  "Toggle feather."
+  :global t
+  (if feather-mode
+      (feather-setup)
+    (feather-teardown)))
+
 (provide 'feather)
 
 ;; Local Variables:
