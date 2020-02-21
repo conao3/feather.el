@@ -247,6 +247,10 @@ see `package-install' and `package-download-transaction'."
 
   (while feather-package-install-args
     (seq-let (pkg dont-select) (pop feather-package-install-args)
+      ;; `package-install'
+
+      ;; moved `feather--install-packages'
+      ;; (add-hook 'post-command-hook #'package-menu--post-refresh)
       (let ((name (if (package-desc-p pkg) (package-desc-name pkg) pkg))
             (transaction
              (if (package-desc-p pkg)
@@ -267,7 +271,6 @@ see `package-install' and `package-download-transaction'."
                    :queued (mapcar #'package-desc-name transaction))))
           (feather--install-packages transaction)))))
 
-  (add-hook 'post-command-hook #'package-menu--post-refresh)
   (setq feather-running nil))
 
 
