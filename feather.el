@@ -251,7 +251,9 @@ see `package-install' and `package-download-transaction'."
 
       ;; moved `feather--install-packages'
       ;; (add-hook 'post-command-hook #'package-menu--post-refresh)
-      (let ((name (if (package-desc-p pkg) (package-desc-name pkg) pkg))
+      (let ((name (if (package-desc-p pkg)
+                      (package-desc-name pkg)
+                    pkg))
             (transaction
              (if (package-desc-p pkg)
                  (unless (package-installed-p pkg)
