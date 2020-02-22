@@ -96,12 +96,12 @@ Key is package name as symbol.
 Value is alist.
   - STATUS is install status one of (queue install done).")
 
-(defun feather--promise-install-package (pkg)
-  "Return promise to install PKG."
+(defun feather--promise-install-package (pkg-desc)
+  "Return promise to install PKG-DESC."
   (ppp-debug 'feather
     (ppp-plist-to-string
      (list :status 'start-install
-           :package (package-desc-name pkg))))
+           :package (package-desc-name pkg-desc))))
   (promise-then
    (promise:async-start
     `(lambda ()
@@ -109,12 +109,12 @@ Value is alist.
              (package-archives ',package-archives))
          (require 'package)
          (package-initialize)
-         (package-install-from-archive ,pkg))))
+         (package-install-from-archive ,pkg-desc))))
    (lambda (res)
      (ppp-debug 'feather
        (ppp-plist-to-string
         (list :status 'done-install
-              :package (package-desc-name pkg))))
+              :package (package-desc-name pkg-desc))))
      (promise-resolve res))
    (lambda (reason)
      (promise-reject `(fail-install-package ,reason)))))
@@ -155,16 +155,16 @@ see `package-unpack'."
                 :package (package-desc-name pkg-desc))))
        (funcall resolve pkg-dir)))))
 
-(async-defun feather--install-packages (pkgs)
+(async-defun feather--install-packages (pkg-descs)
   "Install PKGS async.
 PKGS is `package-desc' list as (a b c).
 
 This list must be processed orderd; b depends (a), and c depends (a b).
 
 see `package-install' and `package-download-transaction'."
-  (let ((target-pkg-name (package-desc-name (car (last pkgs)))))
-    (dolist (pkg pkgs)
-      (let ((pkg-name (package-desc-name pkg)))
+  (let ((target-pkg-name (package-desc-name (car (last pkg-descs)))))
+    (dolist (pkgdesc pkg-descs)
+      (let ((pkg-name (package-desc-name pkgdesc)))
         (when-let (alist (gethash pkg-name feather-install-queue))
           (while (not (eq 'done (alist-get 'status alist)))
             (ppp-debug 'feather
@@ -175,20 +175,20 @@ see `package-install' and `package-download-transaction'."
             (await (promise:delay 0.5)))))))
 
   ;; set the status of the package to be installed to queue
-  (dolist (pkg pkgs)
-    (let ((pkg-name (package-desc-name pkg)))
+  (dolist (pkgdesc pkg-descs)
+    (let ((pkg-name (package-desc-name pkgdesc)))
       (if (gethash pkg-name feather-install-queue)
           (setf (alist-get 'status (gethash pkg-name feather-install-queue)) 'queue)
         (puthash pkg-name '((status . queue)) feather-install-queue))))
 
   ;; `package-download-transaction'
-  (dolist (pkg pkgs)
-    (let ((pkg-name (package-desc-name pkg)))
+  (dolist (pkgdesc pkg-descs)
+    (let ((pkg-name (package-desc-name pkgdesc)))
       (setf (alist-get 'status (gethash pkg-name feather-install-queue)) 'install)
       (condition-case err
           (progn
-            (await (feather--promise-install-package pkg))
-            (await (feather--promise-activate-package pkg)))
+            (await (feather--promise-install-package pkgdesc))
+            (await (feather--promise-activate-package pkgdesc)))
         (error
          (pcase err
            (`(error (fail-install-package ,reason))
