@@ -98,9 +98,6 @@ Value is alist.
   - STATUS is install status one of (queue install done).
   - PKG is `package-desc'.")
 
-(defvar feather-current-pallarel-process-number 0
-  "Count of current processed parallel Emacs.")
-
 (defun feather--promise-change-queue-state (pkg state)
   "Change `feather-install-queue' state for PKG to STATE."
   (promise-new
@@ -210,18 +207,7 @@ see `package-install' and `package-download-transaction'."
               (ppp-plist-to-string
                (list :package pkg-name
                      :dependency-from target-pkg-name)))
-            (await (promise:delay 0.5))))))
-
-    (while (< feather-max-process
-              feather-current-pallarel-process-number)
-      (ppp-debug 'feather
-        "A parallel limit has been reached\n%s"
-        (ppp-plist-to-string
-         (list :package target-pkg-name)))
-      (await (promise:delay 0.5))))
-
-  ;; increment current-pallarel-process-number
-  (cl-incf feather-current-pallarel-process-number)
+            (await (promise:delay 0.5)))))))
 
   (dolist (pkg pkgs)
     (await (feather--promise-change-queue-state
@@ -230,9 +216,6 @@ see `package-install' and `package-download-transaction'."
   ;; `package-download-transaction'
   (dolist (pkg pkgs)
     (await (feather--install-package pkg)))
-
-  ;; decrement current-pallarel-process-number
-  (cl-decf feather-current-pallarel-process-number)
 
   ;; ensure processed package state become 'done
   (dolist (pkg pkgs)
