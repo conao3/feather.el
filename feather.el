@@ -91,14 +91,14 @@ BUFFER-OR-NAME must be a buffer or the name of an existing buffer.
 The value returned is the value of the last form in BODY.  See
 also `with-temp-buffer'."
   (declare (debug t))
-  `(with-current-buffer
-       (if-let ((buf (get-buffer feather-dashboard-name)))
-           buf
-         (with-current-buffer (get-buffer-create feather-dashboard-name)
-           (feather-dashboard-mode)
-           (insert "*Feather dashboard*\n")
-           (current-buffer)))
-     (let ((inhibit-read-only t))
+  `(let ((inhibit-read-only t))
+     (with-current-buffer
+         (if-let ((buf (get-buffer feather-dashboard-name)))
+             buf
+           (with-current-buffer (get-buffer-create feather-dashboard-name)
+             (feather-dashboard-mode)
+             (insert "*Feather dashboard*\n")
+             (current-buffer)))
        (goto-char (point-min))
        ,@body
        (display-buffer (current-buffer)))))
