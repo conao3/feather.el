@@ -101,9 +101,9 @@ Value is alist.
 (defun feather--promise-install-package (pkg)
   "Return promise to install PKG."
   (ppp-debug 'feather
-    "Start install\n%s"
     (ppp-plist-to-string
-     (list :package (package-desc-name pkg))))
+     (list :status 'start-install
+           :package (package-desc-name pkg))))
   (promise-then
    (promise:async-start
     `(lambda ()
@@ -114,9 +114,9 @@ Value is alist.
          (package-install-from-archive ,pkg))))
    (lambda (res)
      (ppp-debug 'feather
-       "Done install\n%s"
        (ppp-plist-to-string
-        (list :package (package-desc-name pkg))))
+        (list :status 'done-install
+              :package (package-desc-name pkg))))
      (promise-resolve res))
    (lambda (reason)
      (promise-reject `(fail-install-package ,reason)))))
@@ -125,9 +125,9 @@ Value is alist.
   "Return promise to activate PKG-DESC.
 see `package-unpack'."
   (ppp-debug 'feather
-    "Start activate\n%s"
     (ppp-plist-to-string
-     (list :package (package-desc-name pkg-desc))))
+     (list :status 'start-activate
+           :package (package-desc-name pkg-desc))))
   (promise-new
    (lambda (resolve reject)
      (let* ((dirname (package-desc-full-name pkg-desc))
@@ -152,9 +152,9 @@ see `package-unpack'."
          (error
           (funcall reject `(fail-activate-package ,err))))
        (ppp-debug 'feather
-         "Done activate\n%s"
          (ppp-plist-to-string
-          (list :package (package-desc-name pkg-desc))))
+          (list :status 'done-activate
+                :package (package-desc-name pkg-desc))))
        (funcall resolve pkg-dir)))))
 
 (async-defun feather--install-packages (pkgs)
@@ -243,9 +243,9 @@ see `package-install' and `package-download-transaction'."
                           (package-compute-transaction nil (list (list pkg))))))
                  (progn
                    (ppp-debug :break t 'feather
-                     "Install package\n%s"
                      (ppp-plist-to-string
-                      (list :index index
+                      (list :index (1+ index)
+                            :status 'install
                             :target name
                             :depends (feather--resolve-dependencies name)
                             :queued (mapcar #'package-desc-name transaction))))
