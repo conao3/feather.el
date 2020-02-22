@@ -200,8 +200,8 @@ see `package-install' and `package-download-transaction'."
                           (car (last pkgs)))))
     (dolist (pkg pkgs)
       (let ((pkg-name (package-desc-name pkg)))
-        (when (assq pkg-name feather-install-queue)
-          (while (not (eq 'done (alist-get pkg-name feather-install-queue)))
+        (when-let (alist (gethash pkg-name feather-install-queue))
+          (while (not (eq 'done (alist-get 'status alist)))
             (ppp-debug 'feather
               "Waiting install done\n%s"
               (ppp-plist-to-string
