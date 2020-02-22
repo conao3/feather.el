@@ -100,8 +100,8 @@ also `with-temp-buffer'."
              (insert "*Feather dashboard*\n")
              (current-buffer)))
        (goto-char (point-min))
-       ,@body
-       (display-buffer (current-buffer)))))
+       (display-buffer (current-buffer))
+       ,@body)))
 
 
 ;;; promise
