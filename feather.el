@@ -307,6 +307,10 @@ See `package-install'."
 
 ;;; main
 
+(define-derived-mode feather-dashboard-mode special-mode "FeatherDashboard"
+  "Major mode for feather dashboard."
+  (page-break-lines-mode +1))
+
 (defun feather--setup ()
   "Setup feather."
   (pcase-dolist (`(,sym . ,fn) feather-advice-alist)
