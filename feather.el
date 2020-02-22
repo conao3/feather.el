@@ -94,9 +94,7 @@ see `feather--advice-package-install' and `feather--main-process'.")
 
 Key is package name as symbol.
 Value is alist.
-  - NAME is package as string.
-  - STATUS is install status one of (queue install done).
-  - PKG is `package-desc'.")
+  - STATUS is install status one of (queue install done).")
 
 (defun feather--promise-install-package (pkg)
   "Return promise to install PKG."
@@ -181,11 +179,7 @@ see `package-install' and `package-download-transaction'."
     (let ((pkg-name (package-desc-name pkg)))
       (if (gethash pkg-name feather-install-queue)
           (setf (alist-get 'status (gethash pkg-name feather-install-queue)) 'queue)
-        (puthash pkg-name
-                 `((name   . ,(symbol-name pkg-name))
-                   (status . queue)
-                   (pkg    . ,pkg))
-                 feather-install-queue))))
+        (puthash pkg-name '((status . queue)) feather-install-queue))))
 
   ;; `package-download-transaction'
   (dolist (pkg pkgs)
