@@ -85,14 +85,23 @@ restrictive."
                (cadr (assq 'helm package-archive-contents)))))
      (nreverse ret))))
 
-(defun feather--get-dashboard-buffer ()
-  "Initialize and return feather dashboard buffer."
-  (if-let ((buf (get-buffer feather-dashboard-name)))
-      buf
-    (with-current-buffer (get-buffer-create feather-dashboard-name)
-      (feather-dashboard-mode)
-      (insert "*Feather dashboard*\n")
-      (current-buffer))))
+(defmacro with-feather--dashboard-buffer (&rest body)
+  "Execute the forms in BODY with BUFFER-OR-NAME temporarily current.
+BUFFER-OR-NAME must be a buffer or the name of an existing buffer.
+The value returned is the value of the last form in BODY.  See
+also `with-temp-buffer'."
+  (declare (debug t))
+  `(with-current-buffer
+       (if-let ((buf (get-buffer feather-dashboard-name)))
+           buf
+         (with-current-buffer (get-buffer-create feather-dashboard-name)
+           (feather-dashboard-mode)
+           (insert "*Feather dashboard*\n")
+           (current-buffer)))
+     (let ((inhibit-read-only t))
+       (goto-char (point-min))
+       ,@body
+       (display-buffer (current-buffer)))))
 
 
 ;;; promise
@@ -306,9 +315,8 @@ See `package-install'."
                     (package-desc-name pkg)
                   pkg)))
       (push args feather-package-install-args)
-      (with-current-buffer (feather--get-dashboard-buffer)
-        (display-buffer feather-dashboard-name)
-        (goto-char (point-min))
+      (with-feather--dashboard-buffer
+        (forward-line)
         (beginning-of-line)
         (insert (format "%s\n" name)))
       (unless feather-running
