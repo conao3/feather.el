@@ -7,7 +7,7 @@
 ;; Keywords: convenience package
 ;; Version: 0.1.0
 ;; URL: https://github.com/conao3/feather.el
-;; Package-Requires: ((emacs "26.3") (async-await "1.0") (ppp "1.0"))
+;; Package-Requires: ((emacs "26.3") (async-await "1.0") (ppp "1.0") (page-break-lines "0.1"))
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 (require 'package)
 (require 'async-await)
 (require 'ppp)
+(require 'page-break-lines)
 
 (defgroup feather nil
   "Parallel thread modern Emacs package manager."
@@ -309,12 +310,14 @@ See `package-install'."
 (defun feather--setup ()
   "Setup feather."
   (pcase-dolist (`(,sym . ,fn) feather-advice-alist)
-    (advice-add sym :around fn)))
+    (advice-add sym :around fn)
+    (add-to-list 'page-break-lines-modes 'feather-dashboard-mode)))
 
 (defun feather--teardown ()
   "Teardown feather."
   (pcase-dolist (`(,sym . ,fn) feather-advice-alist)
-    (advice-remove sym fn)))
+    (advice-remove sym fn)
+    (setq page-break-lines-modes (delq 'feather-dashboard-mode page-break-lines-modes))))
 
 ;;;###autoload
 (define-minor-mode feather-mode
