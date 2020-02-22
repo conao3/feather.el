@@ -215,6 +215,7 @@ see `package-install' and `package-download-transaction'."
 
   ;; preprocess
   (setq feather-running t)
+  (await (promise:delay 1))             ; wait for continuous execution
 
   ;; feather-package-install-args may increase during execution of this loop
   (while feather-package-install-args
