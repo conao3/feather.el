@@ -208,6 +208,7 @@ see `package-install' and `package-download-transaction'."
                      :dependency-from target-pkg-name)))
             (await (promise:delay 0.5)))))))
 
+  ;; set the status of the package to be installed to queue
   (dolist (pkg pkgs)
     (await (feather--promise-change-queue-state
             (package-desc-name pkg) 'queue)))
