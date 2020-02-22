@@ -164,30 +164,6 @@ see `package-unpack'."
           (list :package (package-desc-name pkg-desc))))
        (funcall resolve pkg-dir)))))
 
-(async-defun feather--install-package (pkg)
-  "Install PKG async.
-PKG is `package-desc'."
-  (let ((name (package-desc-name pkg)))
-    (condition-case err
-        (let* ((res (await (feather--promise-change-queue-state name 'install)))
-               (res (await (feather--promise-install-package pkg)))
-               (res (await (feather--promise-activate-package pkg)))
-               (res (await (feather--promise-change-queue-state name 'done)))))
-      (error
-       (pcase err
-         (`(error (fail-install-package ,reason))
-          (ppp-debug :level :warning 'feather
-            "Cannot install package\n%s"
-            (ppp-plist-to-string
-             (list :package name
-                   :reason reason))))
-         (_
-          (ppp-debug :level :warning 'feather
-            "Something wrong while installing package\n%s"
-            (ppp-plist-to-string
-             (list :package name
-                   :reason err)))))))))
-
 (async-defun feather--install-packages (pkgs)
   "Install PKGS async.
 PKGS is `package-desc' list as (a b c).
@@ -215,7 +191,26 @@ see `package-install' and `package-download-transaction'."
 
   ;; `package-download-transaction'
   (dolist (pkg pkgs)
-    (await (feather--install-package pkg)))
+    (let ((name (package-desc-name pkg)))
+      (condition-case err
+          (let* ((res (await (feather--promise-change-queue-state name 'install)))
+                 (res (await (feather--promise-install-package pkg)))
+                 (res (await (feather--promise-activate-package pkg)))
+                 (res (await (feather--promise-change-queue-state name 'done)))))
+        (error
+         (pcase err
+           (`(error (fail-install-package ,reason))
+            (ppp-debug :level :warning 'feather
+              "Cannot install package\n%s"
+              (ppp-plist-to-string
+               (list :package name
+                     :reason reason))))
+           (_
+            (ppp-debug :level :warning 'feather
+              "Something wrong while installing package\n%s"
+              (ppp-plist-to-string
+               (list :package name
+                     :reason err)))))))))
 
   ;; ensure processed package state become 'done
   (dolist (pkg pkgs)
