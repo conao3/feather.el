@@ -97,7 +97,23 @@ Value is alist.
   - STATUS is install status one of (queue install done).")
 
 (defun feather--promise-fetch-package (pkg-desc)
-  "Return promise to fetch PKG-DESC."
+  "Return promise to fetch PKG-DESC.
+
+Install the package in the asynchronous Emacs.
+
+Includes below operations
+  - Fetch.  Fetch package tar file.
+  - Install.  Untar tar and place .el files.
+  - Generate.  Generate autoload file from ;;;###autoload comment.
+  - Byte compile.  Generate .elc from .el file.
+  - (Activate).  Add package path to `load-path', eval autoload.
+  - (Load).  Actually load the package.
+
+The asynchronous Emacs is killed immediately after the package
+is installed, so the package-user-dir is populated with packages
+ready for immediate loading.
+
+see `package-download-transaction' and `package-install-from-archive'."
   (ppp-debug 'feather
     (ppp-plist-to-string
      (list :status 'start-fetch
@@ -121,7 +137,11 @@ Value is alist.
 
 (defun feather--promise-activate-package (pkg-desc)
   "Return promise to activate PKG-DESC.
-see `package-unpack'."
+
+Load the package which it can be loaded immediately is placed in
+`package-user-dir' by `feather--promise-fetch-package'
+
+see `package-install-from-archive' and `package-unpack'."
   (ppp-debug 'feather
     (ppp-plist-to-string
      (list :status 'start-activate
@@ -131,6 +151,7 @@ see `package-unpack'."
      (let* ((dirname (package-desc-full-name pkg-desc))
             (pkg-dir (expand-file-name dirname package-user-dir))
             (new-desc (package-load-descriptor pkg-dir)))
+       ;; Update package-alist.
        (condition-case err
            (unless (equal (package-desc-full-name new-desc)
                           (package-desc-full-name pkg-desc))
