@@ -318,7 +318,7 @@ See `package-install'."
       (with-feather--dashboard-buffer
         (forward-line)
         (beginning-of-line)
-        (insert (format "%s\n" name)))
+        (insert (format "  %s\n" name)))
       (unless feather-running
         (feather--main-process)))))
 
