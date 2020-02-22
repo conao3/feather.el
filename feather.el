@@ -196,8 +196,7 @@ This list must be processed orderd.
 By because b depends a, and c depends a and b.
 
 see `package-install' and `package-download-transaction'."
-  (let ((target-pkg-name (package-desc-name
-                          (car (last pkgs)))))
+  (let ((target-pkg-name (package-desc-name (car (last pkgs)))))
     (dolist (pkg pkgs)
       (let ((pkg-name (package-desc-name pkg)))
         (when-let (alist (gethash pkg-name feather-install-queue))
