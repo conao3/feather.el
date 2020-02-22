@@ -45,6 +45,11 @@
   :group 'feather
   :type 'number)
 
+(defcustom feather-dashboard-name "*Feather dashboard*"
+  "Featehr dashboard buffer name."
+  :group 'feather
+  :type 'string)
+
 
 ;;; functions
 
