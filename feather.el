@@ -212,6 +212,8 @@ see `package-install' and `package-download-transaction'."
 
 (async-defun feather--main-process ()
   "Main process for feather."
+
+  ;; preprocess
   (setq feather-running t)
 
   ;; feather-package-install-args may increase during execution of this loop
@@ -249,6 +251,7 @@ see `package-install' and `package-download-transaction'."
                    (feather--install-packages transaction))
                (message "`%s' is already installed" name))))))))
 
+  ;; postprocess
   (package-menu--post-refresh)
   (setq feather-running nil))
 
