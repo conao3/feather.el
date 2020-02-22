@@ -298,6 +298,7 @@ See `package-install'."
                   pkg)))
       (push args feather-package-install-args)
       (with-current-buffer (get-buffer-create feather-dashboard-name)
+        (feather-dashboard-mode)
         (display-buffer feather-dashboard-name)
         (goto-char (point-min))
         (insert (format "Request: %s\n" name)))
