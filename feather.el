@@ -96,11 +96,11 @@ Key is package name as symbol.
 Value is alist.
   - STATUS is install status one of (queue install done).")
 
-(defun feather--promise-install-package (pkg-desc)
-  "Return promise to install PKG-DESC."
+(defun feather--promise-fetch-package (pkg-desc)
+  "Return promise to fetch PKG-DESC."
   (ppp-debug 'feather
     (ppp-plist-to-string
-     (list :status 'start-install
+     (list :status 'start-fetch
            :package (package-desc-name pkg-desc))))
   (promise-then
    (promise:async-start
@@ -113,7 +113,7 @@ Value is alist.
    (lambda (res)
      (ppp-debug 'feather
        (ppp-plist-to-string
-        (list :status 'done-install
+        (list :status 'done-fetch
               :package (package-desc-name pkg-desc))))
      (promise-resolve res))
    (lambda (reason)
@@ -187,7 +187,7 @@ see `package-install' and `package-download-transaction'."
       (setf (alist-get 'status (gethash pkg-name feather-install-queue)) 'install)
       (condition-case err
           (progn
-            (await (feather--promise-install-package pkgdesc))
+            (await (feather--promise-fetch-package pkgdesc))
             (await (feather--promise-activate-package pkgdesc)))
         (error
          (pcase err
