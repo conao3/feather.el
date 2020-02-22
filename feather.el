@@ -85,6 +85,15 @@ restrictive."
                (cadr (assq 'helm package-archive-contents)))))
      (nreverse ret))))
 
+(defun feather--get-dashboard-buffer ()
+  "Initialize and return feather dashboard buffer."
+  (if-let ((buf (get-buffer feather-dashboard-name)))
+      buf
+    (with-current-buffer (get-buffer-create feather-dashboard-name)
+      (feather-dashboard-mode)
+      (insert "*Feather dashboard*\n")
+      (current-buffer))))
+
 
 ;;; promise
 
@@ -297,11 +306,11 @@ See `package-install'."
                     (package-desc-name pkg)
                   pkg)))
       (push args feather-package-install-args)
-      (with-current-buffer (get-buffer-create feather-dashboard-name)
-        (feather-dashboard-mode)
+      (with-current-buffer (feather--get-dashboard-buffer)
         (display-buffer feather-dashboard-name)
         (goto-char (point-min))
-        (insert (format "Request: %s\n" name)))
+        (beginning-of-line)
+        (insert (format "%s\n" name)))
       (unless feather-running
         (feather--main-process)))))
 
