@@ -202,7 +202,7 @@ see `package-install' and `package-download-transaction'."
         (when-let (alist (gethash pkg-name feather-install-queue))
           (while (not (eq 'done (alist-get 'status alist)))
             (ppp-debug 'feather
-              "Waiting install done\n%s"
+              "Wait for dependencies to be installed\n%s"
               (ppp-plist-to-string
                (list :package pkg-name
                      :dependency-from target-pkg-name)))
