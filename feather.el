@@ -98,7 +98,7 @@ Value is alist.
   - STATUS is install status one of (queue install done).
   - PKG is `package-desc'.")
 
-(defun feather--promise-change-queue-state (pkg state)
+(defun feather--promise-change-state (pkg state)
   "Change `feather-install-queue' state for PKG to STATE."
   (promise-new
    (lambda (resolve _reject)
@@ -186,17 +186,16 @@ see `package-install' and `package-download-transaction'."
 
   ;; set the status of the package to be installed to queue
   (dolist (pkg pkgs)
-    (await (feather--promise-change-queue-state
-            (package-desc-name pkg) 'queue)))
+    (await (feather--promise-change-state (package-desc-name pkg) 'queue)))
 
   ;; `package-download-transaction'
   (dolist (pkg pkgs)
     (let ((name (package-desc-name pkg)))
       (condition-case err
-          (let* ((res (await (feather--promise-change-queue-state name 'install)))
+          (let* ((res (await (feather--promise-change-state name 'install)))
                  (res (await (feather--promise-install-package pkg)))
                  (res (await (feather--promise-activate-package pkg)))
-                 (res (await (feather--promise-change-queue-state name 'done)))))
+                 (res (await (feather--promise-change-state name 'done)))))
         (error
          (pcase err
            (`(error (fail-install-package ,reason))
@@ -214,8 +213,7 @@ see `package-install' and `package-download-transaction'."
 
   ;; ensure processed package state become 'done
   (dolist (pkg pkgs)
-    (await (feather--promise-change-queue-state
-            (package-desc-name pkg) 'done)))
+    (await (feather--promise-change-state (package-desc-name pkg) 'done)))
 
   (package-menu--post-refresh))
 
