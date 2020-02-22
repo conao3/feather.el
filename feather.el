@@ -98,13 +98,6 @@ Value is alist.
   - STATUS is install status one of (queue install done).
   - PKG is `package-desc'.")
 
-(defun feather--promise-change-state (pkg state)
-  "Change `feather-install-queue' state for PKG to STATE."
-  (promise-new
-   (lambda (resolve _reject)
-     (setf (alist-get 'status (gethash pkg feather-install-queue)) state)
-     (funcall resolve (gethash pkg feather-install-queue)))))
-
 (defun feather--promise-install-package (pkg)
   "Return promise to install PKG."
   (ppp-debug 'feather
@@ -185,34 +178,37 @@ see `package-install' and `package-download-transaction'."
 
   ;; set the status of the package to be installed to queue
   (dolist (pkg pkgs)
-    (await (feather--promise-change-state (package-desc-name pkg) 'queue)))
+    (let ((pkg-name (package-desc-name pkg)))
+      (if (gethash pkg-name feather-install-queue)
+          (setf (alist-get 'status (gethash pkg-name feather-install-queue)) 'queue)
+        (puthash pkg-name
+                 `((name   . ,(symbol-name pkg-name))
+                   (status . queue)
+                   (pkg    . ,pkg))
+                 feather-install-queue))))
 
   ;; `package-download-transaction'
   (dolist (pkg pkgs)
-    (let ((name (package-desc-name pkg)))
+    (let ((pkg-name (package-desc-name pkg)))
+      (setf (alist-get 'status (gethash pkg-name feather-install-queue)) 'install)
       (condition-case err
-          (let* ((res (await (feather--promise-change-state name 'install)))
-                 (res (await (feather--promise-install-package pkg)))
-                 (res (await (feather--promise-activate-package pkg)))
-                 (res (await (feather--promise-change-state name 'done)))))
+          (let* ((res (await (feather--promise-install-package pkg)))
+                 (res (await (feather--promise-activate-package pkg)))))
         (error
          (pcase err
            (`(error (fail-install-package ,reason))
             (ppp-debug :level :warning 'feather
               "Cannot install package\n%s"
               (ppp-plist-to-string
-               (list :package name
+               (list :package pkg-name
                      :reason reason))))
            (_
             (ppp-debug :level :warning 'feather
               "Something wrong while installing package\n%s"
               (ppp-plist-to-string
-               (list :package name
-                     :reason err)))))))))
-
-  ;; ensure processed package state become 'done
-  (dolist (pkg pkgs)
-    (await (feather--promise-change-state (package-desc-name pkg) 'done))))
+               (list :package pkg-name
+                     :reason err)))))))
+      (setf (alist-get 'status (gethash pkg-name feather-install-queue)) 'done))))
 
 (async-defun feather--main-process ()
   "Main process for feather."
