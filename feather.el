@@ -102,8 +102,8 @@ Value is alist.
   "Change `feather-install-queue' state for PKG to STATE."
   (promise-new
    (lambda (resolve _reject)
-     (setf (alist-get pkg feather-install-queue) state)
-     (funcall resolve (alist-get pkg feather-install-queue)))))
+     (setf (alist-get 'status (gethash pkg feather-install-queue)) state)
+     (funcall resolve (gethash pkg feather-install-queue)))))
 
 (defun feather--promise-install-package (pkg)
   "Return promise to install PKG."
