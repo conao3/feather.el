@@ -168,8 +168,7 @@ see `package-unpack'."
   "Install PKGS async.
 PKGS is `package-desc' list as (a b c).
 
-This list must be processed orderd.
-By because b depends a, and c depends a and b.
+This list must be processed orderd; b depends (a), and c depends (a b).
 
 see `package-install' and `package-download-transaction'."
   (let ((target-pkg-name (package-desc-name (car (last pkgs)))))
