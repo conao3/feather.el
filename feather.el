@@ -221,6 +221,7 @@ see `package-install' and `package-download-transaction'."
          feather-max-process (length feather-package-install-args)
        (lambda (index)
          (seq-let (pkg dont-select) (pop feather-package-install-args)
+
            ;; `package-install'
 
            ;; moved last of this function
