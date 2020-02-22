@@ -80,7 +80,7 @@ restrictive."
      (nreverse ret))))
 
 
-;;; main loop
+;;; promise
 
 (defvar feather-running nil
   "If non-nil, running feather main process.")
@@ -235,7 +235,7 @@ see `package-install' and `package-download-transaction'."
   (setq feather-running t)
   (await (promise:delay 1))             ; wait for continuous execution
 
-  ;; feather-package-install-args may increase during execution of this loop
+  ;; `feather-package-install-args' may increase during execution of this loop
   (while feather-package-install-args
     (await
      (promise-concurrent-no-reject-immidiately
