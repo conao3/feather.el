@@ -213,9 +213,7 @@ see `package-install' and `package-download-transaction'."
 
   ;; ensure processed package state become 'done
   (dolist (pkg pkgs)
-    (await (feather--promise-change-state (package-desc-name pkg) 'done)))
-
-  (package-menu--post-refresh))
+    (await (feather--promise-change-state (package-desc-name pkg) 'done))))
 
 (async-defun feather--main-process ()
   "Main process for feather."
@@ -230,7 +228,7 @@ see `package-install' and `package-download-transaction'."
          (seq-let (pkg dont-select) (pop feather-package-install-args)
            ;; `package-install'
 
-           ;; moved `feather--install-packages'
+           ;; moved last of this function
            ;; (add-hook 'post-command-hook #'package-menu--post-refresh)
            (let ((name (if (package-desc-p pkg)
                            (package-desc-name pkg)
@@ -255,6 +253,7 @@ see `package-install' and `package-download-transaction'."
                    (feather--install-packages transaction))
                (message "`%s' is already installed" name))))))))
 
+  (package-menu--post-refresh)
   (setq feather-running nil))
 
 
