@@ -276,13 +276,11 @@ See `package-install'."
 
 (defun feather--setup ()
   "Setup feather."
-  (interactive)
   (pcase-dolist (`(,sym . ,fn) feather-advice-alist)
     (advice-add sym :around fn)))
 
 (defun feather--teardown ()
   "Teardown feather."
-  (interactive)
   (pcase-dolist (`(,sym . ,fn) feather-advice-alist)
     (advice-remove sym fn)))
 
