@@ -291,9 +291,17 @@ See `feather--setup' and `feather--teardown'.")
   "Around advice for FN with ARGS.
 This code based package.el bundled Emacs-26.3.
 See `package-install'."
-  (push args feather-package-install-args)
-  (unless feather-running
-    (feather--main-process)))
+  (seq-let (pkg _dont-select) args
+    (let ((name (if (package-desc-p pkg)
+                    (package-desc-name pkg)
+                  pkg)))
+      (push args feather-package-install-args)
+      (with-current-buffer (get-buffer-create feather-dashboard-name)
+        (display-buffer feather-dashboard-name)
+        (goto-char (point-min))
+        (insert (format "Request: %s\n" name)))
+      (unless feather-running
+        (feather--main-process)))))
 
 
 ;;; main
