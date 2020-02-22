@@ -192,8 +192,9 @@ see `package-install' and `package-download-transaction'."
     (let ((pkg-name (package-desc-name pkg)))
       (setf (alist-get 'status (gethash pkg-name feather-install-queue)) 'install)
       (condition-case err
-          (let* ((res (await (feather--promise-install-package pkg)))
-                 (res (await (feather--promise-activate-package pkg)))))
+          (progn
+            (await (feather--promise-install-package pkg))
+            (await (feather--promise-activate-package pkg)))
         (error
          (pcase err
            (`(error (fail-install-package ,reason))
