@@ -40,7 +40,7 @@
 
 ;;; customize
 
-(defcustom feather-pallarel-process-number 8
+(defcustom feather-max-process 8
   "Count of pallarel process number."
   :group 'feather
   :type 'number)
@@ -212,7 +212,7 @@ see `package-install' and `package-download-transaction'."
                      :dependency-from target-pkg-name)))
             (await (promise:delay 0.5))))))
 
-    (while (< feather-pallarel-process-number
+    (while (< feather-max-process
               feather-current-pallarel-process-number)
       (ppp-debug 'feather
         "A parallel limit has been reached\n%s"
@@ -245,33 +245,39 @@ see `package-install' and `package-download-transaction'."
   "Main process for feather."
   (setq feather-running t)
 
+  ;; feather-package-install-args may increase during execution of this loop
   (while feather-package-install-args
-    (seq-let (pkg dont-select) (pop feather-package-install-args)
-      ;; `package-install'
+    (await
+     (promise-concurrent-no-reject-immidiately
+         feather-max-process (length feather-package-install-args)
+       (lambda (index)
+         (seq-let (pkg dont-select) (pop feather-package-install-args)
+           ;; `package-install'
 
-      ;; moved `feather--install-packages'
-      ;; (add-hook 'post-command-hook #'package-menu--post-refresh)
-      (let ((name (if (package-desc-p pkg)
-                      (package-desc-name pkg)
-                    pkg)))
-        (unless (or dont-select (package--user-selected-p name))
-          (package--save-selected-packages
-           (cons name package-selected-packages)))
-        (if-let* ((transaction
-                   (if (package-desc-p pkg)
-                       (unless (package-installed-p pkg)
-                         (package-compute-transaction (list pkg)
-                                                      (package-desc-reqs pkg)))
-                     (package-compute-transaction nil (list (list pkg))))))
-            (progn
-              (ppp-debug :break t 'feather
-                "Install package\n%s"
-                (ppp-plist-to-string
-                 (list :target name
-                       :depends (feather--resolve-dependencies name)
-                       :queued (mapcar #'package-desc-name transaction))))
-              (feather--install-packages transaction))
-          (message "`%s' is already installed" name)))))
+           ;; moved `feather--install-packages'
+           ;; (add-hook 'post-command-hook #'package-menu--post-refresh)
+           (let ((name (if (package-desc-p pkg)
+                           (package-desc-name pkg)
+                         pkg)))
+             (unless (or dont-select (package--user-selected-p name))
+               (package--save-selected-packages
+                (cons name package-selected-packages)))
+             (if-let* ((transaction
+                        (if (package-desc-p pkg)
+                            (unless (package-installed-p pkg)
+                              (package-compute-transaction (list pkg)
+                                                           (package-desc-reqs pkg)))
+                          (package-compute-transaction nil (list (list pkg))))))
+                 (progn
+                   (ppp-debug :break t 'feather
+                     "Install package\n%s"
+                     (ppp-plist-to-string
+                      (list :index index
+                            :target name
+                            :depends (feather--resolve-dependencies name)
+                            :queued (mapcar #'package-desc-name transaction))))
+                   (feather--install-packages transaction))
+               (message "`%s' is already installed" name))))))))
 
   (setq feather-running nil))
 
