@@ -148,33 +148,35 @@ see `package-install-from-archive' and `package-unpack'."
            :package (package-desc-name pkg-desc))))
   (promise-new
    (lambda (resolve reject)
-     (let* ((dirname (package-desc-full-name pkg-desc))
-            (pkg-dir (expand-file-name dirname package-user-dir))
-            (new-desc (package-load-descriptor pkg-dir)))
-       ;; Update package-alist.
+     (let* ((_name (package-desc-name pkg-desc))
+            (dirname (package-desc-full-name pkg-desc))
+            (pkg-dir (expand-file-name dirname package-user-dir)))
        (condition-case err
-           (unless (equal (package-desc-full-name new-desc)
-                          (package-desc-full-name pkg-desc))
-             (error "The retrieved package (`%s') doesn't match what the archive offered (`%s')"
-                    (package-desc-full-name new-desc) (package-desc-full-name pkg-desc)))
-         ;; Activation has to be done before compilation, so that if we're
-         ;; upgrading and macros have changed we load the new definitions
-         ;; before compiling.
-         (when (package-activate-1 new-desc :reload :deps)
-           ;; FIXME: Compilation should be done as a separate, optional, step.
-           ;; E.g. for multi-package installs, we should first install all packages
-           ;; and then compile them.
-           (package--compile new-desc)
-           ;; After compilation, load again any files loaded by
-           ;; `activate-1', so that we use the byte-compiled definitions.
-           (package--load-files-for-activation new-desc :reload))
+           ;; Update package-alist.
+           (let ((new-desc (package-load-descriptor pkg-dir)))
+             (unless (equal (package-desc-full-name new-desc)
+                            (package-desc-full-name pkg-desc))
+               (error "The retrieved package (`%s') doesn't match what the archive offered (`%s')"
+                      (package-desc-full-name new-desc) (package-desc-full-name pkg-desc)))
+             ;; Activation has to be done before compilation, so that if we're
+             ;; upgrading and macros have changed we load the new definitions
+             ;; before compiling.
+             (when (package-activate-1 new-desc :reload :deps)
+               ;; FIXME: Compilation should be done as a separate, optional, step.
+               ;; E.g. for multi-package installs, we should first install all packages
+               ;; and then compile them.
+               (package--compile new-desc)
+               ;; After compilation, load again any files loaded by
+               ;; `activate-1', so that we use the byte-compiled definitions.
+               (package--load-files-for-activation new-desc :reload))
+
+             (ppp-debug 'feather
+               (ppp-plist-to-string
+                (list :status 'done-activate
+                      :package (package-desc-name pkg-desc))))
+             (funcall resolve pkg-dir))
          (error
-          (funcall reject `(fail-activate-package ,err))))
-       (ppp-debug 'feather
-         (ppp-plist-to-string
-          (list :status 'done-activate
-                :package (package-desc-name pkg-desc))))
-       (funcall resolve pkg-dir)))))
+          (funcall reject `(fail-activate-package ,err))))))))
 
 (async-defun feather--install-packages (pkg-descs)
   "Install PKGS async.
