@@ -52,6 +52,33 @@
   :type 'string)
 
 
+;;; overlay
+
+(defun feather--add-overlay (pos string)
+  "Add overlay to display STRING at POS."
+  (let ((ov (make-overlay (1- pos) pos)))
+    (overlay-put ov 'feather-overlay t)
+    (overlay-put ov 'after-string string)
+    ov))
+
+(defun feather--overlays-in (beg end)
+  "Get all feather overlays between BEG to END."
+  (cl-remove-if-not
+   (lambda (ov)
+     (overlay-get ov 'feather-overlay))
+   (overlays-in beg end)))
+
+(defun feather--overlays-at (pos)
+  "Get feather overlays at POS."
+  (apply #'feather--overlays-in `(,pos ,pos)))
+
+(defun feather--remove-all-overlays ()
+  "Remove all `feather' overlays."
+  (save-restriction
+    (widen)
+    (mapc #'delete-overlay (feather--overlays-in (point-min) (point-max)))))
+
+
 ;;; functions
 
 (defun feather--resolve-dependencies-1 (pkgs)
