@@ -131,7 +131,7 @@ also `with-temp-buffer'."
     (feather-dashboard-mode)
     (insert "*Feather dashboard*\n")
     (dotimes (i feather-max-process)
-      (insert (format "process%s\n" (1+ i))))
+      (insert (format "  process%s\n" (1+ i))))
     (insert (format "\n"))
     (current-buffer)))
 
