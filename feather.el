@@ -95,8 +95,13 @@ Key is symbol like process1, value is overlay.")
 Key is package symbol, value is overlay.")
 
 (defun feather--add-overlay (pos str)
-  "Add overlay to display STR at POS."
-  (let ((ov (make-overlay (1- pos) pos)))
+  "Add overlay to display STR at POS symbol."
+  (let* ((bound (save-excursion
+                  (goto-char pos)
+                  (bounds-of-thing-at-point 'sexp)))
+         (beg (car bound))
+         (end (cdr bound))
+         (ov (make-overlay beg end)))
     (overlay-put ov 'feather-overlay t)
     (overlay-put ov 'after-string str)
     ov))
