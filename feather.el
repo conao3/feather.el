@@ -119,10 +119,8 @@ The value returned is the value of the last form in BODY.  See
 also `with-temp-buffer'."
   (declare (debug t))
   `(let ((inhibit-read-only t))
-     (with-current-buffer
-         (if-let ((buf (get-buffer feather-dashboard-name)))
-             buf
-           (feather--dashboard-initialize))
+     (with-current-buffer (or (get-buffer feather-dashboard-name)
+                              (feather--dashboard-initialize))
        (goto-char (point-min))
        (display-buffer (current-buffer))
        ,@body)))
