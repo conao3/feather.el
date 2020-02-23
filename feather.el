@@ -134,6 +134,13 @@ also `with-temp-buffer'."
       (insert (format "process%s\n" (1+ i))))
     (current-buffer)))
 
+(defun feather--dashboard-add-new-item (name)
+  "Add NAME to feather-dashboard."
+  (with-feather--dashboard-buffer
+    (forward-line)
+    (beginning-of-line)
+    (insert (format "  %s\n" name))))
+
 
 ;;; promise
 
@@ -346,10 +353,7 @@ See `package-install'."
                     (package-desc-name pkg)
                   pkg)))
       (push args feather-package-install-args)
-      (with-feather--dashboard-buffer
-        (forward-line)
-        (beginning-of-line)
-        (insert (format "  %s\n" name)))
+      (feather--dashboard-add-new-item name)
       (unless feather-running
         (feather--main-process)))))
 
