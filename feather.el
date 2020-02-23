@@ -87,6 +87,12 @@ also `with-temp-buffer'."
 
 ;;; overlay
 
+(defvar feather-overlays-dashboard-process nil
+  "List of overlay for process.")
+
+(defvar feather-overlays-dashboard-item nil
+  "List of overlay for item.")
+
 (defun feather--add-overlay (pos str)
   "Add overlay to display STR at POS."
   (let ((ov (make-overlay (1- pos) pos)))
