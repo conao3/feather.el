@@ -86,11 +86,11 @@ also `with-temp-buffer'."
 
 ;;; overlay
 
-(defvar feather-overlays-dashboard-process nil
+(defvar feather-dashboard-overlays-process nil
   "Alist of overlay for process.
 Key is symbol like process1, value is overlay.")
 
-(defvar feather-overlays-dashboard-item nil
+(defvar feather-dashboard-overlays-item nil
   "Alist of overlay for item.
 Key is package symbol, value is overlay.")
 
@@ -162,10 +162,10 @@ restrictive."
   (with-current-buffer (get-buffer-create feather-dashboard-name)
     ;; delete overlay
     (mapc #'delete-overlay
-          (mapcar #'cadr (append feather-overlays-dashboard-process
-                                feather-overlays-dashboard-item)))
-    (setq feather-overlays-dashboard-process nil)
-    (setq feather-overlays-dashboard-item nil)
+          (mapcar #'cadr (append feather-dashboard-overlays-process
+                                feather-dashboard-overlays-item)))
+    (setq feather-dashboard-overlays-process nil)
+    (setq feather-dashboard-overlays-item nil)
 
     ;; initialize feather-dashboard
     (erase-buffer)
@@ -177,7 +177,7 @@ restrictive."
       (let ((sym (intern (format "process%s" (1+ i)))))
         (insert (format "  %s" sym))
         (push `(,sym . ,(feather--add-overlay (point) ""))
-              feather-overlays-dashboard-process)
+              feather-dashboard-overlays-process)
         (newline)))
     (insert (format "\n"))
     (current-buffer)))
@@ -191,7 +191,7 @@ restrictive."
     (beginning-of-line)
     (insert (format "  %s" sym))
     (push `(,sym . ,(feather--add-overlay (point) ""))
-          feather-overlays-dashboard-item)
+          feather-dashboard-overlays-item)
     (newline)))
 
 
