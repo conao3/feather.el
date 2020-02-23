@@ -83,6 +83,34 @@ also `with-temp-buffer'."
   "Face for feather-dashboard header."
   :group 'feather)
 
+(defface feather-dashboard-state-queue
+  '((((background dark))
+     :foreground "#ffa500")
+    (((background light))
+     :goreground "#ffa500"))
+  "Face for feather-dashboard state, queue.")
+
+(defface feather-dashboard-state-wait
+  '((((background dark))
+     :foreground "#00bfff")
+    (((background light))
+     :foreground "#00bfff"))
+  "Face for feather-dashboard state, wait.")
+
+(defface feather-dashboard-state-install
+  '((((background dark))
+     :foreground "#ff4500")
+    (((background light))
+     :goreground "#ff4500"))
+  "Face for feather-dashboard state, install.")
+
+(defface feather-dashboard-state-done
+  '((((background dark))
+     :foreground "#7fff00")
+    (((background light))
+     :foreground "#7fff00"))
+  "Face for feather-dashboard state, done.")
+
 
 ;;; overlay
 
@@ -193,6 +221,39 @@ restrictive."
     (push `(,sym . ,(feather--add-overlay (point) ""))
           feather-dashboard-overlays-item)
     (newline)))
+
+(defun feather--dashboard-change-item-state (sym state &optional info)
+  "Change state of package SYM to STATE with additional INFO.
+INFO is optional alist.
+- queue
+  - (none)
+- wait
+  - DEP-PKG is a dependency for package SYM waiting to be installed as symbol.
+- install
+  - (none)
+- done
+  - VERSION is package version as string."
+  (when-let ((ov (alist-get sym feather-dashboard-overlays-item)))
+    (overlay-put ov
+                 'after-string
+                 (format " %s"
+                         (cond
+                          ((eq state 'queue)
+                           (propertize "queue"
+                                       'face 'feather-dashboard-state-queue))
+                          ((eq state 'wait)
+                           (concat
+                            (propertize "waiting"
+                                        'face 'feather-dashboard-state-wait)
+                            (when-let (dep-pkg (alist-get 'dep-pkg info))
+                              (format "%s to be installed"
+                                      dep-pkg))))
+                          ((eq state 'install)
+                           (propertize "install"
+                                       'face 'feather-dashboard-state-install))
+                          ((eq state 'done)
+                           (propertize "done"
+                                       'face 'feather-dashboard-state-done)))))))
 
 
 ;;; promise
@@ -311,6 +372,8 @@ see `package-install' and `package-download-transaction'."
               (ppp-plist-to-string
                (list :package pkg-name
                      :dependency-from target-pkg-name)))
+            (feather--dashboard-change-item-state target-pkg-name 'wait
+                                                  `((dep-pkg . ,pkg-name)))
             (await (promise:delay 0.5)))))))
 
   ;; set the status of the package to be installed to queue
@@ -318,12 +381,14 @@ see `package-install' and `package-download-transaction'."
     (let ((pkg-name (package-desc-name pkgdesc)))
       (if (gethash pkg-name feather-install-queue)
           (setf (alist-get 'status (gethash pkg-name feather-install-queue)) 'queue)
-        (puthash pkg-name '((status . queue)) feather-install-queue))))
+        (puthash pkg-name '((status . queue)) feather-install-queue))
+      (feather--dashboard-change-item-state pkg-name 'queue)))
 
   ;; `package-download-transaction'
   (dolist (pkgdesc pkg-descs)
     (let ((pkg-name (package-desc-name pkgdesc)))
       (setf (alist-get 'status (gethash pkg-name feather-install-queue)) 'install)
+      (feather--dashboard-change-item-state pkg-name 'install)
       (condition-case err
           (progn
             (await (feather--promise-fetch-package pkgdesc))
@@ -342,7 +407,8 @@ see `package-install' and `package-download-transaction'."
               (ppp-plist-to-string
                (list :package pkg-name
                      :reason err)))))))
-      (setf (alist-get 'status (gethash pkg-name feather-install-queue)) 'done))))
+      (setf (alist-get 'status (gethash pkg-name feather-install-queue)) 'done)
+      (feather--dashboard-change-item-state pkg-name 'done))))
 
 (async-defun feather--main-process ()
   "Main process for feather."
@@ -409,6 +475,7 @@ See `package-install'."
                   pkg)))
       (push args feather-package-install-args)
       (feather--dashboard-add-new-item name)
+      (feather--dashboard-change-item-state name 'queue)
       (unless feather-running
         (feather--main-process)))))
 
