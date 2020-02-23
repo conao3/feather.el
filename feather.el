@@ -49,7 +49,12 @@
                                 4)
   "Count of pallarel process number."
   :group 'feather
-  :type 'number)
+  :type 'number
+  :set (lambda (sym val)
+         (set-default sym val)
+         (with-feather--dashboard-buffer
+           (erase-buffer)
+           (feather--dashboard-initialize))))
 
 (defcustom feather-dashboard-name "*Feather dashboard*"
   "Featehr dashboard buffer name."
