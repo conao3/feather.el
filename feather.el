@@ -182,13 +182,17 @@ restrictive."
     (insert (format "\n"))
     (current-buffer)))
 
-(defun feather--dashboard-add-new-item (str)
-  "Add STR to feather-dashboard item section."
+(defun feather--dashboard-add-new-item (sym)
+  "Add package SYM to feather-dashboard item section."
   (with-feather--dashboard-buffer
+    (goto-char (point-min))
     (forward-page)
     (forward-line)
     (beginning-of-line)
-    (insert (format "  %s\n" str))))
+    (insert (format "  %s" sym))
+    (push `(,sym ,(feather--add-overlay (point) ""))
+          feather-overlays-dashboard-item)
+    (newline)))
 
 
 ;;; promise
