@@ -347,6 +347,7 @@ see `package-install' and `package-download-transaction'."
                    (ppp-debug :break t 'feather
                      (ppp-plist-to-string
                       (list :index (1+ index)
+                            :process (1+ (mod index feather-max-process))
                             :status 'install
                             :target name
                             :depends (feather--resolve-dependencies name)
