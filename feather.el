@@ -51,6 +51,18 @@
   :group 'feather
   :type 'string)
 
+(defface feather-dashboard-header
+  '((((background dark))
+     :background "#223377"
+     :foreground "white"
+     :weight bold :height 1.3 :family "Sans Serif")
+    (((background light))
+     :background "#abd7f0"
+     :foreground "black"
+     :weight bold :height 1.3 :family "Sans Serif"))
+  "Face for feather-dashboard header."
+  :group 'feather)
+
 
 ;;; overlay
 
@@ -130,6 +142,8 @@ also `with-temp-buffer'."
   (with-current-buffer (get-buffer-create feather-dashboard-name)
     (feather-dashboard-mode)
     (insert "*Feather dashboard*\n")
+    (add-text-properties (line-beginning-position -1) (line-beginning-position)
+                         '(face feather-dashboard-header))
     (dotimes (i feather-max-process)
       (insert (format "  process%s\n" (1+ i))))
     (insert (format "\n"))
