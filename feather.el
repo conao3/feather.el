@@ -41,7 +41,12 @@
 
 ;;; customize
 
-(defcustom feather-max-process 8
+(defcustom feather-max-process (or
+                                (ignore-errors
+                                  (string-to-number
+                                   (shell-command-to-string
+                                    "grep processor /proc/cpuinfo | wc -l")))
+                                4)
   "Count of pallarel process number."
   :group 'feather
   :type 'number)
