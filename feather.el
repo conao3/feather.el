@@ -54,11 +54,11 @@
 
 ;;; overlay
 
-(defun feather--add-overlay (pos string)
-  "Add overlay to display STRING at POS."
+(defun feather--add-overlay (pos str)
+  "Add overlay to display STR at POS."
   (let ((ov (make-overlay (1- pos) pos)))
     (overlay-put ov 'feather-overlay t)
-    (overlay-put ov 'after-string string)
+    (overlay-put ov 'after-string str)
     ov))
 
 (defun feather--overlays-in (beg end)
@@ -135,13 +135,13 @@ also `with-temp-buffer'."
     (insert (format "\n"))
     (current-buffer)))
 
-(defun feather--dashboard-add-new-item (name)
-  "Add NAME to feather-dashboard."
+(defun feather--dashboard-add-new-item (str)
+  "Add STR to feather-dashboard item section."
   (with-feather--dashboard-buffer
     (forward-page)
     (forward-line)
     (beginning-of-line)
-    (insert (format "  %s\n" name))))
+    (insert (format "  %s\n" str))))
 
 
 ;;; promise
