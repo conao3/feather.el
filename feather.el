@@ -122,13 +122,19 @@ also `with-temp-buffer'."
      (with-current-buffer
          (if-let ((buf (get-buffer feather-dashboard-name)))
              buf
-           (with-current-buffer (get-buffer-create feather-dashboard-name)
-             (feather-dashboard-mode)
-             (insert "*Feather dashboard*\n")
-             (current-buffer)))
+           (feather--dashboard-initialize))
        (goto-char (point-min))
        (display-buffer (current-buffer))
        ,@body)))
+
+(defun feather--dashboard-initialize ()
+  "Initialize and return feather-dashboard buffer."
+  (with-current-buffer (get-buffer-create feather-dashboard-name)
+    (feather-dashboard-mode)
+    (insert "*Feather dashboard*\n")
+    (dotimes (i feather-max-process)
+      (insert (format "process%s\n" (1+ i))))
+    (current-buffer)))
 
 
 ;;; promise
