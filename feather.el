@@ -41,6 +41,24 @@
 
 ;;; customize
 
+(defmacro with-feather--dashboard-buffer (&rest body)
+  "Execute the forms in BODY with BUFFER-OR-NAME temporarily current.
+BUFFER-OR-NAME must be a buffer or the name of an existing buffer.
+The value returned is the value of the last form in BODY.  See
+also `with-temp-buffer'."
+  (declare (debug t))
+  `(let ((inhibit-read-only t))
+     (with-current-buffer (or (get-buffer feather-dashboard-name)
+                              (feather--dashboard-initialize))
+       (goto-char (point-min))
+       (display-buffer (current-buffer))
+       ,@body)))
+
+(defcustom feather-dashboard-name "*Feather dashboard*"
+  "Featehr dashboard buffer name."
+  :group 'feather
+  :type 'string)
+
 (defcustom feather-max-process (or
                                 (ignore-errors
                                   (string-to-number
@@ -55,11 +73,6 @@
          (with-feather--dashboard-buffer
            (erase-buffer)
            (feather--dashboard-initialize))))
-
-(defcustom feather-dashboard-name "*Feather dashboard*"
-  "Featehr dashboard buffer name."
-  :group 'feather
-  :type 'string)
 
 (defface feather-dashboard-header
   '((((background dark))
@@ -133,19 +146,6 @@ restrictive."
      `((,pkg ,(package-desc-version
                (cadr (assq 'helm package-archive-contents)))))
      (nreverse ret))))
-
-(defmacro with-feather--dashboard-buffer (&rest body)
-  "Execute the forms in BODY with BUFFER-OR-NAME temporarily current.
-BUFFER-OR-NAME must be a buffer or the name of an existing buffer.
-The value returned is the value of the last form in BODY.  See
-also `with-temp-buffer'."
-  (declare (debug t))
-  `(let ((inhibit-read-only t))
-     (with-current-buffer (or (get-buffer feather-dashboard-name)
-                              (feather--dashboard-initialize))
-       (goto-char (point-min))
-       (display-buffer (current-buffer))
-       ,@body)))
 
 (defun feather--dashboard-initialize ()
   "Initialize and return feather-dashboard buffer."
