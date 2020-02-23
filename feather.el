@@ -176,7 +176,7 @@ restrictive."
     (dotimes (i feather-max-process)
       (let ((sym (intern (format "process%s" (1+ i)))))
         (insert (format "  %s" sym))
-        (push `(,sym ,(feather--add-overlay (point) ""))
+        (push `(,sym . ,(feather--add-overlay (point) ""))
               feather-overlays-dashboard-process)
         (newline)))
     (insert (format "\n"))
@@ -190,7 +190,7 @@ restrictive."
     (forward-line)
     (beginning-of-line)
     (insert (format "  %s" sym))
-    (push `(,sym ,(feather--add-overlay (point) ""))
+    (push `(,sym . ,(feather--add-overlay (point) ""))
           feather-overlays-dashboard-item)
     (newline)))
 
