@@ -69,7 +69,6 @@ also `with-temp-buffer'."
   :set (lambda (sym val)
          (set-default sym val)
          (with-feather--dashboard-buffer
-           (erase-buffer)
            (feather--dashboard-initialize))))
 
 (defface feather-dashboard-header
@@ -88,10 +87,12 @@ also `with-temp-buffer'."
 ;;; overlay
 
 (defvar feather-overlays-dashboard-process nil
-  "List of overlay for process.")
+  "Alist of overlay for process.
+Key is symbol like process1, value is overlay.")
 
 (defvar feather-overlays-dashboard-item nil
-  "List of overlay for item.")
+  "Alist of overlay for item.
+Key is package symbol, value is overlay.")
 
 (defun feather--add-overlay (pos str)
   "Add overlay to display STR at POS."
@@ -154,12 +155,25 @@ restrictive."
 (defun feather--dashboard-initialize ()
   "Initialize and return feather-dashboard buffer."
   (with-current-buffer (get-buffer-create feather-dashboard-name)
+    ;; delete overlay
+    (mapc #'delete-overlay
+          (mapcar #'cadr (append feather-overlays-dashboard-process
+                                feather-overlays-dashboard-item)))
+    (setq feather-overlays-dashboard-process nil)
+    (setq feather-overlays-dashboard-item nil)
+
+    ;; initialize feather-dashboard
+    (erase-buffer)
     (feather-dashboard-mode)
     (insert "*Feather dashboard*\n")
     (add-text-properties (line-beginning-position -1) (line-beginning-position)
                          '(face feather-dashboard-header))
     (dotimes (i feather-max-process)
-      (insert (format "  process%s\n" (1+ i))))
+      (let ((sym (intern (format "process%s" (1+ i)))))
+        (insert (format "  %s" sym))
+        (push `(,sym ,(feather--add-overlay (point) ""))
+              feather-overlays-dashboard-process)
+        (newline)))
     (insert (format "\n"))
     (current-buffer)))
 
