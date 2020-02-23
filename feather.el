@@ -243,7 +243,8 @@ see `package-install-from-archive' and `package-unpack'."
                ;; FIXME: Compilation should be done as a separate, optional, step.
                ;; E.g. for multi-package installs, we should first install all packages
                ;; and then compile them.
-               (package--compile new-desc)
+               ;; (package--compile new-desc)
+
                ;; After compilation, load again any files loaded by
                ;; `activate-1', so that we use the byte-compiled definitions.
                (package--load-files-for-activation new-desc :reload))
