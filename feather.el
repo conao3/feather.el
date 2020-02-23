@@ -132,11 +132,13 @@ also `with-temp-buffer'."
     (insert "*Feather dashboard*\n")
     (dotimes (i feather-max-process)
       (insert (format "process%s\n" (1+ i))))
+    (insert (format "\n"))
     (current-buffer)))
 
 (defun feather--dashboard-add-new-item (name)
   "Add NAME to feather-dashboard."
   (with-feather--dashboard-buffer
+    (forward-page)
     (forward-line)
     (beginning-of-line)
     (insert (format "  %s\n" name))))
