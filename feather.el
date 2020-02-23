@@ -50,7 +50,6 @@ also `with-temp-buffer'."
   `(let ((inhibit-read-only t))
      (with-current-buffer (or (get-buffer feather-dashboard-name)
                               (feather--dashboard-initialize))
-       (goto-char (point-min))
        ,@body)))
 
 (defcustom feather-dashboard-name "*Feather dashboard*"
