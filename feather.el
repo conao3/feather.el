@@ -51,7 +51,6 @@ also `with-temp-buffer'."
      (with-current-buffer (or (get-buffer feather-dashboard-name)
                               (feather--dashboard-initialize))
        (goto-char (point-min))
-       (display-buffer (current-buffer))
        ,@body)))
 
 (defcustom feather-dashboard-name "*Feather dashboard*"
