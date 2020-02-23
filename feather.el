@@ -162,7 +162,7 @@ restrictive."
   (with-current-buffer (get-buffer-create feather-dashboard-name)
     ;; delete overlay
     (mapc #'delete-overlay
-          (mapcar #'cadr (append feather-dashboard-overlays-process
+          (mapcar #'cdr (append feather-dashboard-overlays-process
                                 feather-dashboard-overlays-item)))
     (setq feather-dashboard-overlays-process nil)
     (setq feather-dashboard-overlays-item nil)
