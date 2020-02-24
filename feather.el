@@ -80,15 +80,15 @@ Value is alist.
 
 ;; getters/setters
 
-(defvar feather--hook-change-feather-running nil)
-(defvar feather--hook-get-feather-running nil)
-(defvar feather--hook-push-package-install-args nil)
-(defvar feather--hook-pop-package-install-args nil)
-(defvar feather--hook-get-package-install-args nil)
-(defvar feather--hook-add-install-queue nil)
-(defvar feather--hook-get-install-queue nil)
+(defvar feather--hook-change-feather-running     nil)
+(defvar feather--hook-get-feather-running        nil)
+(defvar feather--hook-push-package-install-args  nil)
+(defvar feather--hook-pop-package-install-args   nil)
+(defvar feather--hook-get-package-install-args   nil)
+(defvar feather--hook-add-install-queue          nil)
+(defvar feather--hook-get-install-queue          nil)
 (defvar feather--hook-change-install-queue-state nil)
-(defvar feather--hook-get-install-queue-state nil)
+(defvar feather--hook-get-install-queue-state    nil)
 
 (defun feather--change-running-state (bool)
   "Change state `feather-running' to BOOL."
@@ -195,12 +195,12 @@ restrictive."
 Install the package in the asynchronous Emacs.
 
 Includes below operations
-  - Fetch.  Fetch package tar file.
-  - Install.  Untar tar and place .el files.
-  - Generate.  Generate autoload file from ;;;###autoload comment.
+  - Fetch.         Fetch package tar file.
+  - Install.       Untar tar and place .el files.
+  - Generate.      Generate autoload file from ;;;###autoload comment.
   - Byte compile.  Generate .elc from .el file.
-  - (Activate).  Add package path to `load-path', eval autoload.
-  - (Load).  Actually load the package.
+  - (Activate).    Add package path to `load-path', eval autoload.
+  - (Load).        Actually load the package.
 
 The asynchronous Emacs is killed immediately after the package
 is installed, so the package-user-dir is populated with packages
