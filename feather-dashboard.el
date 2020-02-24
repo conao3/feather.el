@@ -28,7 +28,7 @@
 
 (require 'page-break-lines)
 
-(defgroup feather-dashboard
+(defgroup feather-dashboard nil
   "Dashboard feature for feather."
   :group 'feather)
 
