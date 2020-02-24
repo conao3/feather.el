@@ -87,8 +87,8 @@ Value is alist.
 (defvar feather--hook-get-package-install-args   nil)
 (defvar feather--hook-add-install-queue          nil)
 (defvar feather--hook-get-install-queue          nil)
-(defvar feather--hook-change-install-queue-state nil)
-(defvar feather--hook-get-install-queue-state    nil)
+(defvar feather--hook-change-install-queue-status nil)
+(defvar feather--hook-get-install-queue-status    nil)
 
 (defun feather--change-running-state (bool)
   "Change state `feather-running' to BOOL."
@@ -139,17 +139,17 @@ Value is alist.
       (funcall fn 'feather-install-queue 'get res key))
     res))
 
-(defun feather--change-install-queue-state (key val)
-  "Change state for KEY to `feather-install-queue' to VAL."
+(defun feather--change-install-queue-status (key val)
+  "Change status for KEY to `feather-install-queue' to VAL."
   (let ((res (setf (alist-get 'status (gethash key feather-install-queue)) val)))
-    (dolist (fn feather--hook-change-install-queue-state)
+    (dolist (fn feather--hook-change-install-queue-status)
       (funcall fn 'feather-install-queue-state 'change res key val))
     res))
 
-(defun feather--get-install-queue-state (key)
-  "Get state for KEY to `feather-install-queue'."
+(defun feather--get-install-queue-status (key)
+  "Get status for KEY to `feather-install-queue'."
   (let ((res (alist-get 'status (gethash key feather-install-queue))))
-    (dolist (fn feather--hook-get-install-queue-state)
+    (dolist (fn feather--hook-get-install-queue-status)
       (funcall fn 'feather-install-queue-state 'get res key))
     res))
 
@@ -281,9 +281,9 @@ This list must be processed orderd; b depends (a), and c depends (a b).
 see `package-install' and `package-download-transaction'."
   (dolist (pkgdesc pkg-descs)
     (let ((pkg-name (package-desc-name pkgdesc)))
-      (when (and (feather--get-install-queue-state pkg-name)
-                 (not (eq 'done (feather--get-install-queue-state pkg-name))))
-        (while (not (eq 'done (feather--get-install-queue-state pkg-name)))
+      (when (and (feather--get-install-queue-status pkg-name)
+                 (not (eq 'done (feather--get-install-queue-status pkg-name))))
+        (while (not (eq 'done (feather--get-install-queue-status pkg-name)))
           (ppp-debug 'feather
             "Wait for dependencies to be installed\n%s"
             (ppp-plist-to-string
@@ -294,12 +294,12 @@ see `package-install' and `package-download-transaction'."
   ;; set the status of the package to be installed to queue
   (dolist (pkgdesc pkg-descs)
     (let ((pkg-name (package-desc-name pkgdesc)))
-      (feather--change-install-queue-state pkg-name 'queue)))
+      (feather--change-install-queue-status pkg-name 'queue)))
 
   ;; `package-download-transaction'
   (dolist (pkgdesc pkg-descs)
     (let ((pkg-name (package-desc-name pkgdesc)))
-      (feather--change-install-queue-state pkg-name 'install)
+      (feather--change-install-queue-status pkg-name 'install)
       (condition-case err
           (progn
             (await (feather--promise-fetch-package pkgdesc))
@@ -318,7 +318,7 @@ see `package-install' and `package-download-transaction'."
               (ppp-plist-to-string
                (list :package pkg-name
                      :reason err)))))))
-      (feather--change-install-queue-state pkg-name 'done))))
+      (feather--change-install-queue-status pkg-name 'done))))
 
 (async-defun feather--main-process ()
   "Main process for feather."
