@@ -53,7 +53,7 @@
   :set (lambda (sym val)
          (set-default sym val)
          (with-feather-dashboard-buffer
-           (feather--dashboard-initialize))))
+           (feather-dashboard--initialize))))
 
 ;; internal variables
 
@@ -351,16 +351,13 @@ see `package-install' and `package-download-transaction'."
                               (package-compute-transaction (list pkg)
                                                            (package-desc-reqs pkg)))
                           (package-compute-transaction nil (list (list pkg))))))
-                 (let* ((alist (feather--get-install-queue pkg-name))
-                        (status (alist-get 'status alist))
-                        (processinx (1+ (mod index feather-max-process)))
-                        (info `((index      . ,(1+ index))
-                                (process    . ,(intern (format "process%s" processinx)))
-                                (status     . install)
-                                (target-pkg . ,pkg-name)
-                                (depends    . ,(feather--resolve-dependencies pkg-name))
-                                (queue      . ,(mapcar #'package-desc-name transaction))
-                                (installed  . nil))))
+                 (let ((info `((index      . ,(1+ index))
+                               (process    . ,(1+ (mod index feather-max-process)))
+                               (status     . install)
+                               (target-pkg . ,pkg-name)
+                               (depends    . ,(feather--resolve-dependencies pkg-name))
+                               (queue      . ,(mapcar #'package-desc-name transaction))
+                               (installed  . nil))))
                    (ppp-debug :break t 'feather
                      (ppp-plist-to-string
                       (mapcan
@@ -387,13 +384,9 @@ See `feather--setup' and `feather--teardown'.")
   "Around advice for FN with ARGS.
 This code based package.el bundled Emacs-26.3.
 See `package-install'."
-  (seq-let (pkg _dont-select) args
-    (let ((pkg-name (if (package-desc-p pkg)
-                    (package-desc-name pkg)
-                  pkg)))
-      (feather--push-package-install-args args)
-      (unless (feather--get-feather-running)
-        (feather--main-process)))))
+  (feather--push-package-install-args args)
+  (unless (feather--get-feather-running)
+    (feather--main-process)))
 
 
 ;;; main

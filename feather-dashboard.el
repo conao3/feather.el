@@ -185,7 +185,7 @@ INFO is optional alist.
 - done
   - (none)"
   (let* ((target-pkg (alist-get 'target-pkg info))
-         (pkg (alist-get 'pkg info))
+         (_pkg (alist-get 'pkg info))
          (alist (gethash target-pkg feather-install-queue)))
     (when-let ((ov (alist-get sym feather-dashboard-overlays-process)))
       (overlay-put ov
