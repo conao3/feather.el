@@ -84,6 +84,7 @@ Value is alist.
 (defvar feather--hook-pop-package-install-args    nil)
 (defvar feather--hook-get-package-install-args    nil)
 (defvar feather--hook-add-install-queue           nil)
+(defvar feather--hook-change-install-queue        nil)
 (defvar feather--hook-get-install-queue           nil)
 (defvar feather--hook-change-install-queue-status
   '(feather-dashboard--change-item-status
@@ -145,6 +146,18 @@ Value is alist.
                     (res    . ,res)
                     (key    . ,key)
                     (val    . ,val))))
+    res))
+
+(defun feather--change-install-queue (key alistkey val)
+  "Add VAL for KEY, ALISTKEY to `feather-install-queue'."
+  (let ((res (setf (alist-get alistkey (gethash key feather-install-queue)) val)))
+    (dolist (fn feather--hook-change-install-queue)
+      (funcall fn `((target   . feather-install-queue)
+                    (op       . change)
+                    (res      . ,res)
+                    (key      . ,key)
+                    (alistkey . ,alistkey)
+                    (val      . ,val))))
     res))
 
 (defun feather--get-install-queue (key)
