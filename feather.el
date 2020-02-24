@@ -80,11 +80,11 @@ Value is alist.
 
 ;; accessers/setters
 
-(defun feather--change-feather-running (bool)
+(defun feather--change-running-state (bool)
   "Change state `feather-running' to BOOL."
   (setq feather-running bool))
 
-(defun feather--feather-running-p ()
+(defun feather--get-feather-running ()
   "Get state `feather-running' as boolean."
   feather-running)
 
@@ -287,7 +287,7 @@ see `package-install' and `package-download-transaction'."
   "Main process for feather."
 
   ;; preprocess
-  (setq feather-running t)
+  (feather--change-running-state t)
   (await (promise:delay 1))             ; wait for continuous execution
 
   ;; `feather-package-install-args' may increase during execution of this loop
@@ -343,7 +343,7 @@ see `package-install' and `package-download-transaction'."
 
   ;; postprocess
   (package-menu--post-refresh)
-  (setq feather-running nil))
+  (feather--change-running-state nil))
 
 
 ;;; advice
@@ -364,7 +364,7 @@ See `package-install'."
       (push args feather-package-install-args)
       (feather--dashboard-add-new-item pkg-name)
       (feather--dashboard-change-item-state pkg-name 'queue)
-      (unless feather-running
+      (unless (feather--get-feather-running)
         (feather--main-process)))))
 
 
