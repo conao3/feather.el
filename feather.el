@@ -93,17 +93,6 @@ Value is alist.
     (overlay-put ov 'after-string str)
     ov))
 
-(defun feather--overlays-in (beg end)
-  "Get all feather overlays between BEG to END."
-  (cl-remove-if-not
-   (lambda (ov)
-     (overlay-get ov 'feather-overlay))
-   (overlays-in beg end)))
-
-(defun feather--overlays-at (pos)
-  "Get feather overlays at POS."
-  (apply #'feather--overlays-in `(,pos ,pos)))
-
 (defun feather--remove-all-overlays ()
   "Remove all `feather' overlays."
   (save-restriction
