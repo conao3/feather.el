@@ -490,13 +490,13 @@ see `package-install' and `package-download-transaction'."
                           (package-compute-transaction nil (list (list pkg))))))
                  (let* ((alist (gethash pkg-name feather-install-queue))
                         (status (alist-get 'status alist))
-                        (info `((index     . ,(1+ index))
-                                (process   . ,(1+ (mod index feather-max-process)))
-                                (status    . install)
+                        (info `((index      . ,(1+ index))
+                                (process    . ,(1+ (mod index feather-max-process)))
+                                (status     . install)
                                 (target-pkg . ,pkg-name)
-                                (depends   . ,(feather--resolve-dependencies pkg-name))
-                                (queue     . ,(mapcar #'package-desc-name transaction))
-                                (installed . nil))))
+                                (depends    . ,(feather--resolve-dependencies pkg-name))
+                                (queue      . ,(mapcar #'package-desc-name transaction))
+                                (installed  . nil))))
                    (ppp-debug :break t 'feather
                      (ppp-plist-to-string
                       (mapcan
