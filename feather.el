@@ -488,29 +488,28 @@ see `package-install' and `package-download-transaction'."
                               (package-compute-transaction (list pkg)
                                                            (package-desc-reqs pkg)))
                           (package-compute-transaction nil (list (list pkg))))))
-                 (progn
-                   (let* ((alist (gethash pkg-name feather-install-queue))
-                          (status (alist-get 'status alist))
-                          (info `((index     . ,(1+ index))
-                                  (process   . ,(1+ (mod index feather-max-process)))
-                                  (status    . install)
-                                  (depends   . ,(feather--resolve-dependencies pkg-name))
-                                  (queue     . ,(mapcar #'package-desc-name transaction))
-                                  (installed . nil))))
-                     (ppp-debug :break t 'feather
-                       (ppp-plist-to-string
-                        (mapcan
-                         (lambda (elm)
-                           (list (intern (format ":%s" (car elm))) (cdr elm)))
-                         info)))
-                     (cond
-                      ((not alist)
-                       (puthash pkg-name info feather-install-queue))
-                      ((and alist (eq 'done status))
-                       (setf (gethash pkg-name feather-install-queue) info))
-                      ((and alist (not (eq 'done status)))
-                       ;; TODO
-                       )))
+                 (let* ((alist (gethash pkg-name feather-install-queue))
+                        (status (alist-get 'status alist))
+                        (info `((index     . ,(1+ index))
+                                (process   . ,(1+ (mod index feather-max-process)))
+                                (status    . install)
+                                (depends   . ,(feather--resolve-dependencies pkg-name))
+                                (queue     . ,(mapcar #'package-desc-name transaction))
+                                (installed . nil))))
+                   (ppp-debug :break t 'feather
+                     (ppp-plist-to-string
+                      (mapcan
+                       (lambda (elm)
+                         (list (intern (format ":%s" (car elm))) (cdr elm)))
+                       info)))
+                   (cond
+                    ((not alist)
+                     (puthash pkg-name info feather-install-queue))
+                    ((and alist (eq 'done status))
+                     (setf (gethash pkg-name feather-install-queue) info))
+                    ((and alist (not (eq 'done status)))
+                     ;; TODO
+                     ))
                    (feather--install-packages info transaction))
                (message "`%s' is already installed" pkg-name))))))))
 
