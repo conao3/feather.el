@@ -36,7 +36,7 @@
 
 ;;;customize
 
-(defmacro with-feather--dashboard-buffer (&rest body)
+(defmacro with-feather-dashboard--buffer (&rest body)
   "Execute the forms in BODY with BUFFER-OR-NAME temporarily current.
 BUFFER-OR-NAME must be a buffer or the name of an existing buffer.
 The value returned is the value of the last form in BODY.  See
@@ -44,7 +44,7 @@ also `with-temp-buffer'."
   (declare (debug t))
   `(let ((inhibit-read-only t))
      (with-current-buffer (or (get-buffer feather-dashboard-name)
-                              (feather--dashboard-initialize))
+                              (feather-dashboard--initialize))
        ,@body)))
 
 (defcustom feather-dashboard-name "*Feather dashboard*"
@@ -134,7 +134,7 @@ Key is package symbol, value is overlay.")
 
 ;;; functions
 
-(defun feather--dashboard-initialize ()
+(defun feather-dashboard--initialize ()
   "Initialize and return feather-dashboard buffer."
   (with-current-buffer (get-buffer-create feather-dashboard-name)
     ;; delete overlay
@@ -159,9 +159,9 @@ Key is package symbol, value is overlay.")
     (insert (format "\n"))
     (current-buffer)))
 
-(defun feather--dashboard-add-new-item (sym)
+(defun feather-dashboard--add-new-item (sym)
   "Add package SYM to feather-dashboard item section."
-  (with-feather--dashboard-buffer
+  (with-feather-dashboard--buffer
     (goto-char (point-min))
     (forward-page)
     (forward-line)
@@ -171,7 +171,7 @@ Key is package symbol, value is overlay.")
           feather-dashboard-overlays-item)
     (newline)))
 
-(defun feather--dashboard-change-process-state (sym state &optional info)
+(defun feather-dashboard--change-process-state (sym state &optional info)
   "Change state of process SYM for PKG to STATE with additional INFO.
 INFO is optional alist.
 - (queue)
@@ -209,7 +209,7 @@ INFO is optional alist.
                              (propertize "done"
                                          'face 'feather-dashboard-state-done))))))))
 
-(defun feather--dashboard-change-item-state (sym state &optional info)
+(defun feather-dashboard--change-item-state (sym state &optional info)
   "Change state of package SYM to STATE with additional INFO.
 INFO is optional alist.
 - queue
