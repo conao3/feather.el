@@ -88,13 +88,17 @@ Value is alist.
   "Get state `feather-running' as boolean."
   feather-running)
 
-(defun feather--add-package-install-args (val)
-  "Add VAL to `feather-package-install-args'."
+(defun feather--push-package-install-args (val)
+  "Push VAL to `feather-package-install-args'."
   (push val feather-package-install-args))
 
 (defun feather--pop-package-install-args ()
   "Pop `feather-package-install-args'."
   (pop feather-package-install-args))
+
+(defun feather--get-package-install-args ()
+  "Get `feather-package-install-args'."
+  feather-package-install-args)
 
 (defun feather--add-install-queue (key val)
   "Add VAL for KEY to `feather-install-queue'."
@@ -291,12 +295,12 @@ see `package-install' and `package-download-transaction'."
   (await (promise:delay 1))             ; wait for continuous execution
 
   ;; `feather-package-install-args' may increase during execution of this loop
-  (while feather-package-install-args
+  (while (feather--get-package-install-args)
     (await
      (promise-concurrent-no-reject-immidiately
-         feather-max-process (length feather-package-install-args)
+         feather-max-process (length (feather--get-package-install-args))
        (lambda (index)
-         (seq-let (pkg dont-select) (pop feather-package-install-args)
+         (seq-let (pkg dont-select) (feather--pop-package-install-args)
 
            ;; `package-install'
 
@@ -361,7 +365,7 @@ See `package-install'."
     (let ((pkg-name (if (package-desc-p pkg)
                     (package-desc-name pkg)
                   pkg)))
-      (push args feather-package-install-args)
+      (feather--push-package-install-args args)
       (feather--dashboard-add-new-item pkg-name)
       (feather--dashboard-change-item-state pkg-name 'queue)
       (unless (feather--get-feather-running)
