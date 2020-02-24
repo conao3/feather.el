@@ -222,16 +222,43 @@ restrictive."
           feather-dashboard-overlays-item)
     (newline)))
 
-(defun feather--dashboard-change-process-state (sym pkg state &optional info)
+(defun feather--dashboard-change-process-state (sym state &optional info)
   "Change state of process SYM for PKG to STATE with additional INFO.
 INFO is optional alist.
-- pending
+- (queue)
   - (none)
 - wait
-  - DEP-PKG is a dependency for package SYM waiting to be installed as symbol.
+  - TARGET-PKG is install requested package.
+  - PKG is package waiting to be installed as symbol.
 - install
-  - INSTALL-DEP-PKG is installing dependency package as symbol.
-  - DEP-PKGS is list of dependency as list of symbol.")
+  - TARGET-PKG is install requested package.
+  - PKG is package installing as symbol.
+- done
+  - (none)"
+  (let* ((target-pkg (alist-get 'target-pkg info))
+         (pkg (alist-get 'pkg info))
+         (alist (gethash target-pkg feather-install-queue)))
+    (when-let ((ov (alist-get sym feather-dashboard-overlays-process)))
+      (overlay-put ov
+                   'after-string
+                   (format " -- %s"
+                           (cond
+                            ((eq state 'queue)
+                             (propertize "queue"
+                                         'face 'feather-dashboard-state-queue))
+                            ((eq state 'wait)
+                             (mapconcat
+                              'prin1-to-string
+                              (alist-get 'depends alist)
+                              " "))
+                            ((eq state 'install)
+                             (mapconcat
+                              'prin1-to-string
+                              (alist-get 'depends alist)
+                              " "))
+                            ((eq state 'done)
+                             (propertize "done"
+                                         'face 'feather-dashboard-state-done))))))))
 
 (defun feather--dashboard-change-item-state (sym state &optional info)
   "Change state of package SYM to STATE with additional INFO.
