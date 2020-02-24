@@ -29,6 +29,7 @@
 
 ;;; Code:
 
+(require 'feather-dashboard)
 (require 'package)
 (require 'async-await)
 (require 'ppp)
