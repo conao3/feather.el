@@ -222,6 +222,17 @@ restrictive."
           feather-dashboard-overlays-item)
     (newline)))
 
+(defun feather--dashboard-change-process-state (sym pkg state &optional info)
+  "Change state of process SYM for PKG to STATE with additional INFO.
+INFO is optional alist.
+- pending
+  - (none)
+- wait
+  - DEP-PKG is a dependency for package SYM waiting to be installed as symbol.
+- install
+  - INSTALL-DEP-PKG is installing dependency package as symbol.
+  - DEP-PKGS is list of dependency as list of symbol.")
+
 (defun feather--dashboard-change-item-state (sym state &optional info)
   "Change state of package SYM to STATE with additional INFO.
 INFO is optional alist.
@@ -270,7 +281,14 @@ see `feather--advice-package-install' and `feather--main-process'.")
 
 Key is package name as symbol.
 Value is alist.
-  - STATUS is install status one of (queue install done).")
+  - STATUS is install status one of (queue install done).
+
+  Additional info for parent package.
+    - INDEX is index as integer.
+    - PROCESS is process index as integer.
+    - DEPENDS is list of ALL dependency like as (PKG VERSION).
+    - QUEUE is list of ONLY dependency to be installed as list of symbol.
+    - INSTALLED is list of package which have already installed.")
 
 (defun feather--promise-fetch-package (pkg-desc)
   "Return promise to fetch PKG-DESC.
@@ -442,14 +460,28 @@ see `package-install' and `package-download-transaction'."
                                                            (package-desc-reqs pkg)))
                           (package-compute-transaction nil (list (list pkg))))))
                  (progn
-                   (ppp-debug :break t 'feather
-                     (ppp-plist-to-string
-                      (list :index (1+ index)
-                            :process (1+ (mod index feather-max-process))
-                            :status 'install
-                            :target name
-                            :depends (feather--resolve-dependencies name)
-                            :queued (mapcar #'package-desc-name transaction))))
+                   (let* ((alist (gethash name feather-install-queue))
+                          (status (alist-get 'status alist))
+                          (info `((index     . ,(1+ index))
+                                  (process   . ,(1+ (mod index feather-max-process)))
+                                  (status    . install)
+                                  (depends   . ,(feather--resolve-dependencies name))
+                                  (queue     . ,(mapcar #'package-desc-name transaction))
+                                  (installed . nil))))
+                     (ppp-debug :break t 'feather
+                       (ppp-plist-to-string
+                        (mapcan
+                         (lambda (elm)
+                           (list (intern (format ":%s" (car elm))) (cdr elm)))
+                         info)))
+                     (cond
+                      ((not alist)
+                       (puthash name info feather-install-queue))
+                      ((and alist (eq 'done status))
+                       (setf (gethash name feather-install-queue) info))
+                      ((and alist (not (eq 'done status)))
+                       ;; TODO
+                       )))
                    (feather--install-packages transaction))
                (message "`%s' is already installed" name))))))))
 
