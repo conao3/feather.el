@@ -329,44 +329,47 @@ see `package-install' and `package-download-transaction'."
 
   ;; `feather-package-install-args' may increase during execution of this loop
   (while (feather--get-package-install-args)
-    (await
-     (promise-concurrent-no-reject-immidiately
-         feather-max-process (length (feather--get-package-install-args))
-       (lambda (index)
-         (seq-let (pkg dont-select) (feather--pop-package-install-args)
+    (condition-case err
+        (await
+         (promise-concurrent-no-reject-immidiately
+             feather-max-process (length (feather--get-package-install-args))
+           (lambda (index)
+             (seq-let (pkg dont-select) (feather--pop-package-install-args)
 
-           ;; `package-install'
+               ;; `package-install'
 
-           ;; moved last of this function
-           ;; (add-hook 'post-command-hook #'package-menu--post-refresh)
-           (let ((pkg-name (if (package-desc-p pkg)
-                               (package-desc-name pkg)
-                             pkg)))
-             (unless (or dont-select (package--user-selected-p pkg-name))
-               (package--save-selected-packages
-                (cons pkg-name package-selected-packages)))
-             (if-let* ((transaction
-                        (if (package-desc-p pkg)
-                            (unless (package-installed-p pkg)
-                              (package-compute-transaction (list pkg)
-                                                           (package-desc-reqs pkg)))
-                          (package-compute-transaction () (list (list pkg))))))
-                 (let ((info `((index      . ,(1+ index))
-                               (process    . ,(1+ (mod index feather-max-process)))
-                               (status     . nil)
-                               (target-pkg . ,pkg-name)
-                               (depends    . ,(feather--resolve-dependencies pkg-name))
-                               (queue      . ,(mapcar #'package-desc-name transaction))
-                               (installed  . nil))))
-                   (ppp-debug :break t 'feather
-                     (ppp-plist-to-string
-                      (mapcan
-                       (lambda (elm)
-                         (list (intern (format ":%s" (car elm))) (cdr elm)))
-                       info)))
-                   ;; (feather--add-install-queue pkg-name info)
-                   (feather--install-packages transaction))
-               (message "`%s' is already installed" pkg-name))))))))
+               ;; moved last of this function
+               ;; (add-hook 'post-command-hook #'package-menu--post-refresh)
+               (let ((pkg-name (if (package-desc-p pkg)
+                                   (package-desc-name pkg)
+                                 pkg)))
+                 (unless (or dont-select (package--user-selected-p pkg-name))
+                   (package--save-selected-packages
+                    (cons pkg-name package-selected-packages)))
+                 (if-let* ((transaction
+                            (if (package-desc-p pkg)
+                                (unless (package-installed-p pkg)
+                                  (package-compute-transaction (list pkg)
+                                                               (package-desc-reqs pkg)))
+                              (package-compute-transaction () (list (list pkg))))))
+                     (let ((info `((index      . ,(1+ index))
+                                   (process    . ,(1+ (mod index feather-max-process)))
+                                   (status     . nil)
+                                   (target-pkg . ,pkg-name)
+                                   (depends    . ,(feather--resolve-dependencies pkg-name))
+                                   (queue      . ,(mapcar #'package-desc-name transaction))
+                                   (installed  . nil))))
+                       (ppp-debug :break t 'feather
+                         (ppp-plist-to-string
+                          (mapcan
+                           (lambda (elm)
+                             (list (intern (format ":%s" (car elm))) (cdr elm)))
+                           info)))
+                       ;; (feather--add-install-queue pkg-name info)
+                       (feather--install-packages transaction))
+                   (message "`%s' is already installed" pkg-name)))))))
+      (error
+       (warn "Fail install.  Reason:%s" (prin1-to-string res)))))
 
   ;; postprocess
   (package-menu--post-refresh)
