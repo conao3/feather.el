@@ -447,12 +447,12 @@ see `package-install' and `package-download-transaction'."
 
            ;; moved last of this function
            ;; (add-hook 'post-command-hook #'package-menu--post-refresh)
-           (let ((name (if (package-desc-p pkg)
+           (let ((pkg-name (if (package-desc-p pkg)
                            (package-desc-name pkg)
                          pkg)))
-             (unless (or dont-select (package--user-selected-p name))
+             (unless (or dont-select (package--user-selected-p pkg-name))
                (package--save-selected-packages
-                (cons name package-selected-packages)))
+                (cons pkg-name package-selected-packages)))
              (if-let* ((transaction
                         (if (package-desc-p pkg)
                             (unless (package-installed-p pkg)
@@ -460,12 +460,12 @@ see `package-install' and `package-download-transaction'."
                                                            (package-desc-reqs pkg)))
                           (package-compute-transaction nil (list (list pkg))))))
                  (progn
-                   (let* ((alist (gethash name feather-install-queue))
+                   (let* ((alist (gethash pkg-name feather-install-queue))
                           (status (alist-get 'status alist))
                           (info `((index     . ,(1+ index))
                                   (process   . ,(1+ (mod index feather-max-process)))
                                   (status    . install)
-                                  (depends   . ,(feather--resolve-dependencies name))
+                                  (depends   . ,(feather--resolve-dependencies pkg-name))
                                   (queue     . ,(mapcar #'package-desc-name transaction))
                                   (installed . nil))))
                      (ppp-debug :break t 'feather
@@ -476,14 +476,14 @@ see `package-install' and `package-download-transaction'."
                          info)))
                      (cond
                       ((not alist)
-                       (puthash name info feather-install-queue))
+                       (puthash pkg-name info feather-install-queue))
                       ((and alist (eq 'done status))
-                       (setf (gethash name feather-install-queue) info))
+                       (setf (gethash pkg-name feather-install-queue) info))
                       ((and alist (not (eq 'done status)))
                        ;; TODO
                        )))
                    (feather--install-packages transaction))
-               (message "`%s' is already installed" name))))))))
+               (message "`%s' is already installed" pkg-name))))))))
 
   ;; postprocess
   (package-menu--post-refresh)
@@ -502,12 +502,12 @@ See `feather--setup' and `feather--teardown'.")
 This code based package.el bundled Emacs-26.3.
 See `package-install'."
   (seq-let (pkg _dont-select) args
-    (let ((name (if (package-desc-p pkg)
+    (let ((pkg-name (if (package-desc-p pkg)
                     (package-desc-name pkg)
                   pkg)))
       (push args feather-package-install-args)
-      (feather--dashboard-add-new-item name)
-      (feather--dashboard-change-item-state name 'queue)
+      (feather--dashboard-add-new-item pkg-name)
+      (feather--dashboard-change-item-state pkg-name 'queue)
       (unless feather-running
         (feather--main-process)))))
 
