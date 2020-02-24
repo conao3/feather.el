@@ -78,6 +78,32 @@ Value is alist.
     - QUEUE is list of ONLY dependency to be installed as list of symbol.
     - INSTALLED is list of package which have already installed.")
 
+;; accessers/setters
+
+(defun feather--change-feather-running (bool)
+  "Change state `feather-running' to BOOL."
+  (setq feather-running bool))
+
+(defun feather--feather-running-p ()
+  "Get state `feather-running' as boolean."
+  feather-running)
+
+(defun feather--add-package-install-args (val)
+  "Add VAL to `feather-package-install-args'."
+  (push val feather-package-install-args))
+
+(defun feather--pop-package-install-args ()
+  "Pop `feather-package-install-args'."
+  (pop feather-package-install-args))
+
+(defun feather--add-install-queue (key val)
+  "Add VAL for KEY to `feather-install-queue'."
+  (setf (gethash key feather-install-queue) val))
+
+(defun feather--get-install-queue (key)
+  "Get value for KEY from `feather-install-queue'."
+  (gethash key feather-install-queue))
+
 
 ;;; functions
 
