@@ -317,58 +317,57 @@ PKGS is `package-desc' list as (a b c).
 This list must be processed orderd; b depends (a), and c depends (a b).
 
 see `package-install' and `package-download-transaction'."
-  (dolist (pkgdesc pkg-descs)
-    (let ((pkg-name (package-desc-name pkgdesc))
-          (targetpkg (package-desc-name (car (last pkg-descs)))))
-      (feather--change-install-queue pkg-name 'targetpkg targetpkg)))
-  
-  (dolist (pkgdesc pkg-descs)
-    (let ((pkg-name (package-desc-name pkgdesc))
-          (targetpkg (package-desc-name (car (last pkg-descs)))))
-      (when (and (feather--get-install-queue-status pkg-name)
-                 (not (memq (feather--get-install-queue-status pkg-name) '(done error))))
-        (while (not (memq (feather--get-install-queue-status pkg-name) '(done error)))
-          (ppp-debug 'feather
-            "Wait for dependencies to be installed\n%s"
-            (ppp-plist-to-string
-             (list :package pkg-name
-                   :dependency-from targetpkg)))
-          (await (promise:delay 0.5))))))
-
-  ;; set the status of the package to be installed to queue
-  (dolist (pkgdesc pkg-descs)
-    (let ((pkg-name (package-desc-name pkgdesc)))
-      (feather--change-install-queue-status pkg-name 'queue)))
-
-  ;; `package-download-transaction'
-  (dolist (pkgdesc pkg-descs)
-    (let ((pkg-name (package-desc-name pkgdesc)))
-      (feather--change-install-queue-status pkg-name 'install)
-      (condition-case err
-          (progn
-            (await (feather--promise-fetch-package pkgdesc))
-            (await (feather--promise-activate-package pkgdesc)))
-        (error
-         (pcase err
-           (`(error (fail-install-package ,reason))
-            (ppp-debug :level :warning 'feather
-              "Cannot install package\n%s"
+  (let ((targetpkg (package-desc-name (car (last pkg-descs)))))
+    (dolist (pkgdesc pkg-descs)
+      (let ((pkg-name (package-desc-name pkgdesc)))
+        (feather--change-install-queue pkg-name 'targetpkg targetpkg)))
+    
+    (dolist (pkgdesc pkg-descs)
+      (let ((pkg-name (package-desc-name pkgdesc)))
+        (when (and (feather--get-install-queue-status pkg-name)
+                   (not (memq (feather--get-install-queue-status pkg-name) '(done error))))
+          (while (not (memq (feather--get-install-queue-status pkg-name) '(done error)))
+            (ppp-debug 'feather
+              "Wait for dependencies to be installed\n%s"
               (ppp-plist-to-string
                (list :package pkg-name
-                     :reason reason))))
-           (_
-            (ppp-debug :level :warning 'feather
-              "Something wrong while installing package\n%s"
-              (ppp-plist-to-string
-               (list :package pkg-name
-                     :reason err)))))
+                     :dependency-from targetpkg)))
+            (await (promise:delay 0.5))))))
 
-         ;; prevent deadlock
-         (dolist (pkgdesc pkg-descs)
-           (let ((pkg-name (package-desc-name pkgdesc)))
-             (unless (eq 'done (feather--get-install-queue-status pkg-name))
-               (feather--change-install-queue-status pkg-name 'error))))))
-      (feather--change-install-queue-status pkg-name 'done))))
+    ;; set the status of the package to be installed to queue
+    (dolist (pkgdesc pkg-descs)
+      (let ((pkg-name (package-desc-name pkgdesc)))
+        (feather--change-install-queue-status pkg-name 'queue)))
+
+    ;; `package-download-transaction'
+    (dolist (pkgdesc pkg-descs)
+      (let ((pkg-name (package-desc-name pkgdesc)))
+        (feather--change-install-queue-status pkg-name 'install)
+        (condition-case err
+            (progn
+              (await (feather--promise-fetch-package pkgdesc))
+              (await (feather--promise-activate-package pkgdesc)))
+          (error
+           (pcase err
+             (`(error (fail-install-package ,reason))
+              (ppp-debug :level :warning 'feather
+                "Cannot install package\n%s"
+                (ppp-plist-to-string
+                 (list :package pkg-name
+                       :reason reason))))
+             (_
+              (ppp-debug :level :warning 'feather
+                "Something wrong while installing package\n%s"
+                (ppp-plist-to-string
+                 (list :package pkg-name
+                       :reason err)))))
+
+           ;; prevent deadlock
+           (dolist (pkgdesc pkg-descs)
+             (let ((pkg-name (package-desc-name pkgdesc)))
+               (unless (eq 'done (feather--get-install-queue-status pkg-name))
+                 (feather--change-install-queue-status pkg-name 'error))))))
+        (feather--change-install-queue-status pkg-name 'done)))))
 
 (async-defun feather--main-process ()
   "Main process for feather."
