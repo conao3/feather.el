@@ -320,7 +320,7 @@ see `package-install' and `package-download-transaction'."
   (dolist (pkgdesc pkg-descs)
     (let ((pkg-name (package-desc-name pkgdesc))
           (targetpkg (package-desc-name (car (last pkg-descs)))))
-      (feather--add-install-queue pkg-name `((targetpkg . ,targetpkg)))))
+      (feather--change-install-queue pkg-name 'targetpkg targetpkg)))
   
   (dolist (pkgdesc pkg-descs)
     (let ((pkg-name (package-desc-name pkgdesc))
@@ -402,12 +402,12 @@ see `package-install' and `package-download-transaction'."
                                   (package-compute-transaction (list pkg)
                                                                (package-desc-reqs pkg)))
                               (package-compute-transaction () (list (list pkg))))))
-                     (let ((info `((index      . ,(1+ index))
-                                   (process    . ,(1+ (mod index feather-max-process)))
+                     (let ((info `((index     . ,(1+ index))
+                                   (process   . ,(1+ (mod index feather-max-process)))
                                    (targetpkg . ,pkg-name)
-                                   (depends    . ,(feather--resolve-dependencies pkg-name))
-                                   (queue      . ,(mapcar #'package-desc-name transaction))
-                                   (installed  . nil))))
+                                   (depends   . ,(feather--resolve-dependencies pkg-name))
+                                   (queue     . ,(mapcar #'package-desc-name transaction))
+                                   (installed . nil))))
                        (ppp-debug :break t 'feather
                          (ppp-plist-to-string
                           (mapcan
