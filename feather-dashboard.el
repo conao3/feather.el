@@ -105,7 +105,7 @@ Key is package symbol, value is overlay.")
          (beg (car bound))
          (end (cdr bound))
          (ov (make-overlay beg end)))
-    (overlay-put ov 'feather-overlay t)
+    (overlay-put ov 'feather-dashboard-overlay t)
     (overlay-put ov 'after-string str)
     ov))
 
@@ -113,7 +113,7 @@ Key is package symbol, value is overlay.")
   "Get all feather-dashboard overlays between BEG to END."
   (cl-remove-if-not
    (lambda (ov)
-     (overlay-get ov 'dired-git-overlay))
+     (overlay-get ov 'feather-dashboard-overlay))
    (overlays-in beg end)))
 
 (defun feather-dashboard--remove-all-overlays ()
