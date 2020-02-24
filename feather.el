@@ -412,16 +412,17 @@ see `package-install' and `package-download-transaction'."
     (dolist (pkgdesc pkg-descs)
       (let ((pkg-name (package-desc-name pkgdesc)))
         (when-let (alist (gethash pkg-name feather-install-queue))
-          (feather--dashboard-change-item-state .target-pkg 'wait
-                                                `((dep-pkg . ,pkg-name)))
-          (feather--dashboard-change-process-state .process 'wait info)
-          (while (not (eq 'done (alist-get 'status alist)))
-            (ppp-debug 'feather
-              "Wait for dependencies to be installed\n%s"
-              (ppp-plist-to-string
-               (list :package pkg-name
-                     :dependency-from .target-pkg)))
-            (await (promise:delay 0.5))))))
+          (when (not (eq 'done (alist-get 'status alist)))
+            (feather--dashboard-change-item-state .target-pkg 'wait
+                                                  `((dep-pkg . ,pkg-name)))
+            (feather--dashboard-change-process-state .process 'wait info)
+            (while (not (eq 'done (alist-get 'status alist)))
+             (ppp-debug 'feather
+               "Wait for dependencies to be installed\n%s"
+               (ppp-plist-to-string
+                (list :package pkg-name
+                      :dependency-from .target-pkg)))
+             (await (promise:delay 0.5)))))))
 
     ;; set the status of the package to be installed to queue
     (dolist (pkgdesc pkg-descs)
