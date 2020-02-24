@@ -219,38 +219,32 @@ INFO is optional alist.
                              (propertize "done"
                                          'face 'feather-dashboard-state-done))))))))
 
-(defun feather-dashboard--change-item-state (sym state &optional info)
-  "Change state of package SYM to STATE with additional INFO.
-INFO is optional alist.
-- queue
-  - (none)
-- wait
-  - DEP-PKG is a dependency for package SYM waiting to be installed as symbol.
-- install
-  - (none)
-- done
-  - VERSION is package version as string."
-  (when-let ((ov (alist-get sym feather-dashboard-overlays-item)))
-    (overlay-put ov
-                 'after-string
-                 (format " %s"
-                         (cond
-                          ((eq state 'queue)
-                           (propertize "queue"
-                                       'face 'feather-dashboard-state-queue))
-                          ((eq state 'wait)
-                           (concat
-                            (propertize "waiting"
-                                        'face 'feather-dashboard-state-wait)
-                            (when-let (dep-pkg (alist-get 'dep-pkg info))
-                              (format " %s to be installed"
-                                      dep-pkg))))
-                          ((eq state 'install)
-                           (propertize "install"
-                                       'face 'feather-dashboard-state-install))
-                          ((eq state 'done)
-                           (propertize "done"
-                                       'face 'feather-dashboard-state-done)))))))
+(defun feather-dashboard--change-item-status (info)
+  "Change state of package in feather-dashboard item section.
+This function is invoked as hook function with INFO argument.
+see `feather--change-install-queue-status'."
+  (let-alist info
+    (when-let ((ov (alist-get .key feather-dashboard-overlays-item)))
+      (overlay-put ov
+                   'after-string
+                   (format " %s"
+                           (cl-case .val
+                             (queue
+                              (propertize "queue"
+                                          'face 'feather-dashboard-state-queue))
+                             (wait
+                              (concat
+                               (propertize "waiting"
+                                           'face 'feather-dashboard-state-wait)
+                               (when-let (dep-pkg (alist-get 'dep-pkg info))
+                                 (format " %s to be installed"
+                                         dep-pkg))))
+                             (install
+                              (propertize "install"
+                                          'face 'feather-dashboard-state-install))
+                             (done
+                              (propertize "done"
+                                          'face 'feather-dashboard-state-done))))))))
 
 (define-derived-mode feather-dashboard-mode special-mode "FeatherDashboard"
   "Major mode for feather dashboard."
