@@ -492,9 +492,9 @@ see `package-install' and `package-download-transaction'."
                           (package-compute-transaction nil (list (list pkg))))))
                  (let* ((alist (gethash pkg-name feather-install-queue))
                         (status (alist-get 'status alist))
+                        (processinx (1+ (mod index feather-max-process)))
                         (info `((index      . ,(1+ index))
-                                (process    . ,(intern
-                                                (format "process%s" (1+ (mod index feather-max-process)))))
+                                (process    . ,(intern (format "process%s" processinx)))
                                 (status     . install)
                                 (target-pkg . ,pkg-name)
                                 (depends    . ,(feather--resolve-dependencies pkg-name))
