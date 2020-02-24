@@ -414,6 +414,7 @@ see `package-install' and `package-download-transaction'."
         (when-let (alist (gethash pkg-name feather-install-queue))
           (feather--dashboard-change-item-state .target-pkg 'wait
                                                 `((dep-pkg . ,pkg-name)))
+          (feather--dashboard-change-process-state .process 'wait info)
           (while (not (eq 'done (alist-get 'status alist)))
             (ppp-debug 'feather
               "Wait for dependencies to be installed\n%s"
@@ -435,6 +436,7 @@ see `package-install' and `package-download-transaction'."
       (let ((pkg-name (package-desc-name pkgdesc)))
         (setf (alist-get 'status (gethash pkg-name feather-install-queue)) 'install)
         (feather--dashboard-change-item-state pkg-name 'install)
+        (feather--dashboard-change-process-state .process 'install info)
         (condition-case err
             (progn
               (await (feather--promise-fetch-package pkgdesc))
@@ -454,7 +456,8 @@ see `package-install' and `package-download-transaction'."
                  (list :package pkg-name
                        :reason err)))))))
         (setf (alist-get 'status (gethash pkg-name feather-install-queue)) 'done)
-        (feather--dashboard-change-item-state pkg-name 'done)))))
+        (feather--dashboard-change-item-state pkg-name 'done)))
+    (feather--dashboard-change-process-state .process 'done)))
 
 (async-defun feather--main-process ()
   "Main process for feather."
@@ -490,7 +493,8 @@ see `package-install' and `package-download-transaction'."
                  (let* ((alist (gethash pkg-name feather-install-queue))
                         (status (alist-get 'status alist))
                         (info `((index      . ,(1+ index))
-                                (process    . ,(1+ (mod index feather-max-process)))
+                                (process    . ,(intern
+                                                (format "process%s" (1+ (mod index feather-max-process)))))
                                 (status     . install)
                                 (target-pkg . ,pkg-name)
                                 (depends    . ,(feather--resolve-dependencies pkg-name))
