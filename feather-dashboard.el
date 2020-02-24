@@ -109,11 +109,18 @@ Key is package symbol, value is overlay.")
     (overlay-put ov 'after-string str)
     ov))
 
-(defun feather-dashboard-remove-all-overlays ()
+(defun feather-dashboard--overlays-in (beg end)
+  "Get all feather-dashboard overlays between BEG to END."
+  (cl-remove-if-not
+   (lambda (ov)
+     (overlay-get ov 'dired-git-overlay))
+   (overlays-in beg end)))
+
+(defun feather-dashboard--remove-all-overlays ()
   "Remove all `feather' overlays."
   (save-restriction
     (widen)
-    (mapc #'delete-overlay (feather--overlays-in (point-min) (point-max)))))
+    (mapc #'delete-overlay (feather-dashboard--overlays-in (point-min) (point-max)))))
 
 
 ;;; functions
@@ -148,7 +155,7 @@ also `with-temp-buffer'."
     (dotimes (i feather-max-process)
       (let ((sym (intern (format "process%s" (1+ i)))))
         (insert (format "  %s" sym))
-        (push `(,sym . ,(feather--add-overlay (point) ""))
+        (push `(,sym . ,(feather-dashboard--add-overlay (point) ""))
               feather-dashboard-overlays-process)
         (newline)))
     (insert (format "\n"))
@@ -162,7 +169,7 @@ also `with-temp-buffer'."
     (forward-line)
     (beginning-of-line)
     (insert (format "  %s" sym))
-    (push `(,sym . ,(feather--add-overlay (point) ""))
+    (push `(,sym . ,(feather-dashboard--add-overlay (point) ""))
           feather-dashboard-overlays-item)
     (newline)))
 
