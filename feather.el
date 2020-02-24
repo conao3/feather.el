@@ -347,7 +347,7 @@ see `package-install' and `package-download-transaction'."
                               (package-compute-transaction (list pkg)
                                                            (package-desc-reqs pkg)))
                           (package-compute-transaction nil (list (list pkg))))))
-                 (let* ((alist (gethash pkg-name feather-install-queue))
+                 (let* ((alist (feather--get-install-queue pkg-name))
                         (status (alist-get 'status alist))
                         (processinx (1+ (mod index feather-max-process)))
                         (info `((index      . ,(1+ index))
@@ -363,14 +363,7 @@ see `package-install' and `package-download-transaction'."
                        (lambda (elm)
                          (list (intern (format ":%s" (car elm))) (cdr elm)))
                        info)))
-                   (cond
-                    ((not alist)
-                     (puthash pkg-name info feather-install-queue))
-                    ((and alist (eq 'done status))
-                     (setf (gethash pkg-name feather-install-queue) info))
-                    ((and alist (not (eq 'done status)))
-                     ;; TODO
-                     ))
+                   (feather--add-install-queue pkg-name info)
                    (feather--install-packages info transaction))
                (message "`%s' is already installed" pkg-name))))))))
 
