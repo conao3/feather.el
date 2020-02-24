@@ -395,8 +395,6 @@ See `package-install'."
                     (package-desc-name pkg)
                   pkg)))
       (feather--push-package-install-args args)
-      (feather--dashboard-add-new-item pkg-name)
-      (feather--dashboard-change-item-state pkg-name 'queue)
       (unless (feather--get-feather-running)
         (feather--main-process)))))
 
