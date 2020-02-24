@@ -306,7 +306,7 @@ INFO is optional alist.
                             (propertize "waiting"
                                         'face 'feather-dashboard-state-wait)
                             (when-let (dep-pkg (alist-get 'dep-pkg info))
-                              (format "%s to be installed"
+                              (format " %s to be installed"
                                       dep-pkg))))
                           ((eq state 'install)
                            (propertize "install"
