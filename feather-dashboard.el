@@ -199,28 +199,23 @@ see `feather--change-install-queue-status'"
     (let ((key .key)
           (val .val))
       (let-alist (feather--get-install-queue key)
-        (when-let ((ov (alist-get (intern (format "process%s" .process))
-                                  feather-dashboard-overlays-process)))
-          (overlay-put ov
-                       'after-string
-                       (format " -- %s"
-                               (cl-case val
-                                 (queue
-                                  (propertize "queue"
-                                              'face 'feather-dashboard-state-queue))
-                                 (wait
-                                  (mapconcat
-                                   'prin1-to-string
-                                   (alist-get 'depends (feather--get-install-queue .targetpkg))
-                                   " "))
-                                 (install
-                                  (mapconcat
-                                   'prin1-to-string
-                                   (alist-get 'depends (feather--get-install-queue .targetpkg))
-                                   " "))
-                                 (done
-                                  (propertize "done"
-                                              'face 'feather-dashboard-state-done))))))))))
+        (let-alist (feather--get-install-queue .targetpkg)
+          (when-let ((ov (alist-get (intern (format "process%s" .process))
+                                    feather-dashboard-overlays-process)))
+            (overlay-put ov
+                         'after-string
+                         (format " -- %s"
+                                 (cl-case val
+                                   (queue
+                                    (propertize "queue"
+                                                'face 'feather-dashboard-state-queue))
+                                   (wait
+                                    (mapconcat 'prin1-to-string .depends " "))
+                                   (install
+                                    (mapconcat 'prin1-to-string .depends " "))
+                                   (done
+                                    (propertize "done"
+                                                'face 'feather-dashboard-state-done)))))))))))
 
 (defun feather-dashboard--change-item-status (info)
   "Change state of package in feather-dashboard item section.
