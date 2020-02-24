@@ -27,6 +27,7 @@
 ;;; Code:
 
 (require 'page-break-lines)
+(require 'subr-x)
 
 (defgroup feather-dashboard nil
   "Dashboard feature for feather."
