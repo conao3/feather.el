@@ -111,9 +111,7 @@ also `with-temp-buffer'."
      :foreground "#7fff00"))
   "Face for feather-dashboard state, done.")
 
-
-;;; overlay
-
+;; internal variables
 (defvar feather-dashboard-overlays-process nil
   "Alist of overlay for process.
 Key is symbol like process1, value is overlay.")
@@ -121,6 +119,30 @@ Key is symbol like process1, value is overlay.")
 (defvar feather-dashboard-overlays-item nil
   "Alist of overlay for item.
 Key is package symbol, value is overlay.")
+
+(defvar feather-running nil
+  "If non-nil, running feather main process.")
+
+(defvar feather-package-install-args nil
+  "List of `package-install' args.
+see `feather--advice-package-install' and `feather--main-process'.")
+
+(defvar feather-install-queue (make-hash-table :test 'eq)
+  "All install queues, including dependencies.
+
+Key is package name as symbol.
+Value is alist.
+  - STATUS is install status one of (queue install done).
+
+  Additional info for parent package.
+    - INDEX is index as integer.
+    - PROCESS is process index as integer.
+    - DEPENDS is list of ALL dependency like as (PKG VERSION).
+    - QUEUE is list of ONLY dependency to be installed as list of symbol.
+    - INSTALLED is list of package which have already installed.")
+
+
+;;; overlay
 
 (defun feather--add-overlay (pos str)
   "Add overlay to display STR at POS symbol."
@@ -295,27 +317,6 @@ INFO is optional alist.
 
 
 ;;; promise
-
-(defvar feather-running nil
-  "If non-nil, running feather main process.")
-
-(defvar feather-package-install-args nil
-  "List of `package-install' args.
-see `feather--advice-package-install' and `feather--main-process'.")
-
-(defvar feather-install-queue (make-hash-table :test 'eq)
-  "All install queues, including dependencies.
-
-Key is package name as symbol.
-Value is alist.
-  - STATUS is install status one of (queue install done).
-
-  Additional info for parent package.
-    - INDEX is index as integer.
-    - PROCESS is process index as integer.
-    - DEPENDS is list of ALL dependency like as (PKG VERSION).
-    - QUEUE is list of ONLY dependency to be installed as list of symbol.
-    - INSTALLED is list of package which have already installed.")
 
 (defun feather--promise-fetch-package (pkg-desc)
   "Return promise to fetch PKG-DESC.
