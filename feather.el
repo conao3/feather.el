@@ -264,49 +264,48 @@ PKGS is `package-desc' list as (a b c).
 This list must be processed orderd; b depends (a), and c depends (a b).
 
 see `package-install' and `package-download-transaction'."
-  (let-alist info
-    (dolist (pkgdesc pkg-descs)
-      (let ((pkg-name (package-desc-name pkgdesc)))
-        (when-let (alist (gethash pkg-name feather-install-queue))
-          (when (not (eq 'done (alist-get 'status alist)))
-            (while (not (eq 'done (alist-get 'status alist)))
-             (ppp-debug 'feather
-               "Wait for dependencies to be installed\n%s"
-               (ppp-plist-to-string
-                (list :package pkg-name
-                      :dependency-from .target-pkg)))
-             (await (promise:delay 0.5)))))))
+  (dolist (pkgdesc pkg-descs)
+    (let ((pkg-name (package-desc-name pkgdesc)))
+      (when-let (alist (gethash pkg-name feather-install-queue))
+        (when (not (eq 'done (alist-get 'status alist)))
+          (while (not (eq 'done (alist-get 'status alist)))
+            (ppp-debug 'feather
+              "Wait for dependencies to be installed\n%s"
+              (ppp-plist-to-string
+               (list :package pkg-name
+                     :dependency-from (package-desc-name (car (last pkg-descs))))))
+            (await (promise:delay 0.5)))))))
 
-    ;; set the status of the package to be installed to queue
-    (dolist (pkgdesc pkg-descs)
-      (let ((pkg-name (package-desc-name pkgdesc)))
-        (if (gethash pkg-name feather-install-queue)
-            (setf (alist-get 'status (gethash pkg-name feather-install-queue)) 'queue)
-          (puthash pkg-name '((status . queue)) feather-install-queue))))
+  ;; set the status of the package to be installed to queue
+  (dolist (pkgdesc pkg-descs)
+    (let ((pkg-name (package-desc-name pkgdesc)))
+      (if (gethash pkg-name feather-install-queue)
+          (setf (alist-get 'status (gethash pkg-name feather-install-queue)) 'queue)
+        (puthash pkg-name '((status . queue)) feather-install-queue))))
 
-    ;; `package-download-transaction'
-    (dolist (pkgdesc pkg-descs)
-      (let ((pkg-name (package-desc-name pkgdesc)))
-        (setf (alist-get 'status (gethash pkg-name feather-install-queue)) 'install)
-        (condition-case err
-            (progn
-              (await (feather--promise-fetch-package pkgdesc))
-              (await (feather--promise-activate-package pkgdesc)))
-          (error
-           (pcase err
-             (`(error (fail-install-package ,reason))
-              (ppp-debug :level :warning 'feather
-                "Cannot install package\n%s"
-                (ppp-plist-to-string
-                 (list :package pkg-name
-                       :reason reason))))
-             (_
-              (ppp-debug :level :warning 'feather
-                "Something wrong while installing package\n%s"
-                (ppp-plist-to-string
-                 (list :package pkg-name
-                       :reason err)))))))
-        (setf (alist-get 'status (gethash pkg-name feather-install-queue)) 'done)))))
+  ;; `package-download-transaction'
+  (dolist (pkgdesc pkg-descs)
+    (let ((pkg-name (package-desc-name pkgdesc)))
+      (setf (alist-get 'status (gethash pkg-name feather-install-queue)) 'install)
+      (condition-case err
+          (progn
+            (await (feather--promise-fetch-package pkgdesc))
+            (await (feather--promise-activate-package pkgdesc)))
+        (error
+         (pcase err
+           (`(error (fail-install-package ,reason))
+            (ppp-debug :level :warning 'feather
+              "Cannot install package\n%s"
+              (ppp-plist-to-string
+               (list :package pkg-name
+                     :reason reason))))
+           (_
+            (ppp-debug :level :warning 'feather
+              "Something wrong while installing package\n%s"
+              (ppp-plist-to-string
+               (list :package pkg-name
+                     :reason err)))))))
+      (setf (alist-get 'status (gethash pkg-name feather-install-queue)) 'done))))
 
 (async-defun feather--main-process ()
   "Main process for feather."
