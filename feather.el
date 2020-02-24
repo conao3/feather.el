@@ -66,6 +66,7 @@ see `feather--advice-package-install' and `feather--main-process'.")
 Key is package name as symbol.
 Value is alist.
   - STATUS is install status one of (queue install done).
+  - TARGETPKG is parent package as symbol.
 
   Additional info for parent package.
     - INDEX is index as integer.
@@ -304,7 +305,13 @@ This list must be processed orderd; b depends (a), and c depends (a b).
 
 see `package-install' and `package-download-transaction'."
   (dolist (pkgdesc pkg-descs)
-    (let ((pkg-name (package-desc-name pkgdesc)))
+    (let ((pkg-name (package-desc-name pkgdesc))
+          (targetpkg (package-desc-name (car (last pkg-descs)))))
+      (feather--add-install-queue pkg-name `((targetpkg . ,targetpkg)))))
+  
+  (dolist (pkgdesc pkg-descs)
+    (let ((pkg-name (package-desc-name pkgdesc))
+          (targetpkg (package-desc-name (car (last pkg-descs)))))
       (when (and (feather--get-install-queue-status pkg-name)
                  (not (memq (feather--get-install-queue-status pkg-name) '(done error))))
         (while (not (memq (feather--get-install-queue-status pkg-name) '(done error)))
@@ -312,7 +319,7 @@ see `package-install' and `package-download-transaction'."
             "Wait for dependencies to be installed\n%s"
             (ppp-plist-to-string
              (list :package pkg-name
-                   :dependency-from (package-desc-name (car (last pkg-descs))))))
+                   :dependency-from targetpkg)))
           (await (promise:delay 0.5))))))
 
   ;; set the status of the package to be installed to queue
@@ -384,7 +391,7 @@ see `package-install' and `package-download-transaction'."
                               (package-compute-transaction () (list (list pkg))))))
                      (let ((info `((index      . ,(1+ index))
                                    (process    . ,(1+ (mod index feather-max-process)))
-                                   (target-pkg . ,pkg-name)
+                                   (targetpkg . ,pkg-name)
                                    (depends    . ,(feather--resolve-dependencies pkg-name))
                                    (queue      . ,(mapcar #'package-desc-name transaction))
                                    (installed  . nil))))

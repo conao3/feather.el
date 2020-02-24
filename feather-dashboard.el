@@ -211,12 +211,12 @@ see `feather--change-install-queue-status'"
                                  (wait
                                   (mapconcat
                                    'prin1-to-string
-                                   (list key)
+                                   (alist-get 'depends (feather--get-install-queue .targetpkg))
                                    " "))
                                  (install
                                   (mapconcat
                                    'prin1-to-string
-                                   (list key)
+                                   (alist-get 'depends (feather--get-install-queue .targetpkg))
                                    " "))
                                  (done
                                   (propertize "done"
