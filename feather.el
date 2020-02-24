@@ -53,7 +53,7 @@
   :set (lambda (sym val)
          (set-default sym val)
          (with-feather-dashboard-buffer
-           (feather-dashboard--initialize))))
+          (feather-dashboard--initialize))))
 
 ;; internal variables
 
@@ -339,8 +339,8 @@ see `package-install' and `package-download-transaction'."
            ;; moved last of this function
            ;; (add-hook 'post-command-hook #'package-menu--post-refresh)
            (let ((pkg-name (if (package-desc-p pkg)
-                           (package-desc-name pkg)
-                         pkg)))
+                               (package-desc-name pkg)
+                             pkg)))
              (unless (or dont-select (package--user-selected-p pkg-name))
                (package--save-selected-packages
                 (cons pkg-name package-selected-packages)))
