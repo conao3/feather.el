@@ -85,7 +85,8 @@ Value is alist.
 (defvar feather--hook-add-install-queue           nil)
 (defvar feather--hook-get-install-queue           nil)
 (defvar feather--hook-change-install-queue-status
-  '(feather-dashboard--change-item-status))
+  '(feather-dashboard--change-item-status
+    feather-dashboard--change-process-status))
 (defvar feather--hook-get-install-queue-status    nil)
 
 (defun feather--change-running-state (bool)

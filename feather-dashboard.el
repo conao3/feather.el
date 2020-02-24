@@ -181,43 +181,36 @@ see `feather--push-package-install-args.'"
                feather-dashboard-overlays-item)
          (newline))))))
 
-(defun feather-dashboard--change-process-state (sym state &optional info)
-  "Change state of process SYM for PKG to STATE with additional INFO.
-INFO is optional alist.
-- (queue)
-  - (none)
-- wait
-  - TARGET-PKG is install requested package.
-  - PKG is package waiting to be installed as symbol.
-- install
-  - TARGET-PKG is install requested package.
-  - PKG is package installing as symbol.
-- done
-  - (none)"
-  (let* ((target-pkg (alist-get 'target-pkg info))
-         (_pkg (alist-get 'pkg info))
-         (alist (gethash target-pkg feather-install-queue)))
-    (when-let ((ov (alist-get sym feather-dashboard-overlays-process)))
-      (overlay-put ov
-                   'after-string
-                   (format " -- %s"
-                           (cond
-                            ((eq state 'queue)
-                             (propertize "queue"
-                                         'face 'feather-dashboard-state-queue))
-                            ((eq state 'wait)
-                             (mapconcat
-                              'prin1-to-string
-                              (alist-get 'depends alist)
-                              " "))
-                            ((eq state 'install)
-                             (mapconcat
-                              'prin1-to-string
-                              (alist-get 'depends alist)
-                              " "))
-                            ((eq state 'done)
-                             (propertize "done"
-                                         'face 'feather-dashboard-state-done))))))))
+(defun feather-dashboard--change-process-status (info)
+  "Change status of process.
+This functino is invoked as hook function with INFO argument.
+see `feather--change-install-queue-status'"
+  (let-alist info
+    (let ((key .key)
+          (val .val))
+      (let-alist (feather--get-install-queue key)
+        (when-let ((ov (alist-get (intern (format "process%s" .process))
+                                  feather-dashboard-overlays-process)))
+          (overlay-put ov
+                       'after-string
+                       (format " -- %s"
+                               (cl-case val
+                                 (queue
+                                  (propertize "queue"
+                                              'face 'feather-dashboard-state-queue))
+                                 (wait
+                                  (mapconcat
+                                   'prin1-to-string
+                                   (list key)
+                                   " "))
+                                 (install
+                                  (mapconcat
+                                   'prin1-to-string
+                                   (list key)
+                                   " "))
+                                 (done
+                                  (propertize "done"
+                                              'face 'feather-dashboard-state-done))))))))))
 
 (defun feather-dashboard--change-item-status (info)
   "Change state of package in feather-dashboard item section.
