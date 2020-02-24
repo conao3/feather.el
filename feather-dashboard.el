@@ -111,6 +111,27 @@ Key is package symbol, value is overlay.")
 (declare-function feather--remove-all-overlays "feather")
 
 
+;;; overlay
+
+(defun feather-dashboard--add-overlay (pos str)
+  "Add overlay to display STR at POS symbol."
+  (let* ((bound (save-excursion
+                  (goto-char pos)
+                  (bounds-of-thing-at-point 'sexp)))
+         (beg (car bound))
+         (end (cdr bound))
+         (ov (make-overlay beg end)))
+    (overlay-put ov 'feather-overlay t)
+    (overlay-put ov 'after-string str)
+    ov))
+
+(defun feather-dashboard-remove-all-overlays ()
+  "Remove all `feather' overlays."
+  (save-restriction
+    (widen)
+    (mapc #'delete-overlay (feather--overlays-in (point-min) (point-max)))))
+
+
 ;;; functions
 
 (defun feather--dashboard-initialize ()

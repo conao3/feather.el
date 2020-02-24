@@ -79,27 +79,6 @@ Value is alist.
     - INSTALLED is list of package which have already installed.")
 
 
-;;; overlay
-
-(defun feather--add-overlay (pos str)
-  "Add overlay to display STR at POS symbol."
-  (let* ((bound (save-excursion
-                  (goto-char pos)
-                  (bounds-of-thing-at-point 'sexp)))
-         (beg (car bound))
-         (end (cdr bound))
-         (ov (make-overlay beg end)))
-    (overlay-put ov 'feather-overlay t)
-    (overlay-put ov 'after-string str)
-    ov))
-
-(defun feather--remove-all-overlays ()
-  "Remove all `feather' overlays."
-  (save-restriction
-    (widen)
-    (mapc #'delete-overlay (feather--overlays-in (point-min) (point-max)))))
-
-
 ;;; functions
 
 (defun feather--resolve-dependencies-1 (pkgs)
