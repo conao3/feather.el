@@ -369,7 +369,7 @@ see `package-install' and `package-download-transaction'."
                        (feather--install-packages transaction))
                    (message "`%s' is already installed" pkg-name)))))))
       (error
-       (warn "Fail install.  Reason:%s" (prin1-to-string res)))))
+       (warn "Fail install.  Reason:%s" (prin1-to-string err)))))
 
   ;; postprocess
   (package-menu--post-refresh)
