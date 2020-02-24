@@ -282,15 +282,14 @@ This list must be processed orderd; b depends (a), and c depends (a b).
 see `package-install' and `package-download-transaction'."
   (dolist (pkgdesc pkg-descs)
     (let ((pkg-name (package-desc-name pkgdesc)))
-      (when-let (alist (gethash pkg-name feather-install-queue))
-        (when (not (eq 'done (alist-get 'status alist)))
-          (while (not (eq 'done (alist-get 'status alist)))
-            (ppp-debug 'feather
-              "Wait for dependencies to be installed\n%s"
-              (ppp-plist-to-string
-               (list :package pkg-name
-                     :dependency-from (package-desc-name (car (last pkg-descs))))))
-            (await (promise:delay 0.5)))))))
+      (when (not (eq 'done (feather--get-install-queue-state pkg-name)))
+        (while (not (eq 'done (feather--get-install-queue-state pkg-name)))
+          (ppp-debug 'feather
+            "Wait for dependencies to be installed\n%s"
+            (ppp-plist-to-string
+             (list :package pkg-name
+                   :dependency-from (package-desc-name (car (last pkg-descs))))))
+          (await (promise:delay 0.5))))))
 
   ;; set the status of the package to be installed to queue
   (dolist (pkgdesc pkg-descs)
