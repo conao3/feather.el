@@ -281,7 +281,8 @@ This list must be processed orderd; b depends (a), and c depends (a b).
 see `package-install' and `package-download-transaction'."
   (dolist (pkgdesc pkg-descs)
     (let ((pkg-name (package-desc-name pkgdesc)))
-      (when (not (eq 'done (feather--get-install-queue-state pkg-name)))
+      (when (and (feather--get-install-queue-state pkg-name)
+                 (not (eq 'done (feather--get-install-queue-state pkg-name))))
         (while (not (eq 'done (feather--get-install-queue-state pkg-name)))
           (ppp-debug 'feather
             "Wait for dependencies to be installed\n%s"
