@@ -34,18 +34,7 @@
   :group 'feather)
 
 
-;;;customize
-
-(defmacro with-feather-dashboard--buffer (&rest body)
-  "Execute the forms in BODY with BUFFER-OR-NAME temporarily current.
-BUFFER-OR-NAME must be a buffer or the name of an existing buffer.
-The value returned is the value of the last form in BODY.  See
-also `with-temp-buffer'."
-  (declare (debug t))
-  `(let ((inhibit-read-only t))
-     (with-current-buffer (or (get-buffer feather-dashboard-name)
-                              (feather-dashboard--initialize))
-       ,@body)))
+;; customize
 
 (defcustom feather-dashboard-name "*Feather dashboard*"
   "Featehr dashboard buffer name."
@@ -133,6 +122,17 @@ Key is package symbol, value is overlay.")
 
 
 ;;; functions
+
+(defmacro with-feather-dashboard--buffer (&rest body)
+  "Execute the forms in BODY with BUFFER-OR-NAME temporarily current.
+BUFFER-OR-NAME must be a buffer or the name of an existing buffer.
+The value returned is the value of the last form in BODY.  See
+also `with-temp-buffer'."
+  (declare (debug t))
+  `(let ((inhibit-read-only t))
+     (with-current-buffer (or (get-buffer feather-dashboard-name)
+                              (feather-dashboard--initialize))
+       ,@body)))
 
 (defun feather-dashboard--initialize ()
   "Initialize and return feather-dashboard buffer."
