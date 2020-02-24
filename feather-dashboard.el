@@ -123,7 +123,7 @@ Key is package symbol, value is overlay.")
 
 ;;; functions
 
-(defmacro with-feather-dashboard--buffer (&rest body)
+(defmacro with-feather-dashboard-buffer (&rest body)
   "Execute the forms in BODY with BUFFER-OR-NAME temporarily current.
 BUFFER-OR-NAME must be a buffer or the name of an existing buffer.
 The value returned is the value of the last form in BODY.  See
@@ -161,7 +161,7 @@ also `with-temp-buffer'."
 
 (defun feather-dashboard--add-new-item (sym)
   "Add package SYM to feather-dashboard item section."
-  (with-feather-dashboard--buffer
+  (with-feather-dashboard-buffer
     (goto-char (point-min))
     (forward-page)
     (forward-line)

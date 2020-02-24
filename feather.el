@@ -52,7 +52,7 @@
   :type 'number
   :set (lambda (sym val)
          (set-default sym val)
-         (with-feather--dashboard-buffer
+         (with-feather-dashboard-buffer
            (feather--dashboard-initialize))))
 
 ;; internal variables
