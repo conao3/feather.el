@@ -94,11 +94,6 @@ Key is symbol like process1, value is overlay.")
   "Alist of overlay for item.
 Key is package symbol, value is overlay.")
 
-(declare-function feather--add-overlay "feather")
-(declare-function feather--overlays-in "feather")
-(declare-function feather--overlays-at "feather")
-(declare-function feather--remove-all-overlays "feather")
-
 
 ;;; overlay
 
