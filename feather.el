@@ -80,33 +80,62 @@ Value is alist.
 
 ;; getters/setters
 
+(defvar feather--hook-change-feather-running nil)
+(defvar feather--hook-get-feather-running nil)
+(defvar feather--hook-push-package-install-args nil)
+(defvar feather--hook-pop-package-install-args nil)
+(defvar feather--hook-get-package-install-args nil)
+(defvar feather--hook-add-install-queue nil)
+(defvar feather--hook-get-install-queue nil)
+
 (defun feather--change-running-state (bool)
   "Change state `feather-running' to BOOL."
-  (setq feather-running bool))
+  (let ((res (setq feather-running bool)))
+    (dolist (fn feather--hook-change-feather-running)
+      (funcall fn 'feather-running 'change res))
+    res))
 
 (defun feather--get-feather-running ()
   "Get state `feather-running' as boolean."
-  feather-running)
+  (let ((res feather-running))
+    (dolist (fn feather--hook-get-feather-running)
+      (funcall fn 'feather-running 'get res))
+    res))
 
 (defun feather--push-package-install-args (val)
   "Push VAL to `feather-package-install-args'."
-  (push val feather-package-install-args))
+  (let ((res (push val feather-package-install-args)))
+    (dolist (fn feather--hook-push-package-install-args)
+      (funcall fn 'package-install-args 'push res val))
+    res))
 
 (defun feather--pop-package-install-args ()
   "Pop `feather-package-install-args'."
-  (pop feather-package-install-args))
+  (let ((res (pop feather-package-install-args)))
+    (dolist (fn feather--hook-pop-package-install-args)
+      (funcall fn 'package-install-args 'pop res))
+    res))
 
 (defun feather--get-package-install-args ()
   "Get `feather-package-install-args'."
-  feather-package-install-args)
+  (let ((res feather-package-install-args))
+    (dolist (fn feather--hook-get-package-install-args)
+      (funcall fn 'package-install-args 'get res))
+    res))
 
 (defun feather--add-install-queue (key val)
   "Add VAL for KEY to `feather-install-queue'."
-  (setf (gethash key feather-install-queue) val))
+  (let ((res (setf (gethash key feather-install-queue) val)))
+    (dolist (fn feather--hook-add-install-queue)
+      (funcall fn 'feather-install-queue 'add res key val))
+    res))
 
 (defun feather--get-install-queue (key)
   "Get value for KEY from `feather-install-queue'."
-  (gethash key feather-install-queue))
+  (let ((res (gethash key feather-install-queue)))
+    (dolist (fn feather--hook-get-install-queue)
+      (funcall fn 'feather-install-queue 'get res key))
+    res))
 
 
 ;;; functions
