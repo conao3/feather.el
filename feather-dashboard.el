@@ -134,6 +134,9 @@ also `with-temp-buffer'."
   `(let ((inhibit-read-only t))
      (with-current-buffer (or (get-buffer feather-dashboard-name)
                               (feather-dashboard--initialize))
+       (unless (= feather-max-process
+                  (length feather-dashboard-overlays-process))
+         (feather-dashboard--initialize))
        ,@body)))
 
 (defun feather-dashboard--initialize ()
