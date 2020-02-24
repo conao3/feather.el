@@ -349,7 +349,7 @@ see `package-install' and `package-download-transaction'."
                             (unless (package-installed-p pkg)
                               (package-compute-transaction (list pkg)
                                                            (package-desc-reqs pkg)))
-                          (package-compute-transaction nil (list (list pkg))))))
+                          (package-compute-transaction () (list (list pkg))))))
                  (let ((info `((index      . ,(1+ index))
                                (process    . ,(1+ (mod index feather-max-process)))
                                (status     . install)
