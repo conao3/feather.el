@@ -28,14 +28,14 @@
 It have already prepared front end for [[https://github.com/conao3/leaf.el][leaf.el]] in leaf-keywword.el, and you can seamlessly manage Emacs packages.
 
 Now developing it, here is debuging screen-shot.
-[[https://raw.githubusercontent.com/conao3/files/master/blob/feather.el/feather.gif]]
+[[https://raw.githubusercontent.com/conao3/files/master/blob/feather.el/feather-dashboard-teaser.gif]]
 
 * Install
 ~feather~ is available via ~el-get~
 #+begin_src emacs-lisp
   (leaf feather
     :el-get conao3/feather.el
-    :config (feather-setup))
+    :config (feather-mode))
 #+end_src
 
 * Usage
