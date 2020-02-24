@@ -493,6 +493,7 @@ see `package-install' and `package-download-transaction'."
                         (info `((index     . ,(1+ index))
                                 (process   . ,(1+ (mod index feather-max-process)))
                                 (status    . install)
+                                (target-pkg . ,pkg-name)
                                 (depends   . ,(feather--resolve-dependencies pkg-name))
                                 (queue     . ,(mapcar #'package-desc-name transaction))
                                 (installed . nil))))
