@@ -162,17 +162,24 @@ also `with-temp-buffer'."
     (insert (format "\n"))
     (current-buffer)))
 
-(defun feather-dashboard--add-new-item (sym)
-  "Add package SYM to feather-dashboard item section."
-  (with-feather-dashboard-buffer
-    (goto-char (point-min))
-    (forward-page)
-    (forward-line)
-    (beginning-of-line)
-    (insert (format "  %s" sym))
-    (push `(,sym . ,(feather-dashboard--add-overlay (point) ""))
-          feather-dashboard-overlays-item)
-    (newline)))
+(defun feather-dashboard--add-new-item (info)
+  "Add package to feather-dashboard item section.
+This function is invoked as hook function with INFO argument.
+see `feather--push-package-install-args.'"
+  (let-alist info
+    (seq-let (pkg _dont-select) .val
+      (let ((pkg-name (if (package-desc-p pkg)
+                          (package-desc-name pkg)
+                        pkg)))
+        (with-feather-dashboard-buffer
+         (goto-char (point-min))
+         (forward-page)
+         (forward-line)
+         (beginning-of-line)
+         (insert (format "  %s" pkg-name))
+         (push `(,pkg-name . ,(feather-dashboard--add-overlay (point) ""))
+               feather-dashboard-overlays-item)
+         (newline))))))
 
 (defun feather-dashboard--change-process-state (sym state &optional info)
   "Change state of process SYM for PKG to STATE with additional INFO.

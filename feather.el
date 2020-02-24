@@ -78,7 +78,8 @@ Value is alist.
 
 (defvar feather--hook-change-feather-running      nil)
 (defvar feather--hook-get-feather-running         nil)
-(defvar feather--hook-push-package-install-args   nil)
+(defvar feather--hook-push-package-install-args
+  '(feather-dashboard--add-new-item))
 (defvar feather--hook-pop-package-install-args    nil)
 (defvar feather--hook-get-package-install-args    nil)
 (defvar feather--hook-add-install-queue           nil)
