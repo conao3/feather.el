@@ -93,6 +93,9 @@ also `with-temp-buffer'."
 
 ;; internal variables
 
+(defvar feather-max-process)
+(defvar feather-package-install-args)
+(defvar feather-install-queue)
 (defvar feather-dashboard-overlays-process nil
   "Alist of overlay for process.
 Key is symbol like process1, value is overlay.")
