@@ -191,6 +191,27 @@ see `feather--push-package-install-args.'"
                feather-dashboard-overlays-item)
          (newline))))))
 
+(defun feather-dashboard--create-process-status-str (key val depends queue installed)
+  "Create feather-dashboard process status string.
+Using KEY, VAL, DEPENDS, QUEUE, INSTALLED."
+  (mapconcat (lambda (elm)
+               (seq-let (pkg _ver) elm
+                 (propertize (prin1-to-string elm) 'face
+                             (cond
+                              ((eq pkg key)
+                               (cl-case val
+                                 (queue   'feather-dashboard-state-queue)
+                                 (wait    'feather-dashboard-state-wait)
+                                 (install 'feather-dashboard-state-install)
+                                 (done    'feather-dashboard-state-done)))
+                              ((memq pkg installed)
+                               'feather-dashboard-state-done)
+                              ((memq pkg queue)
+                               'feather-dashboard-state-queue)
+                              (t
+                               'feather-dashboard-state-done)))))
+             depends " "))
+
 (defun feather-dashboard--change-process-status (info)
   "Change status of process.
 This functino is invoked as hook function with INFO argument.
@@ -210,9 +231,11 @@ see `feather--change-install-queue-status'"
                                     (propertize "queue"
                                                 'face 'feather-dashboard-state-queue))
                                    (wait
-                                    (mapconcat 'prin1-to-string (append .installed .depends) " "))
+                                    (feather-dashboard--create-process-status-str
+                                     key val .depends .queue .installed))
                                    (install
-                                    (mapconcat 'prin1-to-string (append .installed .depends) " "))
+                                    (feather-dashboard--create-process-status-str
+                                     key val .depends .queue .installed))
                                    (done
                                     (propertize "done"
                                                 'face 'feather-dashboard-state-done)))))))))))
