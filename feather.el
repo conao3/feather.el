@@ -257,8 +257,8 @@ see `package-install-from-archive' and `package-unpack'."
          (error
           (funcall reject `(fail-activate-package ,err))))))))
 
-(async-defun feather--install-packages (info pkg-descs)
-  "Install PKGS async with additional INFO.
+(async-defun feather--install-packages (pkg-descs)
+  "Install PKGS async.
 PKGS is `package-desc' list as (a b c).
 
 This list must be processed orderd; b depends (a), and c depends (a b).
@@ -355,7 +355,7 @@ see `package-install' and `package-download-transaction'."
                          (list (intern (format ":%s" (car elm))) (cdr elm)))
                        info)))
                    (feather--add-install-queue pkg-name info)
-                   (feather--install-packages info transaction))
+                   (feather--install-packages transaction))
                (message "`%s' is already installed" pkg-name))))))))
 
   ;; postprocess
