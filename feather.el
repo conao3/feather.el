@@ -169,13 +169,12 @@ Return a list of dependencies, allowing duplicates."
          (append req (funcall #'feather--resolve-dependencies-1 req))))
      (if (symbolp pkgs) (list pkgs) pkgs))))
 
-(defun feather--resolve-dependencies (pkg)
-  "Resolve dependencies for PKG.
-PKGS accepts package name symbol.
+(defun feather--resolve-dependencies (pkg-name)
+  "Resolve dependencies for PKG-NAME.
 Return a list of dependencies, duplicates are resolved by more
 restrictive."
   (let (ret)
-    (dolist (req (funcall #'feather--resolve-dependencies-1 pkg))
+    (dolist (req (funcall #'feather--resolve-dependencies-1 pkg-name))
       (let ((sym (car  req))
             (ver (cadr req)))
         (if (assq sym ret)
@@ -183,8 +182,8 @@ restrictive."
               (setf (alist-get sym ret) (list ver)))
           (push req ret))))
     (append
-     `((,pkg ,(package-desc-version
-               (cadr (assq 'helm package-archive-contents)))))
+     `((,pkg-name ,(package-desc-version
+                    (cadr (assq pkg-name package-archive-contents)))))
      (nreverse ret))))
 
 
