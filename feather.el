@@ -49,11 +49,7 @@
                                 4)
   "Count of pallarel process number."
   :group 'feather
-  :type 'number
-  :set (lambda (sym val)
-         (set-default sym val)
-         (with-feather-dashboard-buffer
-          (feather-dashboard--initialize))))
+  :type 'number)
 
 ;; internal variables
 
