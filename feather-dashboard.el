@@ -210,9 +210,9 @@ see `feather--change-install-queue-status'"
                                     (propertize "queue"
                                                 'face 'feather-dashboard-state-queue))
                                    (wait
-                                    (mapconcat 'prin1-to-string .depends " "))
+                                    (mapconcat 'prin1-to-string (append .installed .depends) " "))
                                    (install
-                                    (mapconcat 'prin1-to-string .depends " "))
+                                    (mapconcat 'prin1-to-string (append .installed .depends) " "))
                                    (done
                                     (propertize "done"
                                                 'face 'feather-dashboard-state-done)))))))))))
