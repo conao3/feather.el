@@ -78,7 +78,7 @@ Value is alist.
     - QUEUE is list of ONLY dependency to be installed as list of symbol.
     - INSTALLED is list of package which have already installed.")
 
-;; accessers/setters
+;; getters/setters
 
 (defun feather--change-running-state (bool)
   "Change state `feather-running' to BOOL."
