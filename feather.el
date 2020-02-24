@@ -306,8 +306,8 @@ see `package-install' and `package-download-transaction'."
   (dolist (pkgdesc pkg-descs)
     (let ((pkg-name (package-desc-name pkgdesc)))
       (when (and (feather--get-install-queue-status pkg-name)
-                 (not (eq 'done (feather--get-install-queue-status pkg-name))))
-        (while (not (eq 'done (feather--get-install-queue-status pkg-name)))
+                 (not (memq (feather--get-install-queue-status pkg-name) '(done error))))
+        (while (not (memq (feather--get-install-queue-status pkg-name) '(done error)))
           (ppp-debug 'feather
             "Wait for dependencies to be installed\n%s"
             (ppp-plist-to-string
@@ -341,7 +341,13 @@ see `package-install' and `package-download-transaction'."
               "Something wrong while installing package\n%s"
               (ppp-plist-to-string
                (list :package pkg-name
-                     :reason err)))))))
+                     :reason err)))))
+
+         ;; prevent deadlock
+         (dolist (pkgdesc pkg-descs)
+           (let ((pkg-name (package-desc-name pkgdesc)))
+             (unless (eq 'done (feather--get-install-queue-status pkg-name))
+               (feather--change-install-queue-status pkg-name 'error))))))
       (feather--change-install-queue-status pkg-name 'done))))
 
 (async-defun feather--main-process ()
