@@ -80,13 +80,13 @@ Value is alist.
 
 ;; getters/setters
 
-(defvar feather--hook-change-feather-running     nil)
-(defvar feather--hook-get-feather-running        nil)
-(defvar feather--hook-push-package-install-args  nil)
-(defvar feather--hook-pop-package-install-args   nil)
-(defvar feather--hook-get-package-install-args   nil)
-(defvar feather--hook-add-install-queue          nil)
-(defvar feather--hook-get-install-queue          nil)
+(defvar feather--hook-change-feather-running      nil)
+(defvar feather--hook-get-feather-running         nil)
+(defvar feather--hook-push-package-install-args   nil)
+(defvar feather--hook-pop-package-install-args    nil)
+(defvar feather--hook-get-package-install-args    nil)
+(defvar feather--hook-add-install-queue           nil)
+(defvar feather--hook-get-install-queue           nil)
 (defvar feather--hook-change-install-queue-status nil)
 (defvar feather--hook-get-install-queue-status    nil)
 
