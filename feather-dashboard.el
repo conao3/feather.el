@@ -21,7 +21,7 @@
 
 ;;; Commentary:
 
-;; Parallel thread modern Emacs package manager.
+;; Dashboard feature for feather.
 
 
 ;;; Code:
