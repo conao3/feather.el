@@ -400,60 +400,61 @@ see `package-install-from-archive' and `package-unpack'."
          (error
           (funcall reject `(fail-activate-package ,err))))))))
 
-(async-defun feather--install-packages (pkg-descs)
-  "Install PKGS async.
+(async-defun feather--install-packages (info pkg-descs)
+  "Install PKGS async with additional INFO.
 PKGS is `package-desc' list as (a b c).
 
 This list must be processed orderd; b depends (a), and c depends (a b).
 
 see `package-install' and `package-download-transaction'."
-  (let ((target-pkg-name (package-desc-name (car (last pkg-descs)))))
+  (let-alist info
+    (let ((target-pkg-name (package-desc-name (car (last pkg-descs)))))
+      (dolist (pkgdesc pkg-descs)
+        (let ((pkg-name (package-desc-name pkgdesc)))
+          (when-let (alist (gethash pkg-name feather-install-queue))
+            (while (not (eq 'done (alist-get 'status alist)))
+              (ppp-debug 'feather
+                "Wait for dependencies to be installed\n%s"
+                (ppp-plist-to-string
+                 (list :package pkg-name
+                       :dependency-from target-pkg-name)))
+              (feather--dashboard-change-item-state target-pkg-name 'wait
+                                                    `((dep-pkg . ,pkg-name)))
+              (await (promise:delay 0.5)))))))
+
+    ;; set the status of the package to be installed to queue
     (dolist (pkgdesc pkg-descs)
       (let ((pkg-name (package-desc-name pkgdesc)))
-        (when-let (alist (gethash pkg-name feather-install-queue))
-          (while (not (eq 'done (alist-get 'status alist)))
-            (ppp-debug 'feather
-              "Wait for dependencies to be installed\n%s"
-              (ppp-plist-to-string
-               (list :package pkg-name
-                     :dependency-from target-pkg-name)))
-            (feather--dashboard-change-item-state target-pkg-name 'wait
-                                                  `((dep-pkg . ,pkg-name)))
-            (await (promise:delay 0.5)))))))
+        (if (gethash pkg-name feather-install-queue)
+            (setf (alist-get 'status (gethash pkg-name feather-install-queue)) 'queue)
+          (puthash pkg-name '((status . queue)) feather-install-queue))
+        (feather--dashboard-change-item-state pkg-name 'queue)))
 
-  ;; set the status of the package to be installed to queue
-  (dolist (pkgdesc pkg-descs)
-    (let ((pkg-name (package-desc-name pkgdesc)))
-      (if (gethash pkg-name feather-install-queue)
-          (setf (alist-get 'status (gethash pkg-name feather-install-queue)) 'queue)
-        (puthash pkg-name '((status . queue)) feather-install-queue))
-      (feather--dashboard-change-item-state pkg-name 'queue)))
-
-  ;; `package-download-transaction'
-  (dolist (pkgdesc pkg-descs)
-    (let ((pkg-name (package-desc-name pkgdesc)))
-      (setf (alist-get 'status (gethash pkg-name feather-install-queue)) 'install)
-      (feather--dashboard-change-item-state pkg-name 'install)
-      (condition-case err
-          (progn
-            (await (feather--promise-fetch-package pkgdesc))
-            (await (feather--promise-activate-package pkgdesc)))
-        (error
-         (pcase err
-           (`(error (fail-install-package ,reason))
-            (ppp-debug :level :warning 'feather
-              "Cannot install package\n%s"
-              (ppp-plist-to-string
-               (list :package pkg-name
-                     :reason reason))))
-           (_
-            (ppp-debug :level :warning 'feather
-              "Something wrong while installing package\n%s"
-              (ppp-plist-to-string
-               (list :package pkg-name
-                     :reason err)))))))
-      (setf (alist-get 'status (gethash pkg-name feather-install-queue)) 'done)
-      (feather--dashboard-change-item-state pkg-name 'done))))
+    ;; `package-download-transaction'
+    (dolist (pkgdesc pkg-descs)
+      (let ((pkg-name (package-desc-name pkgdesc)))
+        (setf (alist-get 'status (gethash pkg-name feather-install-queue)) 'install)
+        (feather--dashboard-change-item-state pkg-name 'install)
+        (condition-case err
+            (progn
+              (await (feather--promise-fetch-package pkgdesc))
+              (await (feather--promise-activate-package pkgdesc)))
+          (error
+           (pcase err
+             (`(error (fail-install-package ,reason))
+              (ppp-debug :level :warning 'feather
+                "Cannot install package\n%s"
+                (ppp-plist-to-string
+                 (list :package pkg-name
+                       :reason reason))))
+             (_
+              (ppp-debug :level :warning 'feather
+                "Something wrong while installing package\n%s"
+                (ppp-plist-to-string
+                 (list :package pkg-name
+                       :reason err)))))))
+        (setf (alist-get 'status (gethash pkg-name feather-install-queue)) 'done)
+        (feather--dashboard-change-item-state pkg-name 'done)))))
 
 (async-defun feather--main-process ()
   "Main process for feather."
@@ -509,7 +510,7 @@ see `package-install' and `package-download-transaction'."
                       ((and alist (not (eq 'done status)))
                        ;; TODO
                        )))
-                   (feather--install-packages transaction))
+                   (feather--install-packages info transaction))
                (message "`%s' is already installed" pkg-name))))))))
 
   ;; postprocess
