@@ -364,7 +364,7 @@ see `package-install' and `package-download-transaction'."
                        (lambda (elm)
                          (list (intern (format ":%s" (car elm))) (cdr elm)))
                        info)))
-                   (feather--add-install-queue pkg-name info)
+                   ;; (feather--add-install-queue pkg-name info)
                    (feather--install-packages transaction))
                (message "`%s' is already installed" pkg-name))))))))
 
