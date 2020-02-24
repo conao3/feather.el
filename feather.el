@@ -404,7 +404,6 @@ see `package-install' and `package-download-transaction'."
                               (package-compute-transaction () (list (list pkg))))))
                      (let ((info `((index     . ,(1+ index))
                                    (process   . ,(1+ (mod index feather-max-process)))
-                                   (targetpkg . ,pkg-name)
                                    (depends   . ,(feather--resolve-dependencies pkg-name))
                                    (queue     . ,(mapcar #'package-desc-name transaction))
                                    (installed . nil))))
