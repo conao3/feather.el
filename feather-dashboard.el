@@ -140,9 +140,7 @@ also `with-temp-buffer'."
   "Initialize and return feather-dashboard buffer."
   (with-current-buffer (get-buffer-create feather-dashboard-name)
     ;; delete overlay
-    (mapc #'delete-overlay
-          (mapcar #'cdr (append feather-dashboard-overlays-process
-                                feather-dashboard-overlays-item)))
+    (feather-dashboard--remove-all-overlays)
     (setq feather-dashboard-overlays-process nil)
     (setq feather-dashboard-overlays-item nil)
 
