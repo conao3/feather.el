@@ -458,6 +458,8 @@ See `package-install'."
 (defun feather--setup ()
   "Setup feather."
   (feather-dashboard--initialize)
+  (setq feather-running nil)
+  (setq feather-package-install-args nil)
   (setq feather-install-queue (make-hash-table :test 'eq))
   (pcase-dolist (`(,sym . ,fn) feather-advice-alist)
     (advice-add sym :around fn)))
