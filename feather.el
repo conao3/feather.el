@@ -322,7 +322,7 @@ see `package-install' and `package-download-transaction'."
     (dolist (pkgdesc pkg-descs)
       (let ((pkg-name (package-desc-name pkgdesc)))
         (feather--change-install-queue pkg-name 'targetpkg targetpkg)))
-    
+
     (dolist (pkgdesc pkg-descs)
       (let ((pkg-name (package-desc-name pkgdesc)))
         (when (and (feather--get-install-queue-status pkg-name)
