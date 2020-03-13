@@ -408,7 +408,7 @@ see `package-install' and `package-download-transaction'."
                                    (process   . ,(1+ (mod index feather-max-process)))
                                    (depends   . ,(feather--resolve-dependencies pkg-name))
                                    (queue     . ,(mapcar #'package-desc-name transaction))
-                                   (installed . nil))))
+                                   (installed . ,nil)))) ; this eval is needed
                        (ppp-debug :break t 'feather
                          (ppp-alist-to-string info))
                        (feather--add-install-queue pkg-name info)
