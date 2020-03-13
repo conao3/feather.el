@@ -271,22 +271,24 @@ see `feather--change-install-queue-status'."
                               (propertize "queue"
                                           'face 'feather-dashboard-state-queue))
                              (wait
-                              (concat
-                               (propertize "waiting"
-                                           'face 'feather-dashboard-state-wait)
-                               (when-let (dep-pkg (alist-get 'dep-pkg info))
-                                 (format " %s to be installed"
-                                         dep-pkg))))
+                              (propertize
+                               (concat
+                                "waiting"
+                                (when-let (dep-pkg (alist-get 'dep-pkg info))
+                                  (format " %s to be installed"
+                                          dep-pkg)))
+                               'face 'feather-dashboard-state-wait))
                              (install
                               (propertize "install"
                                           'face 'feather-dashboard-state-install))
                              (error
-                              (concat
-                               (propertize "error"
-                                           'face 'feather-dashboard-state-error)
-                               (cl-case .err-type
-                                 (unknown
-                                  (format " unknown: %s" (prin1-to-string .err-reason))))))
+                              (propertize
+                               (concat
+                                "error"
+                                (cl-case .err-type
+                                  (unknown
+                                   (format " unknown: %s" (prin1-to-string .err-reason)))))
+                               'face 'feather-dashboard-state-error))
                              (done
                               (propertize "done"
                                           'face 'feather-dashboard-state-done))))))))
