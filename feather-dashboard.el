@@ -282,7 +282,7 @@ see `feather--change-install-queue-status'."
                               (concat
                                (propertize "error" 'face 'feather-dashboard-state-error)
                                (when .err
-                                 (format " %s" .err))))
+                                 (format " %s" (prin1-to-string .err)))))
                              (done
                               (propertize "done"
                                           'face 'feather-dashboard-state-done))))))))
