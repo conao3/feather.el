@@ -151,26 +151,27 @@ also `with-temp-buffer'."
 
 (defun feather-dashboard--initialize ()
   "Initialize and return feather-dashboard buffer."
-  (with-current-buffer (get-buffer-create feather-dashboard-name)
-    ;; delete overlay
-    (feather-dashboard--remove-all-overlays)
-    (setq feather-dashboard-overlays-process nil)
-    (setq feather-dashboard-overlays-item nil)
+  (let ((inhibit-read-only t))
+    (with-current-buffer (get-buffer-create feather-dashboard-name)
+      ;; delete overlay
+      (feather-dashboard--remove-all-overlays)
+      (setq feather-dashboard-overlays-process nil)
+      (setq feather-dashboard-overlays-item nil)
 
-    ;; initialize feather-dashboard
-    (erase-buffer)
-    (feather-dashboard-mode)
-    (insert "*Feather dashboard*\n")
-    (add-text-properties (line-beginning-position -1) (line-beginning-position)
-                         '(face feather-dashboard-header))
-    (dotimes (i feather-max-process)
-      (let ((sym (intern (format "process%s" (1+ i)))))
-        (insert (format "  %s" sym))
-        (push `(,sym . ,(feather-dashboard--add-overlay (point) ""))
-              feather-dashboard-overlays-process)
-        (newline)))
-    (insert (format "\n"))
-    (current-buffer)))
+      ;; initialize feather-dashboard
+      (erase-buffer)
+      (feather-dashboard-mode)
+      (insert "*Feather dashboard*\n")
+      (add-text-properties (line-beginning-position -1) (line-beginning-position)
+                           '(face feather-dashboard-header))
+      (dotimes (i feather-max-process)
+        (let ((sym (intern (format "process%s" (1+ i)))))
+          (insert (format "  %s" sym))
+          (push `(,sym . ,(feather-dashboard--add-overlay (point) ""))
+                feather-dashboard-overlays-process)
+          (newline)))
+      (insert (format "\n"))
+      (current-buffer))))
 
 (defun feather-dashboard--pop-dashboard (_info)
   "Pop dashboard buffer.
