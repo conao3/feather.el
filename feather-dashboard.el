@@ -274,6 +274,15 @@ see `feather--change-install-queue-status'."
                               (propertize "done"
                                           'face 'feather-dashboard-state-done))))))))
 
+
+;;; main
+
+(defvar feather-dashboard-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map special-mode-map)
+    (define-key map "g" nil)
+    map))
+
 (define-derived-mode feather-dashboard-mode special-mode "FeatherDashboard"
   "Major mode for feather dashboard."
   (add-to-list 'page-break-lines-modes 'feather-dashboard-mode)
