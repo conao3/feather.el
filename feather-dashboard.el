@@ -93,6 +93,12 @@
 (defvar feather-max-process)
 (defvar feather-package-install-args)
 (defvar feather-install-queue)
+(defvar feather-install-current-done-count)
+(defvar feather-install-current-queue-count)
+
+(defvar feahter-dashboard-overlay-title nil
+  "Overlay for feather-dashbaord title.")
+
 (defvar feather-dashboard-overlays-process nil
   "Alist of overlay for process.
 Key is symbol like process1, value is overlay.")
@@ -169,6 +175,8 @@ also `with-temp-buffer'."
       (erase-buffer)
       (feather-dashboard-mode)
       (insert "*Feather dashboard*\n")
+      (setq feahter-dashboard-overlay-title
+            (feather-dashboard--add-overlay (1- (line-end-position)) ""))
       (add-text-properties (line-beginning-position -1) (line-beginning-position)
                            '(face feather-dashboard-header))
       (dotimes (i feather-max-process)
@@ -185,6 +193,21 @@ also `with-temp-buffer'."
 This function is invoked as hook function with INFO argument.
 see `feather--push-package-install-args.'"
   (pop-to-buffer (with-feather-dashboard-buffer (current-buffer))))
+
+(defun feahter-dashboard--update-title (_info)
+  "Update feather-dashboard title.
+This function is invoked as hook function with INFO argument.
+see `feather--change-install-queue-status'."
+  (overlay-put feahter-dashboard-overlay-title
+               'after-string
+               (format "  %s/%s (%.1f%%)"
+                       feather-install-current-done-count
+                       feather-install-current-queue-count
+                       (or (ignore-errors
+                             (* 100
+                                (/ feather-install-current-done-count
+                                   (float feather-install-current-queue-count))))
+                           0))))
 
 (defun feather-dashboard--add-new-item (info)
   "Add package to feather-dashboard item section.
