@@ -442,6 +442,7 @@ See `package-install'."
 
 (defun feather--setup ()
   "Setup feather."
+  (setq feather-install-queue (make-hash-table :test 'eq))
   (pcase-dolist (`(,sym . ,fn) feather-advice-alist)
     (advice-add sym :around fn)))
 
