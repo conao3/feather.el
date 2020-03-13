@@ -74,6 +74,13 @@
      :goreground "#ff4500"))
   "Face for feather-dashboard state, install.")
 
+(defface feather-dashboard-state-error
+  '((((background dark))
+     :foreground "#b22222")
+    (((background light))
+     :foreground "#b22222"))
+  "Face for feather-dashboard state, error.")
+
 (defface feather-dashboard-state-done
   '((((background dark))
      :foreground "#7fff00")
@@ -243,6 +250,9 @@ see `feather--change-install-queue-status'"
                                    (install
                                     (feather-dashboard--create-process-status-str
                                      key val .depends .queue .installed))
+                                   (error
+                                    (propertize "done"
+                                                'face 'feather-dashboard-state-done))
                                    (done
                                     (propertize "done"
                                                 'face 'feather-dashboard-state-done)))))))))))
@@ -270,6 +280,13 @@ see `feather--change-install-queue-status'."
                              (install
                               (propertize "install"
                                           'face 'feather-dashboard-state-install))
+                             (error
+                              (concat
+                               (propertize "error"
+                                           'face 'feather-dashboard-state-error)
+                               (cl-case .err-type
+                                 (unknown
+                                  (format " unknown: %s" (prin1-to-string .err-reason))))))
                              (done
                               (propertize "done"
                                           'face 'feather-dashboard-state-done))))))))
