@@ -349,7 +349,8 @@ see `package-install' and `package-download-transaction'."
         (condition-case err
             (progn
               (await (feather--promise-fetch-package pkgdesc))
-              (await (feather--promise-activate-package pkgdesc)))
+              (await (feather--promise-activate-package pkgdesc))
+              (feather--change-install-queue-status pkg-name 'done))
           (error
            (pcase err
              (`(error (fail-install-package ,reason))
