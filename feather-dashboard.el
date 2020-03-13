@@ -271,22 +271,18 @@ see `feather--change-install-queue-status'."
                               (propertize "queue"
                                           'face 'feather-dashboard-state-queue))
                              (wait
-                              (propertize
-                               (concat
-                                "waiting"
-                                (when .dep-pkg
-                                  (format " %s to be installed" .dep-pkg)))
-                               'face 'feather-dashboard-state-wait))
+                              (concat
+                               (propertize "waiting" 'face 'feather-dashboard-state-wait)
+                               (when .dep-pkg
+                                 (format " %s to be installed" .dep-pkg))))
                              (install
                               (propertize "install"
                                           'face 'feather-dashboard-state-install))
                              (error
-                              (propertize
-                               (concat
-                                "error"
-                                (when .err
-                                  (format " %s" .err)))
-                               'face 'feather-dashboard-state-error))
+                              (concat
+                               (propertize "error" 'face 'feather-dashboard-state-error)
+                               (when .err
+                                 (format " %s" .err))))
                              (done
                               (propertize "done"
                                           'face 'feather-dashboard-state-done))))))))
