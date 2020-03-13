@@ -386,7 +386,8 @@ see `package-install' and `package-download-transaction'."
                (unless (eq 'done (feather--get-install-queue-status pkg-name))
                  (feather--change-install-queue-status pkg-name 'error))))))
         (feather--change-install-queue
-         targetpkg 'installed `(,pkg-name ,@(feather--get-install-queue targetpkg)))))))
+         targetpkg 'installed
+         (append (list pkg-name) (feather--get-install-queue targetpkg)))))))
 
 (async-defun feather--main-process ()
   "Main process for feather."
