@@ -284,9 +284,8 @@ see `feather--change-install-queue-status'."
                               (propertize
                                (concat
                                 "error"
-                                (cl-case .err-type
-                                  (unknown
-                                   (format " unknown: %s" .err-reason))))
+                                (when .err
+                                  (format " %s" .err)))
                                'face 'feather-dashboard-state-error))
                              (done
                               (propertize "done"

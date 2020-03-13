@@ -174,16 +174,14 @@ Value is alist.
 (defun feather--change-install-queue-status (key val)
   "Change status for KEY to `feather-install-queue' to VAL."
   (let ((res (setf (alist-get 'status (gethash key feather-install-queue)) val))
-        (err-type   (alist-get 'err-type (gethash key feather-install-queue)))
-        (err-reason (alist-get 'err-reason (gethash key feather-install-queue))))
+        (err (alist-get 'err (gethash key feather-install-queue))))
     (dolist (fn feather--hook-change-install-queue-status)
       (funcall fn `((target . feather-install-queue-state)
                     (op     . change)
                     (res    . ,res)
                     (key    . ,key)
                     (val    . ,val)
-                    (err-type . ,err-type)
-                    (err-reason . ,err-reason))))
+                    (err    . ,err))))
     res))
 
 (defun feather--get-install-queue-status (key)
@@ -355,16 +353,26 @@ see `package-install' and `package-download-transaction'."
           (error
            (pcase err
              (`(error (fail-install-package ,reason))
-              (feather--change-install-queue pkg-name 'err-type 'unknown)
-              (feather--change-install-queue pkg-name 'err-reason err)
-              (ppp-debug :level :warning 'feather
-                "Cannot install package\n%s"
-                (ppp-plist-to-string
-                 (list :package pkg-name
-                       :reason reason))))
+              (cl-case (car reason)
+                (file-error
+                 (feather--change-install-queue pkg-name 'err
+                                                (list :message (nth 2 reason)
+                                                      :url (nth 1 reason)))
+                 (ppp-debug :level :warning 'feather
+                   "Cannot fetch package\n%s"
+                   (ppp-plist-to-string
+                    (list :package pkg-name
+                          :message (nth 2 reason)
+                          :url (nth 1 reason)))))
+                (otherwise
+                 (feather--change-install-queue pkg-name 'err reason)
+                 (ppp-debug :level :warning 'feather
+                   "Cannot install package\n%s"
+                   (ppp-plist-to-string
+                    (list :package pkg-name
+                          :reason reason))))))
              (_
-              (feather--change-install-queue pkg-name 'err-type 'unknown)
-              (feather--change-install-queue pkg-name 'err-reason err)
+              (feather--change-install-queue pkg-name 'err err)
               (ppp-debug :level :warning 'feather
                 "Something wrong while installing package\n%s"
                 (ppp-plist-to-string
