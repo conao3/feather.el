@@ -199,7 +199,7 @@ Value is alist.
       (funcall fn `((target . feather-install-queue-state)
                     (op     . get)
                     (res    . ,res)
-                    (key    . key))))
+                    (key    . ,key))))
     res))
 
 (defun feather--change-current-count (sym val)
