@@ -197,7 +197,7 @@ see `feather--push-package-install-args.'"
 (defun feahter-dashboard--update-title (_info)
   "Update feather-dashboard title.
 This function is invoked as hook function with INFO argument.
-see `feather--change-install-queue-status'."
+see `feather--hook-change-current-done-count'."
   (overlay-put feahter-dashboard-overlay-title
                'after-string
                (format "  %s/%s (%.1f%%)"

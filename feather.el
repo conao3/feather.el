@@ -94,10 +94,11 @@ Value is alist.
 (defvar feather--hook-change-install-queue        nil)
 (defvar feather--hook-get-install-queue           nil)
 (defvar feather--hook-change-install-queue-status
-  '(feahter-dashboard--update-title
-    feather-dashboard--change-item-status
+  '(feather-dashboard--change-item-status
     feather-dashboard--change-process-status))
 (defvar feather--hook-get-install-queue-status    nil)
+(defvar feather--hook-change-current-count
+  '(feahter-dashboard--update-title))
 
 (defun feather--change-running-state (bool)
   "Change state `feather-running' to BOOL."
@@ -199,6 +200,15 @@ Value is alist.
                     (op     . get)
                     (res    . ,res)
                     (key    . key))))
+    res))
+
+(defun feather--change-current-count (sym val)
+  "Set SYM to VAL."
+  (let ((res (set sym val)))
+    (dolist (fn feather--hook-change-current-count)
+      (funcall fn `((target . ,sym)
+                    (op     . change)
+                    (res    . ,res))))
     res))
 
 
@@ -397,7 +407,8 @@ see `package-install' and `package-download-transaction'."
         (feather--change-install-queue
          targetpkg 'installed
          (append (list pkg-name) (feather--get-install-queue targetpkg)))))
-    (cl-incf feather-install-current-done-count)))
+    (feather--change-current-count 'feather-install-current-done-count
+                                   (1+ feather-install-current-done-count))))
 
 (async-defun feather--main-process ()
   "Main process for feather."
@@ -408,8 +419,9 @@ see `package-install' and `package-download-transaction'."
 
   ;; `feather-package-install-args' may increase during execution of this loop
   (while (feather--get-package-install-args)
-    (setq feather-install-current-done-count 0)
-    (setq feather-install-current-queue-count (length (feather--get-package-install-args)))
+    (feather--change-current-count 'feather-install-current-done-count 0)
+    (feather--change-current-count 'feather-install-current-queue-count
+                                   (length (feather--get-package-install-args)))
     (condition-case err
         (await
          (promise-concurrent-no-reject-immidiately
