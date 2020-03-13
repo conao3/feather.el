@@ -328,8 +328,10 @@ see `package-install' and `package-download-transaction'."
     (dolist (pkgdesc pkg-descs)
       (let ((pkg-name (package-desc-name pkgdesc)))
         (when (and (feather--get-install-queue-status pkg-name)
-                   (not (memq (feather--get-install-queue-status pkg-name) '(done error))))
-          (while (not (memq (feather--get-install-queue-status pkg-name) '(done error)))
+                   (not (memq (feather--get-install-queue-status pkg-name)
+                              '(nil done error))))
+          (while (not (memq (feather--get-install-queue-status pkg-name)
+                            '(nil done error))) ; state is nil when force initialize
             (ppp-debug 'feather
               "Wait for dependencies to be installed\n%s"
               (ppp-plist-to-string
