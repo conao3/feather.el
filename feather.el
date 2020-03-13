@@ -77,7 +77,8 @@ Value is alist.
 
 ;; getters/setters
 
-(defvar feather--hook-change-feather-running      nil)
+(defvar feather--hook-change-feather-running
+  '(feather-dashboard--pop-dashboard))
 (defvar feather--hook-get-feather-running         nil)
 (defvar feather--hook-push-package-install-args
   '(feather-dashboard--add-new-item))

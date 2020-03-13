@@ -172,6 +172,12 @@ also `with-temp-buffer'."
     (insert (format "\n"))
     (current-buffer)))
 
+(defun feather-dashboard--pop-dashboard (_info)
+  "Pop dashboard buffer.
+This function is invoked as hook function with INFO argument.
+see `feather--push-package-install-args.'"
+  (pop-to-buffer (with-feather-dashboard-buffer (current-buffer))))
+
 (defun feather-dashboard--add-new-item (info)
   "Add package to feather-dashboard item section.
 This function is invoked as hook function with INFO argument.
