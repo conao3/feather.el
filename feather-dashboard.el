@@ -274,9 +274,8 @@ see `feather--change-install-queue-status'."
                               (propertize
                                (concat
                                 "waiting"
-                                (when-let (dep-pkg (alist-get 'dep-pkg info))
-                                  (format " %s to be installed"
-                                          dep-pkg)))
+                                (when .dep-pkg
+                                  (format " %s to be installed" .dep-pkg)))
                                'face 'feather-dashboard-state-wait))
                              (install
                               (propertize "install"
