@@ -286,7 +286,7 @@ see `feather--change-install-queue-status'."
                                 "error"
                                 (cl-case .err-type
                                   (unknown
-                                   (format " unknown: %s" (prin1-to-string .err-reason)))))
+                                   (format " unknown: %s" .err-reason))))
                                'face 'feather-dashboard-state-error))
                              (done
                               (propertize "done"
