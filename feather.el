@@ -410,11 +410,7 @@ see `package-install' and `package-download-transaction'."
                                    (queue     . ,(mapcar #'package-desc-name transaction))
                                    (installed . nil))))
                        (ppp-debug :break t 'feather
-                         (ppp-plist-to-string
-                          (mapcan
-                           (lambda (elm)
-                             (list (intern (format ":%s" (car elm))) (cdr elm)))
-                           info)))
+                         (ppp-alist-to-string info))
                        (feather--add-install-queue pkg-name info)
                        (feather--install-packages transaction))
                    (message "`%s' is already installed" pkg-name)))))))
