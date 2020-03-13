@@ -93,8 +93,8 @@
 (defvar feather-max-process)
 (defvar feather-package-install-args)
 (defvar feather-install-queue)
-(defvar feather-install-current-done-count)
-(defvar feather-install-current-queue-count)
+(defvar feather-current-done-count)
+(defvar feather-current-queue-count)
 
 (defvar feahter-dashboard-overlay-title nil
   "Overlay for feather-dashbaord title.")
@@ -201,12 +201,12 @@ see `feather--hook-change-current-done-count'."
   (overlay-put feahter-dashboard-overlay-title
                'after-string
                (format "  %s/%s (%.1f%%)"
-                       feather-install-current-done-count
-                       feather-install-current-queue-count
+                       feather-current-done-count
+                       feather-current-queue-count
                        (or (ignore-errors
                              (* 100
-                                (/ feather-install-current-done-count
-                                   (float feather-install-current-queue-count))))
+                                (/ feather-current-done-count
+                                   (float feather-current-queue-count))))
                            0))))
 
 (defun feather-dashboard--add-new-item (info)

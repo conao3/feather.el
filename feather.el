@@ -75,10 +75,10 @@ Value is alist.
     - QUEUE is list of ONLY dependency to be installed as list of symbol.
     - INSTALLED is list of package which have already installed.")
 
-(defvar feather-install-current-done-count 0
+(defvar feather-current-done-count 0
   "The count of done in the current `feater-main-process'.")
 
-(defvar feather-install-current-queue-count 0
+(defvar feather-current-queue-count 0
   "The count of queue in the current `feater-main-process'.")
 
 ;; getters/setters
@@ -407,8 +407,8 @@ see `package-install' and `package-download-transaction'."
         (feather--change-install-queue
          targetpkg 'installed
          (append (list pkg-name) (feather--get-install-queue targetpkg)))))
-    (feather--change-current-count 'feather-install-current-done-count
-                                   (1+ feather-install-current-done-count))))
+    (feather--change-current-count 'feather-current-done-count
+                                   (1+ feather-current-done-count))))
 
 (async-defun feather--main-process ()
   "Main process for feather."
@@ -419,13 +419,13 @@ see `package-install' and `package-download-transaction'."
 
   ;; `feather-package-install-args' may increase during execution of this loop
   (while (feather--get-package-install-args)
-    (feather--change-current-count 'feather-install-current-done-count 0)
-    (feather--change-current-count 'feather-install-current-queue-count
+    (feather--change-current-count 'feather-current-done-count 0)
+    (feather--change-current-count 'feather-current-queue-count
                                    (length (feather--get-package-install-args)))
     (condition-case err
         (await
          (promise-concurrent-no-reject-immidiately
-             feather-max-process feather-install-current-queue-count
+             feather-max-process feather-current-queue-count
            (lambda (index)
              (seq-let (pkg dont-select) (feather--pop-package-install-args)
 
@@ -487,8 +487,8 @@ See `package-install'."
   (setq feather-running nil)
   (setq feather-package-install-args nil)
   (setq feather-install-queue (make-hash-table :test 'eq))
-  (setq feather-install-current-done-count 0)
-  (setq feather-install-current-queue-count 0)
+  (setq feather-current-done-count 0)
+  (setq feather-current-queue-count 0)
   (pcase-dolist (`(,sym . ,fn) feather-advice-alist)
     (advice-add sym :around fn)))
 
