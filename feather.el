@@ -83,11 +83,6 @@ Value is alist.
 
 ;; getters/setters
 
-(defvar feather--hook-change-feather-running      nil)
-(defvar feather--hook-get-feather-running         nil)
-(defvar feather--hook-push-package-install-args   nil)
-(defvar feather--hook-pop-package-install-args    nil)
-(defvar feather--hook-get-package-install-args    nil)
 (defvar feather--hook-add-install-queue           nil)
 (defvar feather--hook-change-install-queue        nil)
 (defvar feather--hook-get-install-queue           nil)
@@ -95,7 +90,6 @@ Value is alist.
   '(feather-dashboard--change-item-status
     feather-dashboard--change-process-status))
 (defvar feather--hook-get-install-queue-status    nil)
-(defvar feather--hook-change-current-count        nil)
 
 (defvar feather--hook-get-var-fns    nil)
 (defvar feather--hook-op-var-fns
