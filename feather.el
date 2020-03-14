@@ -83,8 +83,7 @@ Value is alist.
 
 ;; getters/setters
 
-(defvar feather--hook-change-feather-running
-  '(feather-dashboard--pop-dashboard))
+(defvar feather--hook-change-feather-running      nil)
 (defvar feather--hook-get-feather-running         nil)
 (defvar feather--hook-push-package-install-args
   '(feather-dashboard--add-new-item))
@@ -100,14 +99,17 @@ Value is alist.
 (defvar feather--hook-change-current-count
   '(feahter-dashboard--update-title))
 
-(defun feather--change-running-state (bool)
-  "Change state `feather-running' to BOOL."
-  (let ((res (setq feather-running bool)))
-    (dolist (fn feather--hook-change-feather-running)
-      (funcall fn `((target . feather-running)
-                    (op     . change)
-                    (res    . ,res))))
-    res))
+(defvar feather--hook-change-var-fns
+  '(feather-dashboard--pop-dashboard))
+
+(defun feather--hook-set-var (sym val)
+  "Change SYM to VAL."
+  (let ((res (set sym val)))
+    (prog1 res
+      (dolist (fn feather--hook-change-var-fns)
+        (funcall fn `((sym . ,sym)
+                      (val . ,val)
+                      (res . ,res)))))))
 
 (defun feather--get-feather-running ()
   "Get state `feather-running' as boolean."
@@ -414,7 +416,7 @@ see `package-install' and `package-download-transaction'."
   "Main process for feather."
 
   ;; preprocess
-  (feather--change-running-state t)
+  (feather--hook-set-var 'feather-running t)
   (await (promise:delay 1))             ; wait for continuous execution
 
   ;; `feather-package-install-args' may increase during execution of this loop
@@ -460,7 +462,7 @@ see `package-install' and `package-download-transaction'."
 
   ;; postprocess
   (package-menu--post-refresh)
-  (feather--change-running-state nil))
+  (feather--hook-set-var 'feather-running nil))
 
 
 ;;; advice
