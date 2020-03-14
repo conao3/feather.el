@@ -145,7 +145,7 @@ Value is alist.
     res))
 
 (defun feather--change-install-queue (key alistkey val)
-  "Add VAL for KEY, ALISTKEY to `feather-install-queue'."
+  "Add VAL for KEY, ALISTKEY from `feather-install-queue'."
   (let ((res (setf (alist-get alistkey (gethash key feather-install-queue)) val)))
     (dolist (fn feather--hook-change-install-queue)
       (funcall fn `((target   . feather-install-queue)
@@ -167,7 +167,7 @@ Value is alist.
     res))
 
 (defun feather--change-install-queue-status (key val)
-  "Change status for KEY to `feather-install-queue' to VAL."
+  "Change status for KEY from `feather-install-queue' to VAL."
   (let ((res (setf (alist-get 'status (gethash key feather-install-queue)) val))
         (err (alist-get 'err (gethash key feather-install-queue))))
     (dolist (fn feather--hook-change-install-queue-status)
@@ -180,7 +180,7 @@ Value is alist.
     res))
 
 (defun feather--get-install-queue-status (key)
-  "Get status for KEY to `feather-install-queue'."
+  "Get status for KEY from `feather-install-queue'."
   (let ((res (alist-get 'status (gethash key feather-install-queue))))
     (dolist (fn feather--hook-get-install-queue-status)
       (funcall fn `((target . feather-install-queue-state)
