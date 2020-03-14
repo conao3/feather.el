@@ -83,6 +83,11 @@ Value is alist.
 
 ;; getters/setters
 
+(defvar feather--hook-get-var-fns                 nil)
+(defvar feather--hook-op-var-fns
+  '(feather-dashboard--pop-dashboard
+    feather-dashboard--add-new-item
+    feahter-dashboard--update-title))
 (defvar feather--hook-add-install-queue           nil)
 (defvar feather--hook-change-install-queue        nil)
 (defvar feather--hook-get-install-queue           nil)
@@ -90,12 +95,6 @@ Value is alist.
   '(feather-dashboard--change-item-status
     feather-dashboard--change-process-status))
 (defvar feather--hook-get-install-queue-status    nil)
-
-(defvar feather--hook-get-var-fns    nil)
-(defvar feather--hook-op-var-fns
-  '(feather-dashboard--pop-dashboard
-    feather-dashboard--add-new-item
-    feahter-dashboard--update-title))
 
 (defmacro feather--hook-op-var (op var1 var2)
   "Do (OP VAR1 VAR2)."
