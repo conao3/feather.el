@@ -140,12 +140,8 @@ Key is package symbol, value is overlay.")
 
 ;;; functions
 
-(declare-function feather--change-running-state "feather")
-(declare-function feather--get-feather-running "feather")
-(declare-function feather--push-package-install-args "feather")
-(declare-function feather--pop-package-install-args "feather")
-(declare-function feather--get-package-install-args "feather")
 (declare-function feather--add-install-queue "feather")
+(declare-function feather--change-install-queue "feather")
 (declare-function feather--get-install-queue "feather")
 (declare-function feather--change-install-queue-status "feather")
 (declare-function feather--get-install-queue-status "feather")
