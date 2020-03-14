@@ -100,23 +100,28 @@ Value is alist.
   '(feahter-dashboard--update-title))
 
 (defvar feather--hook-get-var-fns    nil)
-(defvar feather--hook-change-var-fns
+(defvar feather--hook-op-var-fns
   '(feather-dashboard--pop-dashboard))
+
+(defmacro feather--hook-op-var (op sexp val)
+  "Do OP for SEXP to VAL."
+  (let ((sym (pcase sexp
+               (_
+                sexp))))
+    `(let ((res (,op ,sexp ,val)))
+       (prog1 res
+         (dolist (fn feather--hook-op-var-fns)
+           (funcall fn (list '(op   . ,op)
+                             '(sexp . ,sexp)
+                             '(sym  . ,sym)
+                             '(val  . ,val)
+                             `(res  . ,res))))))))
 
 (defun feather--hook-get-var (sym)
   "Get SYM."
   (let ((res (symbol-value sym)))
     (prog1 res
       (dolist (fn feather--hook-get-var-fns)
-        (funcall fn `((sym . ,sym)
-                      (val . ,val)
-                      (res . ,res)))))))
-
-(defun feather--hook-set-var (sym val)
-  "Change SYM to VAL."
-  (let ((res (set sym val)))
-    (prog1 res
-      (dolist (fn feather--hook-change-var-fns)
         (funcall fn `((sym . ,sym)
                       (val . ,val)
                       (res . ,res)))))))
@@ -417,7 +422,7 @@ see `package-install' and `package-download-transaction'."
   "Main process for feather."
 
   ;; preprocess
-  (feather--hook-set-var 'feather-running t)
+  (feather--hook-op-var setq feather-running t)
   (await (promise:delay 1))             ; wait for continuous execution
 
   ;; `feather-package-install-args' may increase during execution of this loop
@@ -463,7 +468,7 @@ see `package-install' and `package-download-transaction'."
 
   ;; postprocess
   (package-menu--post-refresh)
-  (feather--hook-set-var 'feather-running nil))
+  (feather--hook-op-var setq feather-running nil))
 
 
 ;;; advice
