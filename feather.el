@@ -125,6 +125,8 @@ Value is alist.
 (defmacro feather--hook-get-var (sexp)
   "Get SEXP."
   (let ((sym (pcase sexp
+               (`(pop ,symbol)
+                symbol)
                (_
                 sexp))))
     `(let ((res ,sexp))
@@ -133,15 +135,6 @@ Value is alist.
            (funcall fn (list '(sexp . ,sexp)
                              '(sym  . ,sym)
                              `(res  . ,res))))))))
-
-(defun feather--pop-package-install-args ()
-  "Pop `feather-package-install-args'."
-  (let ((res (pop feather-package-install-args)))
-    (dolist (fn feather--hook-pop-package-install-args)
-      (funcall fn `((target . package-install-args)
-                    (op     . pop)
-                    (res    . ,res))))
-    res))
 
 (defun feather--get-package-install-args ()
   "Get `feather-package-install-args'."
@@ -433,7 +426,7 @@ see `package-install' and `package-download-transaction'."
          (promise-concurrent-no-reject-immidiately
              feather-max-process feather-current-queue-count
            (lambda (index)
-             (seq-let (pkg dont-select) (feather--pop-package-install-args)
+             (seq-let (pkg dont-select) (feather--hook-get-var (pop feather-package-install-args))
 
                ;; `package-install'
 
