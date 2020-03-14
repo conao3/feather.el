@@ -117,14 +117,17 @@ Value is alist.
                              '(val  . ,val)
                              `(res  . ,res))))))))
 
-(defun feather--hook-get-var (sym)
-  "Get SYM."
-  (let ((res (symbol-value sym)))
-    (prog1 res
-      (dolist (fn feather--hook-get-var-fns)
-        (funcall fn `((sym . ,sym)
-                      (val . ,val)
-                      (res . ,res)))))))
+(defmacro feather--hook-get-var (sexp)
+  "Get SEXP."
+  (let ((sym (pcase sexp
+               (_
+                sexp))))
+    `(let ((res ,sexp))
+       (prog1 res
+         (dolist (fn feather--hook-get-var-fns)
+           (funcall fn (list '(sexp . ,sexp)
+                             '(sym  . ,sym)
+                             `(res  . ,res))))))))
 
 (defun feather--push-package-install-args (val)
   "Push VAL to `feather-package-install-args'."
@@ -483,7 +486,7 @@ See `feather--setup' and `feather--teardown'.")
 This code based package.el bundled Emacs-26.3.
 See `package-install'."
   (feather--push-package-install-args args)
-  (unless (feather--hook-get-var 'feather-running)
+  (unless (feather--hook-get-var feather-running)
     (feather--main-process)))
 
 
