@@ -117,17 +117,21 @@ Value is alist.
 
 (defmacro feather--hook-get-var (sexp)
   "Get SEXP."
-  (let ((sym (pcase sexp
-               (`(pop ,symbol)
-                symbol)
-               (_
-                sexp))))
+  (let (op sym)
+    (pcase sexp
+      (`(pop ,symbol)
+       (setq op 'pop)
+       (setq sym symbol))
+      (_
+       (setq op 'symbol-value)
+       (setq sym sexp)))
     `(let ((res ,sexp))
        (prog1 res
          (dolist (fn feather--hook-get-var-fns)
-           (funcall fn (list '(sexp . ,sexp)
-                             '(sym  . ,sym)
-                             `(res  . ,res))))))))
+           (funcall fn `((op   . ,',op)
+                         (sexp . ,',sexp)
+                         (sym  . ,',sym)
+                         (res  . ,res))))))))
 
 (defun feather--add-install-queue (key val)
   "Add VAL for KEY to `feather-install-queue'."
