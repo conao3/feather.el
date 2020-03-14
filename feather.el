@@ -85,8 +85,7 @@ Value is alist.
 
 (defvar feather--hook-change-feather-running      nil)
 (defvar feather--hook-get-feather-running         nil)
-(defvar feather--hook-push-package-install-args
-  '(feather-dashboard--add-new-item))
+(defvar feather--hook-push-package-install-args   nil)
 (defvar feather--hook-pop-package-install-args    nil)
 (defvar feather--hook-get-package-install-args    nil)
 (defvar feather--hook-add-install-queue           nil)
@@ -101,21 +100,27 @@ Value is alist.
 
 (defvar feather--hook-get-var-fns    nil)
 (defvar feather--hook-op-var-fns
-  '(feather-dashboard--pop-dashboard))
+  '(feather-dashboard--pop-dashboard
+    feather-dashboard--add-new-item))
 
-(defmacro feather--hook-op-var (op sexp val)
-  "Do OP for SEXP to VAL."
-  (let ((sym (pcase sexp
-               (_
-                sexp))))
-    `(let ((res (,op ,sexp ,val)))
+(defmacro feather--hook-op-var (op var1 var2)
+  "Do (OP VAR1 VAR2)."
+  (let (sexp sym val)
+    (cl-case op
+      (push (setq sexp var2)
+            (setq sym var2)
+            (setq val var1))
+      (otherwise (setq sexp var1)
+                 (setq sym var1)
+                 (setq val var2)))
+    `(let ((res (,op ,var1 ,var2)))
        (prog1 res
          (dolist (fn feather--hook-op-var-fns)
-           (funcall fn (list '(op   . ,op)
-                             '(sexp . ,sexp)
-                             '(sym  . ,sym)
-                             '(val  . ,val)
-                             `(res  . ,res))))))))
+           (funcall fn `((op   . ,',op)
+                         (sexp . ,',sexp)
+                         (sym  . ,',sym)
+                         (val  . ,,val)
+                         (res  . ,res))))))))
 
 (defmacro feather--hook-get-var (sexp)
   "Get SEXP."
@@ -128,16 +133,6 @@ Value is alist.
            (funcall fn (list '(sexp . ,sexp)
                              '(sym  . ,sym)
                              `(res  . ,res))))))))
-
-(defun feather--push-package-install-args (val)
-  "Push VAL to `feather-package-install-args'."
-  (let ((res (push val feather-package-install-args)))
-    (dolist (fn feather--hook-push-package-install-args)
-      (funcall fn `((target . package-install-args)
-                    (op     . push)
-                    (res    . ,res)
-                    (val    . ,val))))
-    res))
 
 (defun feather--pop-package-install-args ()
   "Pop `feather-package-install-args'."
@@ -485,7 +480,7 @@ See `feather--setup' and `feather--teardown'.")
   "Around advice for FN with ARGS.
 This code based package.el bundled Emacs-26.3.
 See `package-install'."
-  (feather--push-package-install-args args)
+  (feather--hook-op-var push args feather-package-install-args)
   (unless (feather--hook-get-var feather-running)
     (feather--main-process)))
 

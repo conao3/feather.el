@@ -214,19 +214,21 @@ see `feather--hook-change-current-done-count'."
 This function is invoked as hook function with INFO argument.
 see `feather--push-package-install-args.'"
   (let-alist info
-    (seq-let (pkg _dont-select) .val
-      (let ((pkg-name (if (package-desc-p pkg)
-                          (package-desc-name pkg)
-                        pkg)))
-        (with-feather-dashboard-buffer
-         (goto-char (point-min))
-         (forward-page)
-         (forward-line)
-         (beginning-of-line)
-         (insert (format "  %s" pkg-name))
-         (push `(,pkg-name . ,(feather-dashboard--add-overlay (point) ""))
-               feather-dashboard-overlays-item)
-         (newline))))))
+    (when (and (eq .op 'push)
+               (eq .sym 'feather-package-install-args))
+      (seq-let (pkg _dont-select) .val
+        (let ((pkg-name (if (package-desc-p pkg)
+                            (package-desc-name pkg)
+                          pkg)))
+          (with-feather-dashboard-buffer
+           (goto-char (point-min))
+           (forward-page)
+           (forward-line)
+           (beginning-of-line)
+           (insert (format "  %s" pkg-name))
+           (push `(,pkg-name . ,(feather-dashboard--add-overlay (point) ""))
+                 feather-dashboard-overlays-item)
+           (newline)))))))
 
 (defun feather-dashboard--create-process-status-str (key val depends queue installed)
   "Create feather-dashboard process status string.
