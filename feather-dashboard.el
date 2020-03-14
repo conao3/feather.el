@@ -188,11 +188,14 @@ also `with-temp-buffer'."
       (insert (format "\n"))
       (current-buffer))))
 
-(defun feather-dashboard--pop-dashboard (_info)
+(defun feather-dashboard--pop-dashboard (info)
   "Pop dashboard buffer.
 This function is invoked as hook function with INFO argument.
 see `feather--push-package-install-args.'"
-  (pop-to-buffer (with-feather-dashboard-buffer (current-buffer))))
+  (let-alist info
+    (when (and (eq .op 'setq)
+               (eq .sym 'feather-running))
+      (pop-to-buffer (with-feather-dashboard-buffer (current-buffer))))))
 
 (defun feahter-dashboard--update-title (_info)
   "Update feather-dashboard title.
