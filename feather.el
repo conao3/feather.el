@@ -99,8 +99,18 @@ Value is alist.
 (defvar feather--hook-change-current-count
   '(feahter-dashboard--update-title))
 
+(defvar feather--hook-get-var-fns    nil)
 (defvar feather--hook-change-var-fns
   '(feather-dashboard--pop-dashboard))
+
+(defun feather--hook-get-var (sym)
+  "Get SYM."
+  (let ((res (symbol-value sym)))
+    (prog1 res
+      (dolist (fn feather--hook-get-var-fns)
+        (funcall fn `((sym . ,sym)
+                      (val . ,val)
+                      (res . ,res)))))))
 
 (defun feather--hook-set-var (sym val)
   "Change SYM to VAL."
@@ -110,15 +120,6 @@ Value is alist.
         (funcall fn `((sym . ,sym)
                       (val . ,val)
                       (res . ,res)))))))
-
-(defun feather--get-feather-running ()
-  "Get state `feather-running' as boolean."
-  (let ((res feather-running))
-    (dolist (fn feather--hook-get-feather-running)
-      (funcall fn `((target . feather-running)
-                    (op     . get)
-                    (res    . ,res))))
-    res))
 
 (defun feather--push-package-install-args (val)
   "Push VAL to `feather-package-install-args'."
@@ -477,7 +478,7 @@ See `feather--setup' and `feather--teardown'.")
 This code based package.el bundled Emacs-26.3.
 See `package-install'."
   (feather--push-package-install-args args)
-  (unless (feather--get-feather-running)
+  (unless (feather--hook-get-var 'feather-running)
     (feather--main-process)))
 
 
