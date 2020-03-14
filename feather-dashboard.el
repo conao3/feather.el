@@ -28,6 +28,8 @@
 
 (require 'page-break-lines)
 (require 'subr-x)
+(require 'seq)
+(require 'package)
 
 (defgroup feather-dashboard nil
   "Dashboard feature for feather."
