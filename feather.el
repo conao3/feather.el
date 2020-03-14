@@ -136,15 +136,6 @@ Value is alist.
                              '(sym  . ,sym)
                              `(res  . ,res))))))))
 
-(defun feather--get-package-install-args ()
-  "Get `feather-package-install-args'."
-  (let ((res feather-package-install-args))
-    (dolist (fn feather--hook-get-package-install-args)
-      (funcall fn `((target . package-install-args)
-                    (op     . get)
-                    (res    . ,res))))
-    res))
-
 (defun feather--add-install-queue (key val)
   "Add VAL for KEY to `feather-install-queue'."
   (let ((res (setf (gethash key feather-install-queue) val)))
@@ -417,10 +408,10 @@ see `package-install' and `package-download-transaction'."
   (await (promise:delay 1))             ; wait for continuous execution
 
   ;; `feather-package-install-args' may increase during execution of this loop
-  (while (feather--get-package-install-args)
+  (while (feather--hook-get-var feather-package-install-args)
     (feather--change-current-count 'feather-current-done-count 0)
     (feather--change-current-count 'feather-current-queue-count
-                                   (length (feather--get-package-install-args)))
+                                   (length feather-package-install-args))
     (condition-case err
         (await
          (promise-concurrent-no-reject-immidiately
