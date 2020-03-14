@@ -95,13 +95,13 @@ Value is alist.
   '(feather-dashboard--change-item-status
     feather-dashboard--change-process-status))
 (defvar feather--hook-get-install-queue-status    nil)
-(defvar feather--hook-change-current-count
-  '(feahter-dashboard--update-title))
+(defvar feather--hook-change-current-count        nil)
 
 (defvar feather--hook-get-var-fns    nil)
 (defvar feather--hook-op-var-fns
   '(feather-dashboard--pop-dashboard
-    feather-dashboard--add-new-item))
+    feather-dashboard--add-new-item
+    feahter-dashboard--update-title))
 
 (defmacro feather--hook-op-var (op var1 var2)
   "Do (OP VAR1 VAR2)."
@@ -190,15 +190,6 @@ Value is alist.
                     (op     . get)
                     (res    . ,res)
                     (key    . ,key))))
-    res))
-
-(defun feather--change-current-count (sym val)
-  "Set SYM to VAL."
-  (let ((res (set sym val)))
-    (dolist (fn feather--hook-change-current-count)
-      (funcall fn `((target . ,sym)
-                    (op     . change)
-                    (res    . ,res))))
     res))
 
 
@@ -397,7 +388,7 @@ see `package-install' and `package-download-transaction'."
         (feather--change-install-queue
          targetpkg 'installed
          (append (list pkg-name) (feather--get-install-queue targetpkg)))))
-    (feather--change-current-count 'feather-current-done-count
+    (feather--hook-op-var setq feather-current-done-count
                                    (1+ feather-current-done-count))))
 
 (async-defun feather--main-process ()
@@ -409,8 +400,8 @@ see `package-install' and `package-download-transaction'."
 
   ;; `feather-package-install-args' may increase during execution of this loop
   (while (feather--hook-get-var feather-package-install-args)
-    (feather--change-current-count 'feather-current-done-count 0)
-    (feather--change-current-count 'feather-current-queue-count
+    (feather--hook-op-var setq feather-current-done-count 0)
+    (feather--hook-op-var setq feather-current-queue-count
                                    (length feather-package-install-args))
     (condition-case err
         (await
