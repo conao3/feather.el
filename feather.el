@@ -199,7 +199,7 @@ Return a list of dependencies, allowing duplicates."
   (when pkgs
     (mapcan
      (lambda (pkg)
-       (let* ((pkg* (if (symbolp pkg) (list pkg '(0 1)) pkg))
+       (let* ((pkg* (if (symbolp pkg) (list pkg '(0)) pkg))
               (elm  (assq (car pkg*) package-archive-contents))
               (req  (and elm (package-desc-reqs (cadr elm)))))
          (append req (funcall #'feather--resolve-dependencies-1 req))))
