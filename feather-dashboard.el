@@ -294,8 +294,10 @@ see `feather--change-install-queue-status'."
                    (format " %s"
                            (cl-case .val
                              (queue
-                              (propertize "queue"
-                                          'face 'feather-dashboard-state-queue))
+                              ;; (propertize "queue"
+                              ;;             'face 'feather-dashboard-state-queue)
+                              (propertize "install"
+                                          'face 'feather-dashboard-state-install))
                              (wait
                               (concat
                                (propertize "waiting" 'face 'feather-dashboard-state-wait)
