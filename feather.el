@@ -89,7 +89,7 @@ Value is alist.
     feather-dashboard--add-new-item
     feahter-dashboard--update-title))
 (defvar feather--hook-add-install-queue-fns       nil)
-(defvar feather--hook-change-install-queue        nil)
+(defvar feather--hook-change-install-queue-fns    nil)
 (defvar feather--hook-get-install-queue           nil)
 (defvar feather--hook-change-install-queue-status
   '(feather-dashboard--change-item-status
@@ -144,17 +144,17 @@ Value is alist.
                      (val    . ,,val))))
      res))
 
-(defun feather--change-install-queue (key alistkey val)
+(defmacro feather--hook-change-install-queue (key alistkey val)
   "Add VAL for KEY, ALISTKEY from `feather-install-queue'."
-  (let ((res (setf (alist-get alistkey (gethash key feather-install-queue)) val)))
-    (dolist (fn feather--hook-change-install-queue)
-      (funcall fn `((target   . feather-install-queue)
-                    (op       . change)
-                    (res      . ,res)
-                    (key      . ,key)
-                    (alistkey . ,alistkey)
-                    (val      . ,val))))
-    res))
+  `(let ((res (setf (alist-get ,alistkey (gethash ,key feather-install-queue)) ,val)))
+     (dolist (fn feather--hook-change-install-queue-fns)
+       (funcall fn `((target   . feather-install-queue)
+                     (op       . change)
+                     (res      . ,res)
+                     (key      . ,,key)
+                     (alistkey . ,,alistkey)
+                     (val      . ,,val))))
+     res))
 
 (defun feather--get-install-queue (key)
   "Get value for KEY from `feather-install-queue'."
@@ -318,7 +318,7 @@ see `package-install' and `package-download-transaction'."
   (let ((targetpkg (package-desc-name (car (last pkg-descs)))))
     (dolist (pkgdesc pkg-descs)
       (let ((pkg-name (package-desc-name pkgdesc)))
-        (feather--change-install-queue pkg-name 'targetpkg targetpkg)))
+        (feather--hook-change-install-queue pkg-name 'targetpkg targetpkg)))
 
     (dolist (pkgdesc pkg-descs)
       (let ((pkg-name (package-desc-name pkgdesc)))
@@ -353,7 +353,7 @@ see `package-install' and `package-download-transaction'."
              (`(error (fail-install-package ,reason))
               (cl-case (car reason)
                 (file-error
-                 (feather--change-install-queue pkg-name 'err
+                 (feather--hook-change-install-queue pkg-name 'err
                                                 (list :message (nth 2 reason)
                                                       :url (nth 1 reason)))
                  (ppp-debug :level :warning 'feather
@@ -363,14 +363,14 @@ see `package-install' and `package-download-transaction'."
                           :message (nth 2 reason)
                           :url (nth 1 reason)))))
                 (otherwise
-                 (feather--change-install-queue pkg-name 'err reason)
+                 (feather--hook-change-install-queue pkg-name 'err reason)
                  (ppp-debug :level :warning 'feather
                    "Cannot install package\n%s"
                    (ppp-plist-to-string
                     (list :package pkg-name
                           :reason reason))))))
              (_
-              (feather--change-install-queue pkg-name 'err err)
+              (feather--hook-change-install-queue pkg-name 'err err)
               (ppp-debug :level :warning 'feather
                 "Something wrong while installing package\n%s"
                 (ppp-plist-to-string
@@ -382,7 +382,7 @@ see `package-install' and `package-download-transaction'."
              (let ((pkg-name (package-desc-name pkgdesc)))
                (unless (eq 'done (feather--get-install-queue-status pkg-name))
                  (feather--change-install-queue-status pkg-name 'error))))))
-        (feather--change-install-queue
+        (feather--hook-change-install-queue
          targetpkg 'installed
          (append (list pkg-name) (feather--get-install-queue targetpkg)))))
     (feather--hook-op-var setq feather-current-done-count
