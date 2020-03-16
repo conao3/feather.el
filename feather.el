@@ -90,7 +90,7 @@ Value is alist.
     feahter-dashboard--update-title))
 (defvar feather--hook-add-install-queue-fns       nil)
 (defvar feather--hook-change-install-queue-fns    nil)
-(defvar feather--hook-get-install-queue           nil)
+(defvar feather--hook-get-install-queue-fns       nil)
 (defvar feather--hook-change-install-queue-status
   '(feather-dashboard--change-item-status
     feather-dashboard--change-process-status))
@@ -156,15 +156,15 @@ Value is alist.
                      (val      . ,,val))))
      res))
 
-(defun feather--get-install-queue (key)
+(defmacro feather--hook-get-install-queue (key)
   "Get value for KEY from `feather-install-queue'."
-  (let ((res (gethash key feather-install-queue)))
-    (dolist (fn feather--hook-get-install-queue)
-      (funcall fn `((target . feather-install-queue)
-                    (op     . get)
-                    (res    . ,res)
-                    (key    . ,key))))
-    res))
+  `(let ((res (gethash ,key feather-install-queue)))
+     (dolist (fn feather--hook-get-install-queue-fns)
+       (funcall fn `((target . feather-install-queue)
+                     (op     . get)
+                     (res    . ,res)
+                     (key    . ,,key))))
+     res))
 
 (defun feather--change-install-queue-status (key val)
   "Change status for KEY from `feather-install-queue' to VAL."
@@ -384,7 +384,7 @@ see `package-install' and `package-download-transaction'."
                  (feather--change-install-queue-status pkg-name 'error))))))
         (feather--hook-change-install-queue
          targetpkg 'installed
-         (append (list pkg-name) (feather--get-install-queue targetpkg)))))
+         (append (list pkg-name) (feather--hook-get-install-queue targetpkg)))))
     (feather--hook-op-var setq feather-current-done-count
                                    (1+ feather-current-done-count))))
 
