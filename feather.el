@@ -91,7 +91,7 @@ Value is alist.
 (defvar feather--hook-add-install-queue-fns       nil)
 (defvar feather--hook-change-install-queue-fns    nil)
 (defvar feather--hook-get-install-queue-fns       nil)
-(defvar feather--hook-change-install-queue-status
+(defvar feather--hook-change-install-queue-status-fns
   '(feather-dashboard--change-item-status
     feather-dashboard--change-process-status))
 (defvar feather--hook-get-install-queue-status    nil)
@@ -166,18 +166,18 @@ Value is alist.
                      (key    . ,,key))))
      res))
 
-(defun feather--change-install-queue-status (key val)
+(defmacro feather--hook-change-install-queue-status (key val)
   "Change status for KEY from `feather-install-queue' to VAL."
-  (let ((res (setf (alist-get 'status (gethash key feather-install-queue)) val))
-        (err (alist-get 'err (gethash key feather-install-queue))))
-    (dolist (fn feather--hook-change-install-queue-status)
-      (funcall fn `((target . feather-install-queue-state)
-                    (op     . change)
-                    (res    . ,res)
-                    (key    . ,key)
-                    (val    . ,val)
-                    (err    . ,err))))
-    res))
+  `(let ((res (setf (alist-get 'status (gethash ,key feather-install-queue)) ,val))
+         (err (alist-get 'err (gethash ,key feather-install-queue))))
+     (dolist (fn feather--hook-change-install-queue-status-fns)
+       (funcall fn `((target . feather-install-queue-state)
+                     (op     . change)
+                     (res    . ,res)
+                     (err    . ,err)
+                     (key    . ,,key)
+                     (val    . ,,val))))
+     res))
 
 (defun feather--get-install-queue-status (key)
   "Get status for KEY from `feather-install-queue'."
@@ -337,17 +337,17 @@ see `package-install' and `package-download-transaction'."
     ;; set the status of the package to be installed to queue
     (dolist (pkgdesc pkg-descs)
       (let ((pkg-name (package-desc-name pkgdesc)))
-        (feather--change-install-queue-status pkg-name 'queue)))
+        (feather--hook-change-install-queue-status pkg-name 'queue)))
 
     ;; `package-download-transaction'
     (dolist (pkgdesc pkg-descs)
       (let ((pkg-name (package-desc-name pkgdesc)))
-        (feather--change-install-queue-status pkg-name 'install)
+        (feather--hook-change-install-queue-status pkg-name 'install)
         (condition-case err
             (progn
               (await (feather--promise-fetch-package pkgdesc))
               (await (feather--promise-activate-package pkgdesc))
-              (feather--change-install-queue-status pkg-name 'done))
+              (feather--hook-change-install-queue-status pkg-name 'done))
           (error
            (pcase err
              (`(error (fail-install-package ,reason))
@@ -381,7 +381,7 @@ see `package-install' and `package-download-transaction'."
            (dolist (pkgdesc pkg-descs)
              (let ((pkg-name (package-desc-name pkgdesc)))
                (unless (eq 'done (feather--get-install-queue-status pkg-name))
-                 (feather--change-install-queue-status pkg-name 'error))))))
+                 (feather--hook-change-install-queue-status pkg-name 'error))))))
         (feather--hook-change-install-queue
          targetpkg 'installed
          (append (list pkg-name) (feather--hook-get-install-queue targetpkg)))))
