@@ -83,18 +83,18 @@ Value is alist.
 
 ;; getters/setters
 
-(defvar feather--hook-get-var-fns                 nil)
+(defvar feather--hook-get-var-fns                     nil)
 (defvar feather--hook-op-var-fns
   '(feather-dashboard--pop-dashboard
     feather-dashboard--add-new-item
     feahter-dashboard--update-title))
-(defvar feather--hook-add-install-queue-fns       nil)
-(defvar feather--hook-change-install-queue-fns    nil)
-(defvar feather--hook-get-install-queue-fns       nil)
+(defvar feather--hook-add-install-queue-fns           nil)
+(defvar feather--hook-change-install-queue-fns        nil)
+(defvar feather--hook-get-install-queue-fns           nil)
 (defvar feather--hook-change-install-queue-status-fns
   '(feather-dashboard--change-item-status
     feather-dashboard--change-process-status))
-(defvar feather--hook-get-install-queue-status-fns nil)
+(defvar feather--hook-get-install-queue-status-fns    nil)
 
 (defmacro feather--hook-op-var (op var1 var2)
   "Do (OP VAR1 VAR2)."
@@ -354,8 +354,8 @@ see `package-install' and `package-download-transaction'."
               (cl-case (car reason)
                 (file-error
                  (feather--hook-change-install-queue pkg-name 'err
-                                                (list :message (nth 2 reason)
-                                                      :url (nth 1 reason)))
+                                                     (list :message (nth 2 reason)
+                                                           :url (nth 1 reason)))
                  (ppp-debug :level :warning 'feather
                    "Cannot fetch package\n%s"
                    (ppp-plist-to-string
@@ -386,7 +386,7 @@ see `package-install' and `package-download-transaction'."
          targetpkg 'installed
          (append (list pkg-name) (feather--hook-get-install-queue targetpkg)))))
     (feather--hook-op-var setq feather-current-done-count
-                                   (1+ feather-current-done-count))))
+                          (1+ feather-current-done-count))))
 
 (async-defun feather--main-process ()
   "Main process for feather."
@@ -399,7 +399,7 @@ see `package-install' and `package-download-transaction'."
   (while (feather--hook-get-var feather-package-install-args)
     (feather--hook-op-var setq feather-current-done-count 0)
     (feather--hook-op-var setq feather-current-queue-count
-                                   (length feather-package-install-args))
+                          (length feather-package-install-args))
     (condition-case err
         (await
          (promise-concurrent-no-reject-immidiately
