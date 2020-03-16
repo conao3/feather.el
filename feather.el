@@ -94,7 +94,7 @@ Value is alist.
 (defvar feather--hook-change-install-queue-status-fns
   '(feather-dashboard--change-item-status
     feather-dashboard--change-process-status))
-(defvar feather--hook-get-install-queue-status    nil)
+(defvar feather--hook-get-install-queue-status-fns nil)
 
 (defmacro feather--hook-op-var (op var1 var2)
   "Do (OP VAR1 VAR2)."
@@ -179,15 +179,15 @@ Value is alist.
                      (val    . ,,val))))
      res))
 
-(defun feather--get-install-queue-status (key)
+(defmacro feather--hook-get-install-queue-status (key)
   "Get status for KEY from `feather-install-queue'."
-  (let ((res (alist-get 'status (gethash key feather-install-queue))))
-    (dolist (fn feather--hook-get-install-queue-status)
-      (funcall fn `((target . feather-install-queue-state)
-                    (op     . get)
-                    (res    . ,res)
-                    (key    . ,key))))
-    res))
+  `(let ((res (alist-get 'status (gethash ,key feather-install-queue))))
+     (dolist (fn feather--hook-get-install-queue-status-fns)
+       (funcall fn `((target . feather-install-queue-state)
+                     (op     . get)
+                     (res    . ,res)
+                     (key    . ,,key))))
+     res))
 
 
 ;;; functions
@@ -322,10 +322,10 @@ see `package-install' and `package-download-transaction'."
 
     (dolist (pkgdesc pkg-descs)
       (let ((pkg-name (package-desc-name pkgdesc)))
-        (when (and (feather--get-install-queue-status pkg-name)
-                   (not (memq (feather--get-install-queue-status pkg-name)
+        (when (and (feather--hook-get-install-queue-status pkg-name)
+                   (not (memq (feather--hook-get-install-queue-status pkg-name)
                               '(nil done error))))
-          (while (not (memq (feather--get-install-queue-status pkg-name)
+          (while (not (memq (feather--hook-get-install-queue-status pkg-name)
                             '(nil done error))) ; state is nil when force initialize
             (ppp-debug 'feather
               "Wait for dependencies to be installed\n%s"
@@ -380,7 +380,7 @@ see `package-install' and `package-download-transaction'."
            ;; prevent deadlock
            (dolist (pkgdesc pkg-descs)
              (let ((pkg-name (package-desc-name pkgdesc)))
-               (unless (eq 'done (feather--get-install-queue-status pkg-name))
+               (unless (eq 'done (feather--hook-get-install-queue-status pkg-name))
                  (feather--hook-change-install-queue-status pkg-name 'error))))))
         (feather--hook-change-install-queue
          targetpkg 'installed
