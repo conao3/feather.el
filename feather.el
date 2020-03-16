@@ -436,7 +436,8 @@ see `package-install' and `package-download-transaction'."
                          (ppp-alist-to-string info))
                        (feather--hook-add-install-queue pkg-name info)
                        (feather--install-packages transaction))
-                   (message "`%s' is already installed" pkg-name)))))))
+                   (promise-resolve
+                    (feather--hook-change-install-queue-status pkg-name 'already-installed))))))))
       (error
        (warn "Fail install.  Reason:%s" (prin1-to-string err)))))
 

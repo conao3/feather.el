@@ -90,6 +90,13 @@
      :foreground "#7fff00"))
   "Face for feather-dashboard state, done.")
 
+(defface feather-dashboard-state-already-installed
+  '((((background dark))
+     :foreground "#00fa9a")
+    (((background light))
+     :foreground "#00fa9a"))
+  "Face for feather-dashboard state, already-installed.")
+
 ;; internal variables
 
 (defvar feather-max-process)
@@ -313,7 +320,10 @@ see `feather--change-install-queue-status'."
                                  (format " %s" (prin1-to-string .err)))))
                              (done
                               (propertize "done"
-                                          'face 'feather-dashboard-state-done))))))))
+                                          'face 'feather-dashboard-state-done))
+                             (already-installed
+                              (propertize "already installed"
+                                          'face 'feather-dashboard-state-already-installed))))))))
 
 
 ;;; main
