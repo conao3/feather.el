@@ -349,33 +349,7 @@ see `package-install' and `package-download-transaction'."
               (await (feather--promise-activate-package pkgdesc))
               (feather--hook-change-install-queue-status pkg-name 'done))
           (error
-           (pcase err
-             (`(error (fail-install-package ,reason))
-              (cl-case (car reason)
-                (file-error
-                 (feather--hook-change-install-queue pkg-name 'err
-                                                     (list :message (nth 2 reason)
-                                                           :url (nth 1 reason)))
-                 (ppp-debug :level :warning 'feather
-                   "Cannot fetch package\n%s"
-                   (ppp-plist-to-string
-                    (list :package pkg-name
-                          :message (nth 2 reason)
-                          :url (nth 1 reason)))))
-                (otherwise
-                 (feather--hook-change-install-queue pkg-name 'err reason)
-                 (ppp-debug :level :warning 'feather
-                   "Cannot install package\n%s"
-                   (ppp-plist-to-string
-                    (list :package pkg-name
-                          :reason reason))))))
-             (_
-              (feather--hook-change-install-queue pkg-name 'err err)
-              (ppp-debug :level :warning 'feather
-                "Something wrong while installing package\n%s"
-                (ppp-plist-to-string
-                 (list :package pkg-name
-                       :reason err)))))
+           (feather--install-packages--error-handling err)
 
            ;; prevent deadlock
            (dolist (pkgdesc pkg-descs)
@@ -387,6 +361,36 @@ see `package-install' and `package-download-transaction'."
          (append (list pkg-name) (feather--hook-get-install-queue targetpkg)))))
     (feather--hook-op-var setq feather-current-done-count
                           (1+ feather-current-done-count))))
+
+(defun feather--install-packages--error-handling (err)
+  "Error handling using ERR for `feather--install-packages'."
+  (pcase err
+    (`(error (fail-install-package ,reason))
+     (cl-case (car reason)
+       (file-error
+        (feather--hook-change-install-queue pkg-name 'err
+                                            (list :message (nth 2 reason)
+                                                  :url (nth 1 reason)))
+        (ppp-debug :level :warning 'feather
+          "Cannot fetch package\n%s"
+          (ppp-plist-to-string
+           (list :package pkg-name
+                 :message (nth 2 reason)
+                 :url (nth 1 reason)))))
+       (otherwise
+        (feather--hook-change-install-queue pkg-name 'err reason)
+        (ppp-debug :level :warning 'feather
+          "Cannot install package\n%s"
+          (ppp-plist-to-string
+           (list :package pkg-name
+                 :reason reason))))))
+    (_
+     (feather--hook-change-install-queue pkg-name 'err err)
+     (ppp-debug :level :warning 'feather
+       "Something wrong while installing package\n%s"
+       (ppp-plist-to-string
+        (list :package pkg-name
+              :reason err))))))
 
 (async-defun feather--main-process ()
   "Main process for feather."
