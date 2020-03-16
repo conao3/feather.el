@@ -88,7 +88,7 @@ Value is alist.
   '(feather-dashboard--pop-dashboard
     feather-dashboard--add-new-item
     feahter-dashboard--update-title))
-(defvar feather--hook-add-install-queue           nil)
+(defvar feather--hook-add-install-queue-fns       nil)
 (defvar feather--hook-change-install-queue        nil)
 (defvar feather--hook-get-install-queue           nil)
 (defvar feather--hook-change-install-queue-status
@@ -133,16 +133,16 @@ Value is alist.
                          (sym  . ,',sym)
                          (res  . ,res))))))))
 
-(defun feather--add-install-queue (key val)
+(defmacro feather--hook-add-install-queue (key val)
   "Add VAL for KEY to `feather-install-queue'."
-  (let ((res (setf (gethash key feather-install-queue) val)))
-    (dolist (fn feather--hook-add-install-queue)
-      (funcall fn `((target . feather-install-queue)
-                    (op     . add)
-                    (res    . ,res)
-                    (key    . ,key)
-                    (val    . ,val))))
-    res))
+  `(let ((res (setf (gethash ,key feather-install-queue) ,val)))
+     (dolist (fn feather--hook-add-install-queue-fns)
+       (funcall fn `((target . feather-install-queue)
+                     (op     . add)
+                     (res    . ,res)
+                     (key    . ,,key)
+                     (val    . ,,val))))
+     res))
 
 (defun feather--change-install-queue (key alistkey val)
   "Add VAL for KEY, ALISTKEY from `feather-install-queue'."
@@ -430,7 +430,7 @@ see `package-install' and `package-download-transaction'."
                                    (installed . ,nil)))) ; this eval is needed
                        (ppp-debug :break t 'feather
                          (ppp-alist-to-string info))
-                       (feather--add-install-queue pkg-name info)
+                       (feather--hook-add-install-queue pkg-name info)
                        (feather--install-packages transaction))
                    (message "`%s' is already installed" pkg-name)))))))
       (error
