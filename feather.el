@@ -512,6 +512,7 @@ See `package-install'."
   (setq feather-install-queue (make-hash-table :test 'eq))
   (setq feather-current-done-count 0)
   (setq feather-current-queue-count 0)
+  (setq feather-after-installed-hook-alist nil)
   (pcase-dolist (`(,sym . ,fn) feather-advice-alist)
     (advice-add sym :around fn)))
 
