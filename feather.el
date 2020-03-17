@@ -330,7 +330,8 @@ see `package-install-from-archive' and `package-unpack'."
   (promise-new
    (lambda (resolve reject)
      (let* ((pkg-name (package-desc-name pkg-desc))
-            (sexp (alist-get pkg-name feather-after-installed-hook-alist)))
+            (sexp (prog1 (alist-get pkg-name feather-after-installed-hook-alist)
+                    (setf (alist-get pkg-name feather-after-installed-hook-alist nil 'remove) nil))))
        (condition-case err
            (progn
              (eval sexp)
