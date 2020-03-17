@@ -81,6 +81,9 @@ Value is alist.
 (defvar feather-current-queue-count 0
   "The count of queue in the current `feater-main-process'.")
 
+(defvar feather-after-installed-hook-alist nil
+  "Hook package and sexp alist.")
+
 ;; getters/setters
 
 (defvar feather--hook-get-var-fns                     nil)
@@ -308,6 +311,23 @@ see `package-install-from-archive' and `package-unpack'."
          (error
           (funcall reject `(fail-activate-package ,err))))))))
 
+(defun feather--promise-invoke-installed-hook (pkg-desc)
+  "Return promise to invoke PKG-DESC installed hook sexp."
+  (ppp-debug 'feather
+    (ppp-plist-to-string
+     (list :status 'invoke-installed-hook
+           :package (package-desc-name pkg-desc))))
+  (promise-new
+   (lambda (resolve reject)
+     (let* ((pkg-name (package-desc-name pkg-desc))
+            (sexp (alist-get pkg-name feather-after-installed-hook-alist)))
+       (condition-case err
+           (progn
+             (eval sexp)
+             (funcall resolve pkg-desc))
+         (error
+          (funcall reject `(fail-invoke-hook ,sexp ,err))))))))
+
 (async-defun feather--install-packages (pkg-descs)
   "Install PKGS async.
 PKGS is `package-desc' list as (a b c).
@@ -347,6 +367,7 @@ see `package-install' and `package-download-transaction'."
             (progn
               (await (feather--promise-fetch-package pkgdesc))
               (await (feather--promise-activate-package pkgdesc))
+              (await (feather--promise-invoke-installed-hook pkgdesc))
               (feather--hook-change-install-queue-status pkg-name 'done))
           (error
            (feather--install-packages--error-handling err)
@@ -384,6 +405,14 @@ see `package-install' and `package-download-transaction'."
           (ppp-plist-to-string
            (list :package pkg-name
                  :reason reason))))))
+    (`(error (fail-invoke-hook ,sexp ,reason))
+     (feather--hook-change-install-queue pkg-name 'err reason)
+     (ppp-debug :level :warning 'feather
+       "Something wrong while invoking installed hook sexp\n%s"
+       (ppp-plist-to-string
+        (list :package pkg-name
+              :sexp sexp
+              :reason err))))
     (_
      (feather--hook-change-install-queue pkg-name 'err err)
      (ppp-debug :level :warning 'feather
