@@ -56,6 +56,9 @@
 (defvar feather-running nil
   "If non-nil, running feather main process.")
 
+(defvar feather-main-process-promise nil
+  "Promise for `feather-main-process'.")
+
 (defvar feather-package-install-args nil
   "List of `package-install' args.
 see `feather--advice-package-install' and `feather--main-process'.")
@@ -498,8 +501,9 @@ See `feather--setup' and `feather--teardown'.")
 This code based package.el bundled Emacs-26.3.
 See `package-install'."
   (feather--hook-op-var push args feather-package-install-args)
-  (unless (feather--hook-get-var feather-running)
-    (feather--main-process)))
+  (if (not (feather--hook-get-var feather-running))
+      (setq feather-main-process-promise (feather--main-process))
+    feather-main-process-promise))
 
 
 ;;; main
@@ -508,6 +512,7 @@ See `package-install'."
   "Setup feather."
   (feather-dashboard--initialize)
   (setq feather-running nil)
+  (setq feather-main-process-promise nil)
   (setq feather-package-install-args nil)
   (setq feather-install-queue (make-hash-table :test 'eq))
   (setq feather-current-done-count 0)
