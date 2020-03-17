@@ -225,6 +225,16 @@ restrictive."
                     (cadr (assq pkg-name package-archive-contents)))))
      (nreverse ret))))
 
+;;;###autoload
+(defmacro feather-add-after-installed-hook-sexp (pkg &rest sexp)
+  "Add SEXP as after installed hook sexp of PKG."
+  (declare (indent 1))
+  `(let ((before (alist-get ',pkg feather-after-installed-hook-alist)))
+     (setf (alist-get ',pkg feather-after-installed-hook-alist)
+           (if (not before)
+               `(progn ,@',sexp)
+             `(progn ,before ,@',sexp)))))
+
 
 ;;; promise
 
