@@ -91,14 +91,14 @@ Value is alist.
 
 (defvar feather--hook-get-var-fns                     nil)
 (defvar feather--hook-op-var-fns
-  '(feather-dashboard--pop-dashboard
-    feather-dashboard--add-new-item
+  '(feather-dashboard--add-new-item
     feahter-dashboard--update-title))
 (defvar feather--hook-add-install-queue-fns           nil)
 (defvar feather--hook-change-install-queue-fns        nil)
 (defvar feather--hook-get-install-queue-fns           nil)
 (defvar feather--hook-change-install-queue-status-fns
-  '(feather-dashboard--change-item-status
+  '(feather-dashboard--pop-dashboard
+    feather-dashboard--change-item-status
     feather-dashboard--change-process-status))
 (defvar feather--hook-get-install-queue-status-fns    nil)
 

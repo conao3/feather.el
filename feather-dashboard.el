@@ -192,8 +192,7 @@ also `with-temp-buffer'."
 This function is invoked as hook function with INFO argument.
 see `feather--push-package-install-args.'"
   (let-alist info
-    (when (and (eq .op 'setq)
-               (eq .sym 'feather-running))
+    (let ((_op .op))
       (pop-to-buffer (with-feather-dashboard-buffer (current-buffer))))))
 
 (defun feahter-dashboard--update-title (_info)
