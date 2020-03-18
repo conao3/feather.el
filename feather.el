@@ -384,7 +384,7 @@ see `package-install' and `package-download-transaction'."
               (await (feather--promise-invoke-installed-hook pkgdesc))
               (feather--hook-change-install-queue-status pkg-name 'done))
           (error
-           (feather--install-packages--error-handling err)
+           (feather--install-packages--error-handling pkg-name err)
 
            ;; prevent deadlock
            (dolist (pkgdesc pkg-descs)
@@ -397,8 +397,8 @@ see `package-install' and `package-download-transaction'."
     (feather--hook-op-var setq feather-current-done-count
                           (1+ feather-current-done-count))))
 
-(defun feather--install-packages--error-handling (err)
-  "Error handling using ERR for `feather--install-packages'."
+(defun feather--install-packages--error-handling (pkg-name err)
+  "Error handling using ERR of PKG-NAME for `feather--install-packages'."
   (pcase err
     (`(error (fail-install-package ,reason))
      (cl-case (car reason)
