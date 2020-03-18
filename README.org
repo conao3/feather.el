@@ -23,12 +23,20 @@
   - [[#contributors][Contributors]]
 
 * Description
-~feather.el~ is a wrapper for ~package.el~ that supports parallel processing.
-
-It have already prepared front end for [[https://github.com/conao3/leaf.el][leaf.el]] in leaf-keywword.el, and you can seamlessly manage Emacs packages.
-
-Now developing it, here is debuging screen-shot.
 [[https://raw.githubusercontent.com/conao3/files/master/blob/feather.el/feather-dashboard-teaser.gif]]
+
+~feather.el~ is a wrapper for ~package.el~ that supports parallel fetching/byte-compiling.
+
+It have already prepared front end for [[https://github.com/conao3/leaf.el][leaf.el]] in leaf-keywword.el, and you can seamlessly manage Emacs packages with ~feather.el~.
+
+When ~feather-mode~ is enabled, ~feather.el~ advices ~package-install~ in ~package.el~.
+So, all installation using ~package.el~ is handled by ~feather.el~.
+
+~feather.el~ is a ~package.el~ wrapper that supports parallel fetch/byte-compilation.
+When ~feater-mode~ is enabled, ~feather.el~ sets advice to ~package-install~, handles all package installations, and executes them asynchronously.
+Originally conceived as a completely new package manager,
+but in the middle of development it was thought that simply handling ~package-install~ would be sufficient to achieve the goal,
+so it provides your Emacs with a powerful asynchronous installation that preserves the ~package.el~ experience.
 
 * Install
 ~feather~ is available via ~el-get~
@@ -39,9 +47,44 @@ Now developing it, here is debuging screen-shot.
 #+end_src
 
 * Usage
-If ~feather-setup~ invoked, ~feather.el~ advices ~package.el~ internal functions.
-So, all installation using ~package.el~ is handled by ~feather.el~.
-This ensures maximum compatibility with other packages.
+Just enable ~feather-mode~ and install some package via ~package.el~ (~package-install~, ~list-package~,,,)
+
+* Notice
+~feather~ sets the advice to run ~package-install~ asynchronously.
+That is, ~package-install~ returns the moment it is executed, and the subsequent S-exp is executed (if any).
+Therefore, the following configuration will result in an error.
+
+#+begin_src emacs-lisp
+  (package-install 'leaf-keywords)
+  (leaf-keywords-init)
+#+end_src
+
+If you want execute ~leaf-keywords-init~ after ~leaf-keywords~ is installed as intended, you need to register an S-exp with ~father~.
+This allows ~feather~ to execute the registered S-exp after the package is installed.
+
+#+begin_src emacs-lisp
+  (package-install 'leaf-keywords)
+  (feather-add-after-installed-hook-sexp leaf-keywords
+    (leaf-keywords-init))
+#+end_src
+
+However, this is generally cumbersome, so the easiest solution is to use [[https://github.com/conao3/leaf.el][leaf]].
+Using the ~:feather~ keyword as a trigger, the S-exp that should be executed after the package is installed is automatically registered with the ~feather~.
+
+#+begin_src emacs-lisp
+  (leaf leaf-keywordsq
+    :feather t
+    :config (leaf-keywords-init))
+#+end_src
+
+If you want to switch to a feather install for all the ~:ensure~ keywords, you can do so by setting ~leaf-alias-keyword-alist~.
+With ~leaf-alias-keyword-alist~ is ~((:ensure . :feather))~, the leaf block below has the same meaning as a leaf block using the ~:feather~ keyword.
+
+#+begin_src emacs-lisp
+  (leaf leaf-keywords
+    :ensure t
+    :config (leaf-keywords-init))
+#+end_src
 
 * Information
 ** Donation
