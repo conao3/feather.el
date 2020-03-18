@@ -536,6 +536,9 @@ See `package-install'."
 (define-minor-mode feather-mode
   "Toggle feather."
   :global t
+  :require 'feather
+  :group 'feather
+  :lighter " feather"
   (if feather-mode
       (feather--setup)
     (feather--teardown)))
