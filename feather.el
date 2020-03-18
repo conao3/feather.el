@@ -488,6 +488,14 @@ see `package-install' and `package-download-transaction'."
   (package-menu--post-refresh)
   (feather--hook-op-var setq feather-running nil))
 
+(defun feather-install-batch ()
+  "Invoke `feather--main-process' if needed."
+  (interactive)
+  (if (and after-init-time
+           (not (feather--hook-get-var feather-running)))
+      (setq feather-main-process-promise (feather--main-process))
+    feather-main-process-promise))
+
 
 ;;; advice
 
@@ -501,9 +509,7 @@ See `feather--setup' and `feather--teardown'.")
 This code based package.el bundled Emacs-26.3.
 See `package-install'."
   (feather--hook-op-var push args feather-package-install-args)
-  (if (not (feather--hook-get-var feather-running))
-      (setq feather-main-process-promise (feather--main-process))
-    feather-main-process-promise))
+  (feather-install-batch))
 
 
 ;;; main
