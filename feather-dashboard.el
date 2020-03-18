@@ -147,12 +147,6 @@ Key is package symbol, value is overlay.")
 
 ;;; functions
 
-(declare-function feather--hook-add-install-queue "feather")
-(declare-function feather--hook-change-install-queue "feather")
-(declare-function feather--hook-get-install-queue "feather")
-(declare-function feather--hook-change-install-queue-status "feather")
-(declare-function feather--hook-get-install-queue-status "feather")
-
 (defmacro with-feather-dashboard-buffer (&rest body)
   "Execute the forms in BODY with BUFFER-OR-NAME temporarily current.
 BUFFER-OR-NAME must be a buffer or the name of an existing buffer.
@@ -266,8 +260,8 @@ see `feather--change-install-queue-status'"
   (let-alist info
     (let ((key .key)
           (val .val))
-      (let-alist (feather--hook-get-install-queue key)
-        (let-alist (feather--hook-get-install-queue .targetpkg)
+      (let-alist (gethash key feather-install-queue)
+        (let-alist (gethash .targetpkg feather-install-queue)
           (when-let ((ov (alist-get (intern (format "process%s" .process))
                                     feather-dashboard-overlays-process)))
             (overlay-put ov
