@@ -7,7 +7,7 @@
 ;; Keywords: convenience package
 ;; Version: 0.1.0
 ;; URL: https://github.com/conao3/feather.el
-;; Package-Requires: ((emacs "26.3") (async-await "1.0") (ppp "1.0") (page-break-lines "0.1"))
+;; Package-Requires: ((emacs "26.3") (async "1.9") (async-await "1.0") (ppp "1.0") (page-break-lines "0.1"))
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 (require 'feather-dashboard)
 (require 'package)
 (require 'async-await)
+(require 'async)
 (require 'ppp)
 
 (defgroup feather nil
