@@ -105,7 +105,7 @@
 (defvar feather-current-done-count)
 (defvar feather-current-queue-count)
 
-(defvar feahter-dashboard-overlay-title nil
+(defvar feather-dashboard-overlay-title nil
   "Overlay for feather-dashbaord title.")
 
 (defvar feather-dashboard-overlays-process nil
@@ -174,7 +174,7 @@ also `with-temp-buffer'."
       (erase-buffer)
       (feather-dashboard-mode)
       (insert "*Feather dashboard*\n")
-      (setq feahter-dashboard-overlay-title
+      (setq feather-dashboard-overlay-title
             (feather-dashboard--add-overlay (1- (line-end-position)) ""))
       (add-text-properties (line-beginning-position -1) (line-beginning-position)
                            '(face feather-dashboard-header))
@@ -195,11 +195,11 @@ see `feather--push-package-install-args.'"
     (let ((_op .op))
       (pop-to-buffer (with-feather-dashboard-buffer (current-buffer))))))
 
-(defun feahter-dashboard--update-title (_info)
+(defun feather-dashboard--update-title (_info)
   "Update feather-dashboard title.
 This function is invoked as hook function with INFO argument.
 see `feather--hook-change-current-done-count'."
-  (overlay-put feahter-dashboard-overlay-title
+  (overlay-put feather-dashboard-overlay-title
                'after-string
                (format "  %s/%s (%.1f%%)"
                        feather-current-done-count

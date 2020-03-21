@@ -93,7 +93,7 @@ Value is alist.
 (defvar feather--hook-get-var-fns                     nil)
 (defvar feather--hook-op-var-fns
   '(feather-dashboard--add-new-item
-    feahter-dashboard--update-title))
+    feather-dashboard--update-title))
 (defvar feather--hook-add-install-queue-fns           nil)
 (defvar feather--hook-change-install-queue-fns        nil)
 (defvar feather--hook-get-install-queue-fns           nil)
