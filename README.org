@@ -33,7 +33,7 @@ When ~feather-mode~ is enabled, ~feather.el~ advices ~package-install~ in ~packa
 So, all installation using ~package.el~ is handled by ~feather.el~.
 
 ~feather.el~ is a ~package.el~ wrapper that supports parallel fetch/byte-compilation.
-When ~feater-mode~ is enabled, ~feather.el~ sets advice to ~package-install~, handles all package installations, and executes them asynchronously.
+When ~feather-mode~ is enabled, ~feather.el~ sets advice to ~package-install~, handles all package installations, and executes them asynchronously.
 Originally conceived as a completely new package manager,
 but in the middle of development it was thought that simply handling ~package-install~ would be sufficient to achieve the goal,
 so it provides your Emacs with a powerful asynchronous installation that preserves the ~package.el~ experience.
