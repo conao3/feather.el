@@ -1,4 +1,4 @@
-name: CI
+name: Main workflow
 on:
   push: {branches: [master]}
   pull_request: {branches: [master]}
