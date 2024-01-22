@@ -1,6 +1,14 @@
 #+author: conao
 #+date: <2018-12-14 Fri>
 
+*DEPRECATED*: This package is deprecated.  Please use package.el.
+
+Technical Notes: Package maintainers assume that the packages they develop will be
+installed at run-time with package.el.
+Therefore, they may ask the user for interactive input during installation.
+I conclude that this makes headless multiplexing difficult, as it is not known until
+the actual installation.
+
 [[https://github.com/conao3/feather.el][https://raw.githubusercontent.com/conao3/files/master/blob/headers/png/feather.el.png]]
 [[https://github.com/conao3/feather.el/blob/master/LICENSE][https://img.shields.io/github/license/conao3/feather.el.svg?style=flat-square]]
 [[https://github.com/conao3/feather.el/releases][https://img.shields.io/github/tag/conao3/feather.el.svg?style=flat-square]]
