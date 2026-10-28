@@ -17,12 +17,12 @@ jobs:
           - emacs_version: 'snapshot'
             allow_failure: true
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-python@v1.1.1
-      - uses: purcell/setup-emacs@master
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+      - uses: purcell/setup-emacs@v8
         with:
           version: ${{ matrix.emacs_version }}
-      - uses: conao3/setup-cask@master
+      - uses: conao3/setup-cask@v1
 
       - name: Run tests
         if: matrix.allow_failure != true
